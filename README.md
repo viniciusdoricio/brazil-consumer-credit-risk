@@ -18,7 +18,11 @@ Delinquency is usually reported in aggregate, which hides the thing a lender act
 
 Until December 2024, an *ativo problemático* meant a credit rated **E–H** under Resolução CMN 2.682/1999. From January 2025, **Resolução CMN 4.966/2021** — Brazil's IFRS 9 equivalent — replaced the rating ladder with an expected-loss model in which each institution classifies its own problem assets.
 
-A series plotted straight through that date contains a discontinuity caused by a change in definition, not by borrower behaviour. This project detects it, quantifies it, and builds its core measure on the **overdue bands** (*atraso 15–90 dias*, *atraso acima de 90 dias*), which are defined by days past due and stay consistent across the whole series.
+A series plotted straight through that date contains a discontinuity caused by accounting rules, not by borrower behaviour.
+
+**The overdue bands don't fully escape it.** Their definition, days past due, is unchanged. But under 4.966 lenders write defaulted loans off later, so balances more than 90 days overdue stay in the portfolio longer and the 90-day rate rises on its own. The Banco Central estimates that about 70% of the rise in 90-day delinquency in the first half of 2025 came from this change ([Relatório de Política Monetária, Sep 2025](https://www.bcb.gov.br/content/ri/relatorioinflacao/202509/rpm202509b6p.pdf)). Only the 15–90-day bucket runs through January 2025 unaffected.
+
+So this project uses the 90-day rate only through December 2024 and the 15–90-day rate for anything after. Segment comparisons start in June 2016, when the reporting threshold fell from R$1,000 to R$200 and the population changed. The evidence is in `docs/data-landscape.md` and `docs/data_dictionary.md`.
 
 There is a dbt test that asserts the break exists — it documents the finding in code and fails loudly if a future BCB revision changes it.
 
