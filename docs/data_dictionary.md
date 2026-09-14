@@ -24,7 +24,7 @@ Every number here is reproducible with `scripts/recon/` (section 9).
 
 1. **Occupation × income is a genuine cross-tab, not two marginal slices.** V2 has a unique grain
    of ten dimensions, no subtotal rows, and all 72 PF occupation × income cells populated in every
-   2024–2026 month profiled (70 of 72 in June 2013) **[D]**. The cross-tab also crosses UF,
+   month profiled from May 2016 to July 2026 (12 months; 70 of 72 in June 2013) **[D]**. The cross-tab also crosses UF,
    institution segment, modality and sub-modality. The v1 question is *structurally* supported.
    Section 6.
 2. **"V1" and "V2" are not a date in the series.** They are two parallel publications with
@@ -36,7 +36,9 @@ Every number here is reproducible with `scripts/recon/` (section 9).
    changed that. BCB's own estimate is that about 70% of the rise in 90-day delinquency to June
    2025 was caused by the rule change, not by borrowers. Section 5 and `docs/data-landscape.md`.
 4. **The income band has its own breaks.** In January 2025 the PF "Sem rendimento" band went from
-   0.13% to 2.86% of the PF portfolio for one month (0.27% in February) **[D]**. The bands are also
+   0.13% to 2.86% of the PF portfolio for one month (0.27% in February) **[D]**. Over the longer run,
+   missing income seems to have moved between bands: "Sem rendimento" 2.10% and "Indisponível"
+   0.01% in June 2016, against 0.13% and 1.60% in December 2024 **[D]**. The bands are also
    measured in minimum wages, which are re-set every January. Section 2, `porte`.
 5. **Occupation is dominated by a residual category that shrinks over time.** "Outros" was 41.5% of
    PF balances in June 2013 and 25–28% in 2024–2026. MEI was effectively absent in 2013 **[D]**.
@@ -127,24 +129,34 @@ No dimension column has a null or empty value in any month profiled **[D]**.
 | `cnae_ocupacao` | **Overloaded.** PF: *natureza da ocupação*. PJ: CNAE section **[M2]**. The V1 methodology says occupation comes from the Receita Federal registry and is the *main* occupation **[M1]**. The V2 methodology doesn't say. Doc 3040 has no occupation field **[3040]**, which is consistent with BCB attaching it from the tax registry | PF (8): Servidor ou empregado público; Empregado de entidades sem fins lucrativos; Empregado de empresa privada; Aposentado/pensionista; Autônomo; Empresário; MEI; Outros. PJ (22): 21 CNAE sections + `Não informados` **[D]** | **MEI**: 29 rows, R$0.00 bn in 2013-06; 1.49% of PF balances in 2023-12; 1.77% in 2026-07. **Outros**: 41.53% (2013-06) → 25.18% (2024-06) → 27.85% (2026-07) **[D]** | (a) Filter on `cliente` before using this column. (b) **"Outros" is the largest PF occupation** and its share moves by 16 pp over the series, so it can't be treated as a behavioural segment. (c) Why a borrower is "Outros" is **unknown**. It might be missing registry data, a non-listed occupation, or non-filers of income tax. Finding out needs BCB or Receita documentation of the source code list. (d) A registry attribute can be stale relative to the borrower's current job |
 | `porte` | **Overloaded.** PF: gross *individual* monthly income in federal minimum wages (SM). PJ: firm size **[M2][3040]** | PF (9): Sem rendimento; Até 1 SM; Mais de 1 a 2; 2 a 3; 3 a 5; 5 a 10; 10 a 20; Acima de 20 SM; Indisponível. PJ (5): Micro, Pequeno, Médio, Grande, Indisponível **[D]** | PJ `Indisponível` absent in 2013-06 **[D]**. PF shares move sharply: see the table below | (a) Doc 3040: income is reported **by each lender**, "from the most current information available", and **presumed or estimated income is allowed**. `Indisponível` is only permitted when reported income ≤ R$1 **[3040]**. The same person can therefore be in different bands at different lenders. (b) **Bands are relative to the minimum wage**, which rises each January: R$678 (2013), R$1,412 (2024), R$1,518 (2025), R$1,621 (2026) **[SGS 1619]**. Whether the band uses the SM of the reference month or of when income was captured is **unknown** (not stated in [M2] or [3040]; needs BCB confirmation). (c) **January-2025 anomaly** (below). (d) Data labels say `salários mínimos`; the methodology says `salários-mínimos`. Joining on labels from the PDF will fail |
 | `modalidade` | Credit modality, Anexo 3 of the 3040 layout **[M2]** | 13 values **[D]** | Same set in every month profiled **[D]** | The data label is `Financiamentos rurais  (ex-financiamentos rurais e agroindustriais)`, with a **double space**. The methodology calls it `Financiamentos rurais e agroindustriais` |
-| `submodalidade` | Sub-modality, Anexo 3 **[M2]** | 49 (2013-06); 55–56 (2023–2026) **[D]** | **Renamed or split between 2013 and 2024** (exact month unknown): `Cheque especial e conta garantida` → `Cheque especial` + `Conta Garantida`; `Capital de giro com prazo vencim. igual ou superior 30 d` / `…inferior a 30 d` → `…até 365 dias` / `…superior a 365 dias` / `…com teto rotativo`. New: `Cartão de crédito - não migrado`, `Financiamentos agroindustriais`, `Industrialização`, `Outros direitos creditórios descontados` **[D]** | **Leading/trailing whitespace in ~7% of rows** (23,367 rows in 2026-07). Trim before grouping **[D]**. Any modality series below `modalidade` level needs a hand-built crosswalk |
+| `submodalidade` | Sub-modality, Anexo 3 **[M2]** | 49 (2013-06); 55–56 (2023–2026) **[D]** | **Renamed or split between 2013 and 2024** (exact month unknown): `Cheque especial e conta garantida` → `Cheque especial` + `Conta Garantida`; `Capital de giro com prazo vencim. igual ou superior 30 d` / `…inferior a 30 d` → `…até 365 dias` / `…superior a 365 dias` / `…com teto rotativo`. New: `Cartão de crédito - não migrado`, `Financiamentos agroindustriais`, `Industrialização`, `Outros direitos creditórios descontados` **[D]** | **Leading/trailing whitespace in 5–8% of rows** (10,447 rows in 2013-06; 23,367 in 2026-07). Trim before grouping **[D]**. Any modality series below `modalidade` level needs a hand-built crosswalk |
 | `origem` | Earmarked or not, Anexo 4 first level **[M2]** | Sem destinação específica; Com destinação específica **[D]** | — | — |
 | `indexador` | Rate index, Anexo 5 first level **[M2]** | Prefixado, Pós-fixado, Flutuantes, Índices de preços, TCR/TRFC, Outros indexadores **[D]** | **TCR/TRFC absent in 2013-06** (5 values) **[D]** | — |
 
-**PF income-band share of PF portfolio (%)** **[D]** — `scripts/recon/control.py`, `checks.py`
+**Unstable PF categories, share of PF portfolio (%)** **[D]** — `scripts/recon/cells.py`
 
-| Band | 2013-06 | 2023-12 | 2024-06 | 2024-12 | **2025-01** | 2025-02 | 2026-07 |
-|---|---|---|---|---|---|---|---|
-| Sem rendimento | 3.84 | 0.20 | 0.10 | 0.13 | **2.86** | 0.27 | 0.64 |
-| Indisponível | 0.28 | 1.21 | 1.38 | 1.60 | 1.96 | — | 2.08 |
-| Acima de 20 SM | 21.36 | 19.11 | 19.30 | 20.28 | **17.50** | — | 21.06 |
-| Até 1 SM | 4.61 | 8.37 | 8.33 | 8.51 | 9.28 | — | 6.36 |
+| Category | 2013-06 | 2016-05 | 2016-06 | 2023-12 | 2024-06 | 2024-12 | **2025-01** | 2025-02 | 2025-06 | 2025-12 | 2026-07 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Income "Sem rendimento" | 3.84 | 2.39 | 2.10 | 0.20 | 0.10 | 0.13 | **2.86** | 0.27 | 0.15 | 0.70 | 0.64 |
+| Income "Indisponível" | 0.28 | 0.02 | 0.01 | 1.21 | 1.38 | 1.60 | 1.96 | 1.96 | 2.25 | 2.17 | 2.08 |
+| Occupation "Outros" | 41.53 | 37.32 | 37.95 | 25.18 | 25.18 | 26.10 | 25.76 | 25.93 | 26.36 | 27.14 | 27.85 |
+| Occupation "MEI" | 0.00 | 0.37 | 0.38 | 1.49 | 1.57 | 1.57 | 1.62 | 1.62 | 1.65 | 1.70 | 1.77 |
+
+Between 2016 and 2023, "Sem rendimento" fell from about 2% to about 0.1% and "Indisponível" rose
+from about 0% to about 1.3%. The combined share stayed in the same range (2.1–2.4% in 2016, 1.4–1.7%
+in 2023–24). That is consistent with missing income being **recoded** from one band to the other,
+not with borrowers gaining income. When this happened and why is **unknown**. The months in between
+haven't been profiled, and doc 3040's rule reserves "Indisponível" for reported income ≤ R$1
+**[3040]**. The January-2025 spike did not recur in February, June or December 2025. In December
+2024 → January 2025 the "Acima de 20 SM" share also fell from 20.28% to 17.50% and "Até 1 SM" rose
+from 8.51% to 9.28% **[D]** (`scripts/recon/control.py`).
 
 In January 2025, "Sem rendimento" went from R$5.4 bn to R$116.8 bn. That included R$56.1 bn of
 rural credit, up from R$0.4 bn, and spread across every occupation (Autônomo R$0.4 → 23.8 bn,
 Empresário R$0.8 → 28.8 bn) **[D]**. Most of it reverted a month later. This is a reporting event,
-not borrower behaviour. **Any income-band time series has to handle January 2025 explicitly**, and
-the drift in "Indisponível" (0.28% → 2.08%) means the known-income population is not constant.
+not borrower behaviour. **Any income-band time series has to handle January 2025 explicitly.** The
+recoding between "Sem rendimento" and "Indisponível" means neither band is a stable population, so
+the design keeps both out of comparisons.
 
 ### 2.2 The grain
 
@@ -269,8 +281,28 @@ switches:
 
 SCR's identification threshold fell from operations above R$1,000 to above R$200 at data-base
 June 2016 **[M2][M1]**. That changes the population in both numerator and denominator at once.
-**Effect in the data: pending.** The 2016-05 and 2016-06 files were still being fetched when this
-section was first committed. It is updated in a follow-up commit.
+
+**Effect in the data, May → June 2016** **[D]** (`scripts/recon/threshold_2016.py`):
+
+| PF | 2016-05 | 2016-06 | Change | Official comparison |
+|---|---|---|---|---|
+| Operations (cells with a count) | 252.0 M | 336.5 M | **+33.5%** | — |
+| `carteira_ativa` | R$1,520.7 bn | R$1,547.8 bn | **+1.79%** | SGS 20541 PF outstanding (doc 3050, no threshold): +0.24% |
+| "Até 1 SM" `carteira_ativa` / operations | R$83.0 bn / 31.4 M | R$99.6 bn / 55.0 M | **+20.0% / +75%** | — |
+| "Outros créditos" (card purchases) `carteira_ativa` | R$111.3 bn | R$121.1 bn | +8.8% | — |
+| 90-day rate (`carteira_inadimplencia`) | 4.390% | 4.268% | −0.12 pp | SGS 21084: 4.37% → 4.10% (−0.27 pp) |
+| 15–90 days | 1.051% | 1.079% | +0.03 pp | — |
+
+**Reading.** The scope change is large in *counts*: a third more PF operations in one month, mostly
+small card and low-income loans. It is material in the *composition of low-income cells*: the
+"Até 1 SM" portfolio grew 20% overnight. In *aggregate balances* it is modest, adding about 1.5 pp
+of portfolio above the official series. The aggregate 90-day rate fell, but the official series,
+which the threshold doesn't affect, fell more in the same month. So the rate effect can't be
+separated from whatever else moved in June 2016, and at the aggregate it is small.
+`numero_de_operacoes` must never be compared across 2016-06.
+
+**Decision:** cell-level analysis starts at **2016-06**, because the membership of the low-income
+cells changed. Only national context series may run from 2012-07, with the break marked.
 
 ### 5.2 The January-2025 accounting change
 
@@ -309,7 +341,7 @@ marginal slices?
 |---|---|
 | Grain unique across the 10 dimensions | yes, every month |
 | Any row whose occupation or income is a total/"todos"/placeholder | none. The only non-substantive values are the real categories `Outros` and `Indisponível` |
-| PF cells populated, 8 occupations × 9 income bands | **72/72** in 2023-12, 2024-01, 2024-06, 2024-11, 2024-12, 2025-01, 2026-07; **70/72** in 2013-06 (MEI × two bands empty) |
+| PF cells populated, 8 occupations × 9 income bands | **72/72** in all 12 months profiled from 2016-05 to 2026-07 (2016-05, 2016-06, 2023-12, 2024-01, 2024-06, 2024-11, 2024-12, 2025-01, 2025-02, 2025-06, 2025-12, 2026-07); **70/72** in 2013-06 (MEI × two bands empty) (`scripts/recon/cells.py`) |
 | Sum of cells = sum of marginals | holds trivially: marginals are built by summing cells, since there are no published marginals |
 
 **Answer: cross-tabbable.** Two caveats about content, not structure:
@@ -330,11 +362,11 @@ marginal slices?
 | U2 | Whether `numero_de_operacoes = -1` means ≤15 operations | Ask BCB; or test that `-1` never co-occurs with a V1 cell showing >15 for a matched cell |
 | U3 | Source code list behind PF occupation, and what puts a borrower in "Outros" | BCB / Receita Federal documentation of *natureza da ocupação* |
 | U4 | Which month's minimum wage the income band uses | Ask BCB |
-| U5 | Cause of the January-2025 "Sem rendimento" spike, and whether it recurs | Profile every month of 2025 (the full V2 download); ask BCB |
+| U5 | Cause of the January-2025 "Sem rendimento" spike, and when "Sem rendimento" was recoded towards "Indisponível" (between 2016 and 2023) | Partly answered: the spike did not recur in 2025-02, 2025-06 or 2025-12. Cause and recoding date: profile every month (the full V2 download) and ask BCB |
 | U6 | Exact months when `submodalidade`, `segmento`, `indexador` categories changed | Full V2 download; one query |
 | U7 | Why V2 reports 1–2% more PF portfolio than V1 | Not needed for the design, since V1 is dropped. Ask BCB if it ever matters |
 | U8 | Whether 4.966 amortised-cost measurement moved reported balances | BCB confirmation |
-| U9 | Effect of the June-2016 threshold change on levels and rates | 2016-05/06 files (in progress) |
+| ~~U9~~ | ~~Effect of the June-2016 threshold change~~ | **Resolved**, §5.1: +33.5% PF operations, +1.8% PF balance, +20% in the "Até 1 SM" portfolio. Aggregate rate effect small and not separable |
 
 ---
 
@@ -346,6 +378,8 @@ in `data/raw/months/SHA256SUMS` (gitignored with the data):
 | File | Rows | SHA-256 (first 16) |
 |---|---|---|
 | `scrdata_201306.csv` | 215,590 | `7ea88f11a09f9858` |
+| `scrdata_201605.csv` | 213,681 | `62ed024ddad729a0` |
+| `scrdata_201606.csv` | 216,704 | `8c0449aefcf356e9` |
 | `scrdata_202312.csv` | 312,370 | `c0e5e5aa124b94c1` |
 | `scrdata_202401.csv` | 311,692 | `0d89b35131ff26c1` |
 | `scrdata_202406.csv` | 306,976 | `535c0d796a28692d` |
@@ -353,6 +387,8 @@ in `data/raw/months/SHA256SUMS` (gitignored with the data):
 | `scrdata_202412.csv` | 310,432 | `546c762047c506ed` |
 | `scrdata_202501.csv` | 313,638 | `b83581d2cdd44cd5` |
 | `scrdata_202502.csv` | 313,564 | `11e82dc62a240be7` |
+| `scrdata_202506.csv` | 322,852 | `0e47ba8a070064bf` |
+| `scrdata_202512.csv` | 310,452 | `e19b509e76890df8` |
 | `scrdata_202607.csv` | 310,193 | `ec7726666d73f369` |
 | `planilha_201306.csv` | 499,766 | `dd8edb90f18074d0` |
 | `planilha_202412.csv` | 995,670 | `d2b4b1f5c1f7f8a9` |
@@ -377,6 +413,8 @@ uv run --no-project --with duckdb python scripts/recon/checks.py data/recon.duck
 uv run --no-project --with duckdb python scripts/recon/presence.py
 uv run --no-project --with duckdb python scripts/recon/control.py
 uv run --no-project --with duckdb python scripts/recon/v1_structure.py
+uv run --no-project --with duckdb python scripts/recon/threshold_2016.py
+uv run --no-project --with duckdb python scripts/recon/cells.py
 uv run --no-project python scripts/recon/sgs.py
 ```
 
