@@ -1,0 +1,25 @@
+# data — large, reproducible from scripts/fetch_scr.py
+data/raw/*
+!data/raw/.gitkeep
+*.duckdb
+*.duckdb.wal
+
+# python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# dbt
+target/
+dbt_packages/
+logs/
+
+# quarto
+/.quarto/
+*_files/
+/_site/
+
+# os
+.DS_Store

@@ -1,0 +1,14 @@
+version: 2
+
+# Populated during Phase 1 of the reconnaissance, from the real files.
+# Every mart below must carry, at minimum:
+#   - not_null + unique on its grain
+#   - accepted_range 0..1 on any share/rate column
+#   - a reconciliation test against the source totals
+#
+# And one test that is unusual and deliberate:
+#   - an assertion that the January 2025 definitional break EXISTS.
+#     It documents the finding in code and fails loudly if a future
+#     BCB revision changes it. See docs/data-landscape.md.
+
+models: []

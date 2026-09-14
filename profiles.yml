@@ -1,0 +1,7 @@
+br_credit_monitor:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: br_credit_monitor.duckdb
+      threads: 4
