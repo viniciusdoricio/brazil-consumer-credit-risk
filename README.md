@@ -16,7 +16,7 @@ Delinquency is usually reported in aggregate, which hides the thing a lender act
 
 **SCR.data has a definitional break at January 2025, and it is not economic.**
 
-Until December 2024, an *ativo problemático* meant a credit rated **E–H** under Resolução CMN 2.682/1999. From January 2025, **Resolução CMN 4.966/2021** — Brazil's IFRS 9 equivalent — replaced the rating ladder with an expected-loss model in which each institution classifies its own problem assets.
+Until December 2024, SCR.data's *ativo problemático* was loans more than 90 days overdue plus loans that were restructured *and* rated **E–H** under Resolução CMN 2.682/1999. It was not every E–H loan. From January 2025, **Resolução CMN 4.966/2021**, Brazil's IFRS 9 equivalent, replaced the rating ladder with an expected-loss model. The restructured-and-E–H component was replaced by each institution's own problem-asset flag.
 
 A series plotted straight through that date contains a discontinuity caused by accounting rules, not by borrower behaviour.
 
@@ -24,7 +24,7 @@ A series plotted straight through that date contains a discontinuity caused by a
 
 So this project uses the 90-day rate only through December 2024 and the 15–90-day rate for anything after. Segment comparisons start in June 2016, when the reporting threshold fell from R$1,000 to R$200 and the population changed. The evidence is in `docs/data-landscape.md` and `docs/data_dictionary.md`.
 
-There is a dbt test that asserts the break exists — it documents the finding in code and fails loudly if a future BCB revision changes it.
+The build will include a dbt test that asserts the break exists: the 90-day rate steps up in January 2025 while the 15–90-day rate doesn't. That documents the finding in code and fails loudly if a future BCB revision changes it. **The test is not written yet**, because the project is still in reconnaissance.
 
 ## What this data cannot do
 
