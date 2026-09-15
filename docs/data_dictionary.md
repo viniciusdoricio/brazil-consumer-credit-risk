@@ -371,14 +371,14 @@ marginal slices?
 | U2 | Whether `numero_de_operacoes = -1` means ≤15 operations, and whether the official suppression/aggregation of sparse cells (§10.4) also moves balances into other categories ("Outros", "Indisponível", "Outros créditos") | Partly answered: BCB confirms sparse cells are hidden or aggregated. The marker's meaning and any reallocation: ask BCB |
 | U3 | Which IRPF *natureza da ocupação* categories map to each SCR group, which filing year each data-base uses, and how non-filers are classified | Partly answered (§10.4: CPF registry field tied to a filing year; 24 IRPF categories). Mapping and process: ask BCB |
 | U4 | Whether SCR.data uses each lender's reported `PorteCli` as is, or recomputes the band from reported income | Partly answered. Lenders assign `PorteCli` from their most current information **[3040]**. BCB states there is no client-level consolidation (LAI, §10.4). Bands move against the minimum wage in force at the data-base, including at the mid-year resets (§10.5). Ask BCB which of the two options applies |
-| U5 | Cause of the income shifts | **Largely located** (§10.5). 2018-11: new "Indisponível" code. 2019-03, 2020-08, 2021-09, 2026-05: bank reporting changes, mostly in real-estate financing. 2025-01: cooperatives in RS/PR/MT, reversed next month. Januaries: minimum wage. **Still unexplained: 2025-07**, broad and not a minimum-wage month. Ask BCB about 2025-07 and whether the lender events will be revised |
+| U5 | Cause of the income shifts | **Largely located** (§10.5). 2018-11: new "Indisponível" code. 2019-03, 2020-08, 2021-09, 2026-05: bank reporting changes, mostly in real-estate financing. 2025-01: cooperatives in RS/PR/MT, reversed next month. Januaries: minimum wage. 2025-07: permanent step in the size field, in V2 and V1, PF and PJ, while occupation doesn't move. Most likely a production change at BCB (§10.6, inference). **What changed in band assignment is undocumented.** Ask BCB (email question 7), and whether the lender events will be revised |
 | ~~U6~~ | ~~Exact months when `submodalidade`, `segmento`, `indexador` categories changed~~ | **Resolved** on the full history (§2.1, §10) |
 | U7 | Why V2 reports 1–2% more PF portfolio than V1 | Not needed for the design, since V1 is dropped. Ask BCB if it ever matters |
 | ~~U8~~ | ~~Whether the 2025 rules changed how reported balances are valued~~ | **Answered** (§10.4): from Jan/2025 overdue values include accrued contractual interest except on problem assets (IN BCB 414/2023). Performing values remain the present value of instalments |
 | ~~U9~~ | ~~Effect of the June-2016 threshold change~~ | **Resolved**, §5.1: +33.5% PF operations, +1.8% PF balance, +20% in the "Até 1 SM" portfolio. Aggregate rate effect small and not separable |
 | U10 | Why occupation is reclassified in January (2016, 2017, 2018, 2021, 2023), and what happened in January 2017 | Largely narrowed (§10.4). BCB receives occupation daily from Receita with a tax-return year (RIPD 2020). Receita removed "Não informado" (14% of filers in 2013) from calendar year 2014, which fits the 2016 and 2017 drops in "Outros" if unreported occupations were mapped there. Still needed from BCB: the mapping, which tax-return year each January uses, and why the refresh is annual |
 | U11 | Cause of the March-2014 fall in the 15–90-day rate (Empréstimos 2.95% → 1.99%) | Outside the v1 window. Ask BCB if the pre-2017 series is ever needed |
-| U12 | Cause of the post-window income reclassifications (2025-07, 2026-05) | 2026-05 is a bank real-estate reporting change (§10.5). 2025-07 moves the top band inside every lender segment and product, with no minimum-wage change. It is also the month V1's structure changed. BCB processing is possible but unconfirmed. Ask BCB |
+| U12 | Cause of the post-window income reclassifications (2025-07, 2026-05) | 2026-05 is a bank real-estate reporting change (§10.5). 2025-07 is tested in §10.6: a permanent step in the size field in both V2 and V1, for PF and for PJ at banks, with occupation unchanged and PF cell counts falling. Most likely a production change from data-base July 2025, which BCB's notes on V1 and CSV-only publication date to the same month. The exact rule change is undocumented. Ask BCB |
 | U13 | Why SCR.data PF 90-day rate diverges from SGS 21084 by 0.2–0.3 pp in March–June 2026 | SGS values unrevised on 2026-09-15. The documented scope difference (cooperatives etc.) makes the gap larger, not smaller (§10.4). Ask BCB |
 
 ---
@@ -607,7 +607,7 @@ to a common cause **[D]**.
 | 2020-08 | "Indisponível" −0.52 | Banks −0.51; "Financiamentos" R$9.5 → 4.7 bn | Bank reporting change |
 | 2021-09 | "Indisponível" −1.68 | Banks −1.54; loans −0.78 (R$38.8 → 19.3 bn), **real-estate −0.53 (R$16.0 → 2.7 bn)** | Largely reverses 2019-03 (share back to 1.09% against 1.23% before) |
 | 2025-01 | "Sem rendimento" +2.72 | **Cooperatives +2.00: R$0.5 → 82.0 bn, from 0.19% to 32.36% of cooperatives' PF book**; banks +0.73; rural +1.36; **RS +0.91, PR +0.58, MT +0.38** | One-month event concentrated in cooperatives in RS, PR and MT. Reversed in 2025-02 (cooperatives −2.00, banks −0.59). January 2025 is also when IN BCB 414/2023 took effect, and the 2025 months were withdrawn and revised (LAI, §10.4) |
-| 2025-07 | "Acima de 20 SM" +3.52; "1–2 SM" −1.98 | **Broad.** The top band's share rises inside every segment shown: banks 18.66 → 22.12%, cooperatives 47.35 → 56.46%, finance companies 2.49 → 3.07%, development agencies 55.02 → 63.48%. Also inside rural (63.43 → 75.11%), loans, real-estate and other credit, and in SP, MG, GO and DF | Not one lender type, and no minimum-wage change in July 2025. Points to a common cause, possibly BCB processing (unconfirmed). Same month V1's structure changed (§3) |
+| 2025-07 | "Acima de 20 SM" +3.52; "1–2 SM" −1.98 | **Broad.** The top band's share rises inside every segment shown: banks 18.66 → 22.12%, cooperatives 47.35 → 56.46%, finance companies 2.49 → 3.07%, development agencies 55.02 → 63.48%. Also inside rural (63.43 → 75.11%), loans, real-estate and other credit, and in SP, MG, GO and DF | Not one lender type, and no minimum-wage change in July 2025. Permanent, also in V1, and accompanied by a PJ size step at banks: most likely a change in SCR.data production (§10.6) |
 | 2026-05 | "Até 1 SM" −2.52; "5–10 SM" +2.17 | Banks −2.54 / +2.15. **Real-estate financing is about 90% of both moves** ("Até 1 SM" R$131.7 → 28.3 bn; "5–10 SM" R$218.3 → 311.7 bn). Within payment institutions, finance companies and cooperatives the "Até 1 SM" share is flat | Bank reporting change in real-estate financing |
 | 2024-01 (a typical January) | "Acima de 20 SM" −0.63; "Até 1 SM" +0.75 | **Broad.** "Até 1 SM" rises inside every segment shown: banks 8.01 → 8.77%, finance companies 16.47 → 17.42%, payment institutions 14.72 → 16.20%, cooperatives 4.08 → 4.24%. The top band falls inside banks, cooperatives and finance companies. Same direction in the top four modalities and UFs | Common cause: see the test below |
 
@@ -643,3 +643,42 @@ two events, not proof.
 2019-03; calendar 2022 and 2024 contain no reporting event; the post-2024 read is by occupation.
 Reporting events cluster in **real-estate and rural credit**, which the product split in chart 4
 isolates.
+
+### 10.6 The July-2025 step
+
+**Data tests.** From `scripts/recon/shift_2025_07.py`, comparing 2025-06 with 2025-07 unless stated:
+
+| Test | Result | Reading |
+|---|---|---|
+| New money? | PF balance R$4,241.7 → 4,272.4 bn (+0.7%); operations 830.4 → 844.5 million | Normal growth. Balances moved between bands |
+| Persistent? | "Acima de 20 SM" 18.97 → 22.50%, then 21.1–22.5% every month to 2026-07. "1–2 SM" 17.13 → 15.15%, then 13.2–15.1% | **Permanent level change**, unlike the one-month 2025-01 event |
+| Balances or operations? | Top band's share of operations 2.11 → 2.76%, while its balance per operation falls from R$45.8k to 41.2k. "1–2 SM" share of operations 32.12 → 30.05% | Many operations moved. Those entering the top band are smaller than those already there |
+| How broad? | The top band's share rose by more than 1 pp in segment × modality × UF × occupation cells holding **56%** of PF balance, and fell in cells holding 0%. For comparison: ordinary months 2% rose / 8% fell (2025-06) and 2% / 1% (2024-05); January 2024 1% rose / 31% fell; 2026-05 bank event, "Até 1 SM" fell in 45% | The broadest band move tested, and all in one direction |
+| Minimum-wage divisor? | Retirees' "1–2 SM" share falls 14.0 → 11.2%. A small divisor change would raise it, from retirees on exactly 1 SM crossing the edge. Every occupation's top band rises: Empresário 44.1 → 52.5%, Autônomo 40.3 → 46.9%, Servidor 8.7 → 12.1%, Aposentado 7.4 → 10.0% | **Rejected.** Too large and in the wrong direction for an edge effect |
+| Which products? | Largest in rural and business-like credit: Custeio top band 66.6 → 79.2% and "Até 1 SM" 4.0 → 0.6%; Investimento 60.4 → 71.1%; housing outside SFH 50.5 → 57.7%. Payroll loans also move (3.6 → 5.3%). Smaller moves in SFH mortgages (6.2 → 7.2%), vehicles (6.5 → 7.2%) and non-migrated card (3.8 → 4.3%) | Not confined to products where income is poorly known |
+| Risk of who moved | Top band 90-day rate 2.86% (Jun) → 3.49% (Jul) → 4.14% (Aug). "Até 1 SM" 6.49 → 7.10% | Borrowers with higher delinquency entered the top band. **Band-level rates are not comparable across this month** |
+| Other dimensions | PF occupation shares move within ±0.1 pp. PJ size moves: "Grande" 52.33 → 50.77% of PJ; inside banks 51.15 → 48.99% and leasing companies 45.67 → 41.08%, while "Grande" moves less than 0.5 pp inside cooperatives (9.73 → 9.69%), finance companies (51.17 → 51.63%) and development agencies (85.06 → 85.49%) | Only the lender-reported size field moves; occupation, sourced from Receita, does not. For PJ the move is at banks |
+| V1 files | Same step in V1: PF "Acima de 20 SM" 19.16 → 22.67%, "1–2 SM" 17.14 → 15.18%; PJ "Grande" 50.09 → 48.66%. V1's structure changes in the same month (§3) | The change is upstream of both publications |
+| Cells | PF rows 194,161 → 180,953 ("Até 1 SM" 22,808 → 19,269); rows with `-1` operations 39,315 → 35,219. PJ rows 128,691 → 127,256 | PF cell structure changed in the same month |
+
+**Documents checked (2026-09-15).**
+- **IN BCB 627/2025** is the only doc 3040 change effective from data-base July 2025 (Art. 1). It adds special characteristics 40–42 (acquired precatórios, acquired rights in execution, syndicated operations), the EcoInvest regulatory-use code, and an auction number in additional information. It does not touch Anexos 24/25 or income. The layout log has no Anexo 24/25 change after 2018.
+- **Methodology:** the V1 PDF (created 2025-06-03) and V2 PDF (created 2026-03-06) both say the published sizes "representam os portes definidos nos Anexos 24 e 25", and describe no change.
+- **REF annex:** the "Renda mensal" definition is word-for-word the same in April 2025 and May 2026.
+- **Dados Abertos metadata:** the V2 ZIP resource and the V1 notice ("disponíveis até a data-base junho/2025 e não serão mais atualizados") were both created on 2025-11-27. The V2 methodology resource was created on 2025-11-28.
+- **BCB's SCR.data page:** the current source holds a commented-out note, "Para informações a partir de julho/2025, os dados foram disponibilizados apenas no formato CSV". The note is absent from the Wayback copies of the page content of 2025-04-28 and 2025-12-10, so it was added later.
+- **Busca LAI:** none of the 63 requests mentioning "SCR.data" (most recent answered 2026-09-14) concerns income bands or July 2025.
+- **Web searches:** no other rule or announcement found.
+
+**Reading.** Several things change together at data-base July 2025, while occupation, sourced from Receita, does not:
+- the lender-reported size field steps, for PF across every lender type and product, and for PJ at banks;
+- PF cell counts fall in V2, and V1's structure changes;
+- BCB's own notes place the end of V1 and the switch to CSV-only publication at this month.
+
+The most likely explanation is **a change in how SCR.data is produced from data-base July 2025**. This is an inference, not documented. What changed in band assignment is also not documented. Two changes fit the aggregates and can't be told apart without borrower-level data:
+- deriving the band from the reported amount ("Renda mensal PF") instead of the reported size code;
+- assigning one band per borrower across lenders, as the REF annex does (BCB said in 2023 that SCR.data had no client consolidation).
+
+A lender-side cause is unlikely. No rule required re-reporting, and banks and cooperatives moved together for PF but not for PJ. This goes to BCB as email question 7.
+
+**For v1.** v1's income cross-sections end in 2024 and are unaffected. Any income-band series or band-level rate that crosses July 2025 needs a break flag, and a level adjustment can't be estimated from the data alone.
