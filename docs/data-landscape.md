@@ -96,7 +96,7 @@ portfolio fell 3.1% in the month against −1.7% in the control **[D]**.
 
 | Measure | Survives Jan-2025? | Why |
 |---|---|---|
-| `vencido_de_15_ate_90_dias` / `carteira_ativa` | **Yes, with one small unquantified caveat** | Day-count definition unchanged; write-off never touches loans under 90 days under either regime. Caveat: accrual now continues from 60 to 90 days where it used to stop, so balances in the bucket may be marginally higher. Data: Jan-25 step equals an ordinary January |
+| `vencido_de_15_ate_90_dias` / `carteira_ativa` | **Yes, with one small unquantified caveat** | Day-count definition unchanged; write-off never touches loans under 90 days under either regime. Caveat, documented in the reporting rule: since January 2025, doc 3040 overdue values include accrued contractual interest until an asset is a problem asset, whereas before accrual stopped at 60 days (IN BCB 414/2023; Carta Circular 3.869/2018 art. 6 §2). So balances 60–90 days overdue can be marginally higher. Data: Jan-25 step equals an ordinary January |
 | `carteira_inadimplencia` / `carteira_ativa` (official 90-day rate) | **No** | Numerator accumulates loans that would previously have been written off. BCB counterfactual: **~70% of the 0.78 pp rise in SFN 90-day delinquency Jan–Jun 2025 is regulatory (0.53 pp)**, with a similar share for PF and PJ **[RPM]**. The effect "may vary over time" and was estimated only to June 2025 **[RPM]** |
 | `vencido_acima_de_90_dias` / `carteira_ativa` | **No** | Same mechanism |
 | `ativo_problematico` | **No** | Definition changed (A.1) and write-off dynamics changed. Breaks differ in sign by modality **[REF25]** |
