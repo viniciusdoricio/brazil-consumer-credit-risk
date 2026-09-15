@@ -370,7 +370,7 @@ marginal slices?
 | U1 | Where SCR.data puts doc 3040 maturity codes 205 (1–14 days overdue) and 199 (open-ended). Both are inside "carteira" (codes 110–290) **[M2][3040]**, but no published column holds them and the identities are exact | Ask BCB (`docs/bcb-email-draft.md`) |
 | U2 | Whether `numero_de_operacoes = -1` means ≤15 operations | Ask BCB; or test that `-1` never co-occurs with a V1 cell showing >15 for a matched cell |
 | U3 | Which IRPF *natureza da ocupação* categories map to each SCR group, which filing year each data-base uses, and how non-filers are classified | Partly answered (§10.4: CPF registry field tied to a filing year; 24 IRPF categories). Mapping and process: ask BCB |
-| U4 | Whether SCR.data uses the lender-reported `PorteCli` band or recomputes it from reported income, and with which minimum wage | Partly answered: lenders assign `PorteCli` from their most current information **[3040]**. Ask BCB |
+| U4 | Whether SCR.data uses each lender's reported `PorteCli`, a single band per borrower (like the mode rule BCB documents for the REF), or a recomputation from reported income, and with which minimum wage | Partly answered: lenders assign `PorteCli` from their most current information **[3040]**; BCB's own analyses resolve conflicts by mode (§10.4). Ask BCB |
 | U5 | Cause of the income shifts | **2018-11 explained**: Carta-Circular 3.871/2018 created the "Indisponível" domain from Nov/2018 (§10.4). **Still open**: 2019-03, 2020-08, 2021-09, the 2025-01 spike, 2025-07, 2026-05. Ask BCB |
 | ~~U6~~ | ~~Exact months when `submodalidade`, `segmento`, `indexador` categories changed~~ | **Resolved** on the full history (§2.1, §10) |
 | U7 | Why V2 reports 1–2% more PF portfolio than V1 | Not needed for the design, since V1 is dropped. Ask BCB if it ever matters |
@@ -379,7 +379,7 @@ marginal slices?
 | U10 | Why occupation is reclassified in January (2016, 2017, 2018, 2021, 2023), and what happened in January 2017 | Mechanism documented: the CPF registry's occupation code carries a filing year (§10.4), consistent with annual refreshes. Occupation is not part of doc 3040, so no layout change explains January 2017. Ask BCB |
 | U11 | Cause of the March-2014 fall in the 15–90-day rate (Empréstimos 2.95% → 1.99%) | Outside the v1 window. Ask BCB if the pre-2017 series is ever needed |
 | U12 | Cause of the post-window income reclassifications (2025-07, 2026-05) | Ask BCB. 2025-07 is also when V1's structure changed |
-| U13 | Why SCR.data PF 90-day rate diverges from SGS 21084 by 0.2–0.3 pp in March–June 2026 | Check whether SGS revises those months; ask BCB |
+| U13 | Why SCR.data PF 90-day rate diverges from SGS 21084 by 0.2–0.3 pp in March–June 2026 | SGS values unrevised on 2026-09-15. The documented scope difference (cooperatives etc.) makes the gap larger, not smaller (§10.4). Ask BCB |
 
 ---
 
@@ -565,6 +565,9 @@ Checked on 2026-09-15, before asking BCB anything. Sources:
 - Carta Circular 3.869/2018.
 - SERPRO's bCadastros documentation of the CPF registry.
 - Receita Federal's *Natureza de Ocupação* table (IRPF statistics by occupation).
+- REF May 2026, annex *Conceitos e Metodologias*, and *Relatório de Cidadania Financeira 2021*, glossary.
+- BCB's methodology note for credit statistics (*Nota para a Imprensa*, `notaempr.pdf`).
+- BCB working paper TD 338; doc 3026 filling instructions; Voto 159/2024–BCB.
 
 | Observation in the data | Documented cause | Status |
 |---|---|---|
@@ -578,4 +581,8 @@ Checked on 2026-09-15, before asking BCB anything. Sources:
 | **2025-01 overdue amounts** | IN BCB 414/2023 changed the maturity-value description from Jan/2025. Overdue codes 205–290 are now present value **plus accrued contractual interest**, excluding unreceived revenue on problem assets ("stop accrual em ativos problemáticos") **[3040 item f]**. Before: present value plus charges, observing Res. 2.682 art. 9, i.e. no accrual from 60 days (Carta Circular 3.869/2018 art. 6 §2) | **Explained.** Balances 60–90 days overdue can now include accrued interest. Note: the cash-flow section of the same instructions still says maturity buckets exclude revenue after 60 days, which is inconsistent with item f |
 | **Occupation source and January refreshes** | The CPF registry holds `codNatOcup` together with `anoExerc`, "Exercício a que se referem os códigos natureza da ocupação e código da ocupação principal" (SERPRO). The income-tax return has 24 natureza categories, including "Microempreendedor Individual - MEI" and "Natureza da ocupação não especificada anteriormente". There were **31.6 million filers** for calendar year 2020 (Receita Federal) | **Mechanism documented, BCB's process not.** Occupation is a tax-return attribute tied to a filing year, which is consistent with annual January updates. People who don't file have no declared occupation, which plausibly feeds "Outros" (not confirmed). Nothing explains the size of January 2017 |
 | Income band assignment | Lenders classify `PorteCli` themselves "a partir da informação mais atual disponível", presumed or estimated income allowed; income is updated "sempre que houver nova informação" **[3040]** | Partly explained. January shifts are consistent with lenders reclassifying at the new minimum wage. Whether SCR.data uses `PorteCli` as reported or recomputes it isn't stated |
+| One income band per borrower | REF May 2026 annex and RCF 2021 glossary, "Renda mensal": where lenders report different PF bands, BCB takes the **mode**, breaking ties by the band with the larger aggregate active portfolio, then the highest reported income within that band. This is stated for BCB's individual income-commitment metric | Documented for BCB analyses. Whether SCR.data applies the same single-band rule or keeps each lender's band is **not stated** |
+| SCR.data vs SGS 21084 scope | The credit-statistics note (footnote 2) says SGS delinquency rates, from doc 3050, exclude credit cooperatives, development agencies and microcredit companies. **Tested** (`scripts/recon/sgs_scope.py`): excluding cooperatives, or cooperatives plus Desenvolvimento/Fomento and Outros, **widens** the gap (2017–2024 median +0.12 pp instead of +0.02 pp; 2026 maximum +0.39–0.40 pp instead of +0.33 pp) | Documented difference, **but it does not explain the gap** |
+| Doc 3026 as a client-data source | Annual (December data-base) report limited to conglomerates with operations of at least R$5 million | Ruled out as the source of PF occupation or income |
+| Voto 159/2024–BCB | Amends Circular 3.870/2017 on how often SCR information is compiled and on events that change a debt balance | Unrelated to the breaks |
 | **No document found for:** January-2017 occupation break; income shifts 2019-03, 2020-08, 2021-09, 2025-01, 2025-07, 2026-05 (no Anexo 25 change on those dates); 2014-03 15–90 drop; `TCR/TRFC` from 2019-08; the `-1` sentinel; where SCR.data puts maturity codes 199 (open-ended) and 205 (1–14 days overdue); the 2026 SCR–SGS gap (SGS values unchanged on 2026-09-15); whether the REF counterfactual series are published | — | Open. These go to BCB (`docs/bcb-email-draft.md`) |
