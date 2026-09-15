@@ -4,6 +4,11 @@
 `docs/data_dictionary.md` (what the data is), `docs/data-landscape.md` (the break and the
 landscape) and `docs/analysis-design.md` (method).*
 
+> **Amended after profiling all 169 V2 months** (data dictionary §10). Occupation was reclassified
+> in January 2017, so the analysis window starts **2017-01**, not 2016-06. Income bands shift every
+> January, so income is compared only within calendar years. The 2019 stability window becomes
+> March–December. Charts 3, 5 and 6 are re-specified accordingly. The question is unchanged.
+
 ---
 
 ## First, the direct answer about the proposed v1
@@ -12,7 +17,7 @@ landscape) and `docs/analysis-design.md` (method).*
 
 - **Supported:** SCR.data V2 publishes occupation and income as a genuine joint distribution. The
   grain is unique, there are no subtotal rows, and all 72 PF cells are populated in every month profiled
-  from 2016 to 2026 (12 months; 70 of 72 in June 2013).
+  from January 2016 to July 2026 (127 months; 68–70 of 72 before 2016).
 - **Not supported as written:** "*atraso acima de 90 dias* as a share of the portfolio, June 2012 –
   present". It fails in two places:
   1. **After January 2025 the 90-day stock is inflated by an accounting change.** BCB estimates
@@ -21,6 +26,9 @@ landscape) and `docs/analysis-design.md` (method).*
      bands are consistent across the break holds for the definitions, not for the numbers.
   2. **Before June 2016 the population is different.** The SCR reporting threshold fell from R$1,000
      to R$200. PF operations rose a third in one month and the "Até 1 SM" portfolio a fifth.
+  3. **Before January 2017 the occupations are different.** "Outros" lost 11.3 pp of the portfolio
+     in one month. Every named occupation's 90-day rate jumped by 0.4–2.2 pp while the total didn't
+     move.
 - **Also not defensible as written:** comparing raw rates across occupations. A risk manager's first
   question would be "isn't that just payroll-deducted loans?" Retirees and public servants get
   *consignado*; the self-employed mostly don't. Without splitting product mix out, the comparison
@@ -61,11 +69,11 @@ o que muda é o tipo de crédito a que cada ocupação tem acesso?**
 | Products | 7 PF groups built from `modalidade` + trimmed `submodalidade`: Imobiliário, Consignado, Pessoal não consignado, Cartão, Veículos, Rural, Cheque especial/outros (analysis design §1.4) |
 | **Primary measure — D90** | `Σ carteira_inadimplencia / Σ carteira_ativa`: the full balance of operations with an instalment >90 days overdue. BCB's own concept, reconciles to SGS 21084 within ~0.1 pp. Sum numerators and denominators, never average rates |
 | **Break-robust measure — D15** | `Σ vencido_de_15_ate_90_dias / Σ carteira_ativa` |
-| Period, D90 | **2016-06 → 2024-12** (103 months) |
-| Period, D15 | **2016-06 → 2026-07** (122 months; extends with each release) |
-| Headline cross-sections | 12-month pooled windows: **calendar 2024** (last full year before the break), with **2019** (pre-pandemic) and **2022** (end of tightening) as stability checks |
+| Period, D90 | **2017-01 → 2024-12** (96 months) |
+| Period, D15 | **2017-01 → 2026-07** (115 months; extends with each release). After 2024, by occupation only (income bands reclassified 2025-07 and 2026-05) |
+| Headline cross-sections | Pooled windows: **calendar 2024** (last full year before the break), with **March–December 2019** (after the 2019-03 income recoding, before the January-2020 minimum-wage step and the pandemic) and **calendar 2022** (end of tightening) as stability checks. Calendar-year windows contain no January band shift |
 | Minimum cell size | Cell or cell-product rates suppressed below a minimum pooled `carteira_ativa`, set from the distribution (starting point R$1 bn) |
-| Method | Cross-sectional midpoint decomposition of each occupation gap into **same-product gap + product-mix gap**. Balance-weighted **dispersion across occupations within income bands vs across income bands within occupations**. Three-way shift-share of the national D90 change (pure rate / product mix / borrower mix) (analysis design §1) |
+| Method | Cross-sectional midpoint decomposition of each occupation gap into **same-product gap + product-mix gap**. Balance-weighted **dispersion across occupations within income bands vs across income bands within occupations**. Three-way shift-share of the national D90 change (pure rate / product mix / borrower mix) on **occupation × product** cells (analysis design §1) |
 | Mandatory sensitivities | Lagged-denominator rates (D90 on `carteira_ativa` 12 months earlier; D15 on 3 months earlier). Including the residual categories. 2019 and 2022 windows |
 | Macro overlay (one) | **Unemployment, SGS 24369.** If job type matters, occupation gaps should widen when unemployment rises. Selic works mainly through product pricing, which the decomposition already carries |
 
@@ -79,10 +87,10 @@ by hand. Every number comes from a model.
 |---|---|---|---|
 | 1 | **The trap.** National PF D90 (SCR.data and SGS 21084) and D15, 2016-06 → 2026-07. January 2025 marked; BCB's 0.53-of-0.78 pp counterfactual annotated | "Part of the rise in household delinquency since January 2025 is an accounting change, not borrowers; the 15–90-day measure didn't jump" (already supported by BCB's estimate and the Phase 2 data) | — |
 | 2 | **The grid.** D90 heatmap, 7 × 7 cells, pooled 2024, cell size shown | "At the same income, 90-day delinquency differs by up to [x] points depending on occupation" | "Within an income band, occupation barely changes delinquency" |
-| 3 | **Which matters more.** Balance-weighted spread across occupations within bands vs across bands within occupations, rolling 12 months 2016–2024, unemployment overlaid | "Occupation separates risk [more/less] than income does, and the gap [widened/held] when unemployment rose" | Stated with the reversed comparison |
+| 3 | **Which matters more.** Balance-weighted spread across occupations within bands vs across bands within occupations, one point per calendar year 2017–2024 (so no January band shift falls inside a point), unemployment overlaid | "Occupation separates risk [more/less] than income does, and the gap [widened/held] when unemployment rose" | Stated with the reversed comparison |
 | 4 | **Job or product?** For the three headline pairs (Aposentado vs Autônomo, Servidor vs Empregado privado, MEI vs Empresário) in two income bands: raw gap split into same-product and product-mix | "[Most/little] of the retiree–self-employed gap comes from access to payroll-deducted credit" | Same chart, reversed claim |
-| 5 | **Mix vs rate.** National PF D90 change by episode (2016-06→2019-12, 2019-12→2022-12, 2022-12→2024-12): pure rate / product mix / borrower mix | "The 2022–24 rise in household delinquency was mostly [borrowers paying worse within the same group and product / a shift into riskier products / lending moving to riskier groups]" | — (all three outcomes are publishable) |
-| 6 | **The current read.** D15 change, 12 months to 2026-07 vs 2024, by occupation × income, next to each cell's real portfolio growth | "Since the accounting change, early delinquency has risen fastest among [group], while lending to them [kept growing/shrank]" | "Early delinquency has risen evenly across groups" |
+| 5 | **Mix vs rate.** National PF D90 change by episode (2018-01→2020-12, 2021-01→2022-12, 2023-01→2024-12; each starts after a January reclassification): pure rate / product mix / occupation mix | "The 2022–24 rise in household delinquency was mostly [borrowers paying worse within the same group and product / a shift into riskier products / lending moving to riskier groups]" | — (all three outcomes are publishable) |
+| 6 | **The current read.** D15 change, 12 months to 2026-07 vs 2024, **by occupation** (income bands were reclassified in 2025-07 and 2026-05), next to each group's real portfolio growth | "Since the accounting change, early delinquency has risen fastest among [group], while lending to them [kept growing/shrank]" | "Early delinquency has risen evenly across groups" |
 
 **The recommendation section is conditional on chart 4, and both branches are written in advance.**
 - *If product mix dominates:* segment collections treatment and credit policy **by product within
@@ -112,11 +120,13 @@ is the metric that still works today. Regional drops because of cell thinness.
 | Risk | Why it matters | Test / what falsifies |
 |---|---|---|
 | Occupation is a tax-registry attribute, not the borrower's current job, and "Outros" is 25–28% of PF | Gaps may reflect registry quality | If a headline gap changes sign when "Outros" is included or excluded, it is reported as fragile, not as a finding |
+| **Occupation reclassified in Januaries** (2017 broke rates; 2018, 2021, 2023 shifted mix) | A "trend" in an occupation's rate or share can be a reclassification | Window starts 2017-01; decomposition episodes start after each January event; any occupation trend that coincides with 2018-01 or 2021-01 is labelled a classification event, not a finding |
+| **Rural credit dominates the top income band (52%) and the self-employed (42%)**, and rural delinquency has risen sharply since 2024 | "High income is riskier" or "self-employed are riskier" may be a rural-credit story | Chart 4 must split out rural. If the Autônomo or top-band gap disappears within non-rural products, the headline is about rural credit, not occupation or income |
 | Product crosswalk from `submodalidade` (labels renamed 2013 → 2024; whitespace) | Misassigned products leak into "same-product gap" | Re-run with the ambiguous sub-modalities (e.g. card "não migrado", overdraft vs guaranteed account) moved between groups. Terms moving >25% of the gap means the split is unstable |
 | **Growth dilution** (fast-growing segments look safe) | Rankings driven by portfolio age, not risk | Any ranking that flips under the lagged denominator is not reported |
 | **Lender selection** (supply) | Rates reflect who got credit | Not testable with public data. Handled by language rules and growth-next-to-rate (analysis design §2) |
 | Income bands drift with the minimum wage | "Same income" isn't the same R$ across years | All comparisons are within-window. If the 2019, 2022 and 2024 cross-sections disagree on the ordering, the claim is limited to 2024 |
-| Pandemic period (2020–21 renegotiations and moratoria) | Artificially low D90 | The 2019-12→2022-12 episode is interpreted only net of that; the headline doesn't rest on it |
+| Pandemic period (2020–21 renegotiations and moratoria) | Artificially low D90 | The 2018-01→2020-12 episode spans the pandemic onset and 2021-01→2022-12 its aftermath; both are interpreted only net of that, and the headline doesn't rest on either |
 | Thin cells (MEI × high income; non-profit employees) | Extreme rates from tiny balances | Pooling plus minimum size. No headline rests on a suppressed cell |
 | Balance weighting (mortgages dominate high-income cells) | High-income D90 reflects housing and rural credit | Decomposition carries it; chart 4 shows product mix explicitly |
 | Data revision (V2 history re-published in 2026) | A later download may move numbers | SHA-256 pinned; the data vintage stated in the write-up |
@@ -126,16 +136,16 @@ is the metric that still works today. Regional drops because of cell thinness.
 
 | Work | Hours |
 |---|---|
-| Rewrite `scripts/fetch_scr.py` (CKAN has no URLs; chunked range downloads; SHA pinning); full V2 download (~2 GB at the host's speed) | 6–8 |
+| Rewrite `scripts/fetch_scr.py` into the build, reusing `scripts/recon/fetch_years.py` (chunked ranges, CRC checks, manifest); the full download already works in ~15 minutes | 3–5 |
 | Fix the toolchain: pin `dbt-core` (current resolve pulls a pre-release that fails to build), commit a working `uv.lock`, CI green | 2–3 |
-| Staging to Parquet; dbt staging/intermediate/marts; product crosswalk seed; tests (grain, shares 0–1, reconciliation to SGS 21084, **break assertion on D90 vs D15**, decomposition sums) | 14–18 |
+| dbt staging (on the Parquet from `scripts/recon/to_parquet.py`)/intermediate/marts; product crosswalk seed; classification-event seed; tests (grain, shares 0–1, reconciliation to SGS 21084 within 0.2 pp, **break assertion on D90 vs D15**, decomposition sums) | 12–16 |
 | SGS ingestion (21084, 24369, 1619, 433) | 2–3 |
-| Decomposition and dispersion models, sensitivities | 8–10 |
+| Decomposition and dispersion models, sensitivities, classification-event handling, rural split | 9–12 |
 | Six charts in Quarto | 6–8 |
 | Write-up in Portuguese: limitations first, then question, data, trap, findings, recommendation | 12–16 |
 | README for a hiring manager; clean-machine reproduction; review | 5–7 |
 | Contingency (~15%) | 8–10 |
-| **Total** | **≈ 63–83 hours** |
+| **Total** | **≈ 59–80 hours** |
 
 The brief's "ships in two weeks" is realistic only at close to full-time. At 15–20 hours a week it
 is four to five weeks. **A finished v1 beats an expanded one**, so the extensions list stays closed

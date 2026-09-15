@@ -157,7 +157,7 @@ Names are the official metadata strings from the SGS web service, not recalled c
 
 | # | Code | Official name (SGS metadata) | Unit | Coverage | Role in this project |
 |---|---|---|---|---|---|
-| 1 | **21084** | Percent of 90 days past due loans of credit operations outstanding – Households – Total | % | 2011-03 → 2026-07 | **Validation anchor.** Reconciles to SCR.data PF within ~0.1 pp (`docs/data_dictionary.md` §2.3). Longest consistent official read of the same concept |
+| 1 | **21084** | Percent of 90 days past due loans of credit operations outstanding – Households – Total | % | 2011-03 → 2026-07 | **Validation anchor.** Reconciles to SCR.data PF: median gap +0.02 pp over all 169 months, within 0.2 pp every month 2017–2024, widening to 0.23–0.33 pp in March–June 2026 (`docs/data_dictionary.md` §10). Longest consistent official read of the same concept |
 | 2 | **21112** | Percent of 90 days past due loans of nonearmarked credit operations outstanding – Households – Total | % | 2011-03 → 2026-07 | Free-market (non-earmarked) PF delinquency. Closest official analogue of SCR `origem = Sem destinação específica` |
 | 3 | **20541** | Credit operations outstanding – Households – Total | R$ mn | 2007-03 → 2026-07 | Denominator check. Built from doc 3050, not 3040, so it differs in scope **[RPM fn 6]** |
 | 4 | **20633** | New operations – Households – Total | R$ mn | 2011-03 → 2026-07 | **Only public flow of new lending** (concessões). National; no occupation or income split |

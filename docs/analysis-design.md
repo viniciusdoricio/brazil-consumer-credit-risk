@@ -12,9 +12,9 @@ exists. Every constraint cited comes from `docs/data_dictionary.md` (Phase 1) or
 |---|---|
 | **Mix vs rate** | Exact two-level midpoint (Kitagawa-style) decomposition. Aggregate change = **borrower mix** (occupation × income weights) + **product mix** within each cell + **pure rate** within cell × product. The same algebra, applied cross-sectionally, splits an occupation gap at a fixed income into "same-product gap" and "product-mix gap". **That split is the test v1 depends on.** |
 | **Supply-side confound** | Can't be controlled: no origination flow by segment exists publicly. Present it instead. (1) Report every segment rate next to that segment's real portfolio growth. (2) Show a **lagged-denominator** rate as a mandatory sensitivity, so fast-growing segments can't look safe just by being new. (3) National PTC credit standards as context. (4) Write every claim as "the portfolio lenders built for group X performed Y", never "group X behaves Y". |
-| **Lags / early warning** | Not in v1. At cell level the consistent window (2016-06 → 2024-12) contains **one** clean tightening episode (2021–22). Nationally, SGS 21084 adds a second (2013–15). Prewhitened cross-correlation at national level is the ceiling. Anything more is unjustifiable. The only segment-level leading signal is 15–90 → 90+ progression, and it is *inferred*, so label it that way. |
+| **Lags / early warning** | Not in v1. At cell level the consistent window (2017-01 → 2024-12) contains **one** clean tightening episode (2021–22). Nationally, SGS 21084 adds a second (2013–15). Prewhitened cross-correlation at national level is the ceiling. Anything more is unjustifiable. The only segment-level leading signal is 15–90 → 90+ progression, and it is *inferred*, so label it that way. |
 | **Denominators** | Rates within cells, weights as shares of PF portfolio, volumes in real R$ (IPCA). Seasonality handled year-over-year. Minimum cell size before a rate is shown. Income bands treated as *multiples of the minimum wage*, comparable within a month, never "the same income" across years. |
-| **Measures** | **D90** = `carteira_inadimplencia / carteira_ativa` (BCB's 90-day concept; reconciles to SGS 21084) for **2016-06 → 2024-12**. **D15** = `vencido_de_15_ate_90_dias / carteira_ativa` as the measure that runs through January 2025 to the present. Problem assets: **not used** as a time series. |
+| **Measures** | **D90** = `carteira_inadimplencia / carteira_ativa` (BCB's 90-day concept; reconciles to SGS 21084) for **2017-01 → 2024-12** (start set by the January-2017 occupation reclassification, data dictionary §10); D15 from 2017-01. **D15** = `vencido_de_15_ate_90_dias / carteira_ativa` as the measure that runs through January 2025 to the present. Problem assets: **not used** as a time series. |
 
 ---
 
@@ -40,8 +40,11 @@ exists. Every constraint cited comes from `docs/data_dictionary.md` (Phase 1) or
 The PF portfolio's composition moves a lot, and some of that movement is classification rather
 than behaviour **[D]**:
 
-- "Outros" occupation: 41.5% → 25.2% → 27.9% of PF balances (2013-06, 2024-06, 2026-07).
-- MEI: 0% → 1.8%.
+- Occupation is reclassified in January: "Outros" −7.8 pp (2016), **−11.3 pp (2017, which also
+  shifts named-occupation 90-day rates up by 0.4–2.2 pp)**, −2.3 pp (2018), −2.1 pp (2021), −0.6 pp
+  (2023). MEI appears in 2016 and reaches 1.8% (data dictionary §10).
+- Income bands move every January as the minimum wage resets: the top band typically loses
+  0.5–0.8 pp and the lowest gains 0.4–1.8 pp.
 - Income "Sem rendimento" 2.1% and "Indisponível" 0.01% in 2016-06, against 0.13% and 1.60% in
   2024-12: missing income apparently recoded from one band to the other. Plus a one-month "Sem
   rendimento" spike to 2.86% in 2025-01 (data dictionary §2.1).
@@ -79,10 +82,16 @@ Substituting gives three additive terms that sum exactly to `ΔR`:
 | Product mix | `Σ_c W̄_c Σ_p r̄_{cp} Δv_{p|c}` | Groups moved into riskier products (e.g. from payroll loans to cards) |
 | Borrower mix | `Σ_c R̄_c ΔW_c` | Lending moved towards riskier groups |
 
+**Cells for time decompositions: occupation × product, not income.** Income-band membership
+shifts mechanically every January (data dictionary §10), so across years an income "mix effect"
+is mostly the minimum-wage reset, not a change in who borrows. Income stays in the
+*cross-sectional* analysis (§1.4), where comparisons sit inside one calendar year.
+
 **Comparison windows.** (a) Year-over-year for every month (`t` vs `t−12`), which removes January
-seasonality. (b) Fixed episodes aligned to the Selic cycle and the regime windows:
-2016-06→2019-12, 2019-12→2022-12, 2022-12→2024-12. D15 adds 2024-12→latest. **No D90 window
-crosses 2025-01.**
+seasonality, excluding pairs that span January 2017. (b) Fixed episodes that each start in a
+January after a reclassification, so none contains one: **2018-01→2020-12** (pre-pandemic and
+pandemic), **2021-01→2022-12** (tightening), **2023-01→2024-12** (high rates before the accounting
+change). D15 adds 2025-01→latest by occupation. **No D90 window crosses 2025-01.**
 
 ### 1.4 Cross-sectional version: the test the v1 question needs
 
@@ -100,6 +109,11 @@ honest finding is "occupation matters because it decides which products you can 
 case is payroll-deducted credit, available mainly to retirees and public servants. If most is
 **same-product gap**, occupation matters within products. **v1 should report both terms, not the raw
 gap.**
+
+**Rural credit makes this unavoidable.** In 2024 rural credit was 52.4% of "Acima de 20 SM" PF
+balances and 42.3% of "Autônomo", against 16.0% of all PF **[D]**. Rural 15–90-day delinquency has
+run far above its history since 2024, on top of a May seasonal rise (data dictionary §10). Without
+the product split, the "high-income" and "self-employed" rates are largely rural-credit rates.
 
 **Product groups (crosswalk built from `submodalidade`, documented as a seed table in dbt):**
 Imobiliário (`modalidade = Financiamentos imobiliários`) · Consignado (`Crédito pessoal - com
@@ -120,15 +134,19 @@ groups, which makes the result comparable with BCB's framing. **The whitespace t
   is flagged. Its mix contribution in that month is labelled "classification event" rather than
   borrower mix. January 2025 income bands trip this by a wide margin (+2.7 pp for "Sem
   rendimento").
-- MEI is reported only from the first month its weight is stable. That month is unknown; it's one
-  query on the full download.
+- **Known classification events** (full history, data dictionary §10): occupation 2017-01 (breaks
+  rates; before the window), 2018-01, 2021-01, 2023-01; income every January plus 2018-11, 2019-03,
+  2020-08, 2021-09, 2025-01, 2025-07, 2026-05. The 0.5 pp flag catches all of them. The rule is
+  kept to catch revisions in future releases.
+- MEI is reported from 2018-01, the first month after which its weight grows gradually rather than
+  in January jumps (0.38% in 2016, 0.68% in 2017, 1.06% from 2018-01).
 
 ### 1.6 Tests (dbt)
 
 - `pure_rate + product_mix + borrower_mix = ΔR` within 1e-9 for every window.
 - Weights sum to 1 per month (and per cell for `v`).
 - Cell-level numerator and denominator reconcile to the national PF totals, which reconcile to SGS
-  21084 within a stated tolerance (0.15 pp observed; data dictionary §2.3).
+  21084 within 0.2 pp for every month 2017–2024 (observed on the full history; data dictionary §10).
 
 ---
 
@@ -181,11 +199,11 @@ attributed to borrowers. The write-up shows which case applies rather than assum
 | Selic, SGS 4189 | monthly | full | Turning points in monthly SGS 4189 (≥1.5 pp swings): lows 2013-01 (7.11), 2020-09 (1.90), 2024-06 (10.40); highs 2015-08 (14.15), 2022-09 (13.65), 2025-07 (14.90) **[SGS]** |
 | Debt service ratio, SGS 29034 | monthly, SA | full, ends one month earlier | National only. Itself a function of rates and debt |
 | Unemployment, SGS 24369 | monthly (moving quarter) | 2012-03 → | Smoothed by construction (3-month moving) |
-| D90 PF by cell (SCR.data) | monthly | **2016-06 → 2024-12** (June-2016 scope change; data dictionary §5.1) | Stock; seasonal Januaries |
+| D90 PF by cell (SCR.data) | monthly | **2017-01 → 2024-12** (January-2017 occupation reclassification; data dictionary §10) | Stock; seasonal Januaries |
 | D90 PF national (SGS 21084) | monthly | 2011-03 → 2024-12 | Doc 3050; not subject to the SCR threshold |
 | D15 PF by cell | monthly | 2012-07 → present | Break-robust |
 
-At **cell level** (2016-06 → 2024-12) the window starts after the 2015 Selic peak and contains
+At **cell level** (2017-01 → 2024-12) the window starts after the 2015 Selic peak and contains
 **one** clean tightening episode, 2021–22. The 2024–25 episode coincides with the accounting change,
 and 2020–21 carries the pandemic renegotiation rules. **At national level** SGS 21084 reaches back to
 2011 and adds 2013–15. **The effective number of independent tightening episodes is one per cell
@@ -222,13 +240,14 @@ and two nationally.**
 | Issue | Evidence | Treatment |
 |---|---|---|
 | What the base is | `carteira_ativa` = performing maturity buckets + overdue ≥15 days, modalities 01–13 of doc 3040, operations above the SCR threshold, all 3040 filers, domestic **[M2][D]** | Use as published. Note the unknown location of 1–14-day overdue amounts (U1) |
-| Scope change 2016-06 (R$1,000 → R$200) | **[M2]**. PF operations +33.5% and "Até 1 SM" portfolio +20% in one month **[D]** (data dictionary §5.1) | **Cell-level analysis starts 2016-06.** National context may start 2012-07 with the break marked. Never compare operation counts across it |
+| Scope change 2016-06 (R$1,000 → R$200) | **[M2]**. PF operations +33.5% and "Até 1 SM" portfolio +20% in one month **[D]** (data dictionary §5.1) | National context may start 2012-07 with the break marked. Never compare operation counts across it |
+| Occupation reclassified 2017-01 | "Outros" −11.3 pp; named-occupation 90-day rates +0.4 to +2.2 pp while the PF total moved +0.04 pp **[D]** (data dictionary §10) | **Cell-level analysis starts 2017-01.** Later January reclassifications (2018, 2021, 2023) are flagged classification events in decompositions |
 | 2025 write-off change inflates base slightly | **[RPM][D]** | D90 stops at 2024-12; D15 continues |
 | Lender universe changes (payment institutions, fintechs appear) | **[D]** | National PF totals include them. Segment is summed out in v1. Note it |
 | 4.1× nominal growth 2013 → 2026 | **[D]** | Rates are scale-free; shares for composition; real R$ (IPCA, SGS 433) for levels |
 | Growth dilution of rates | — | Lagged-denominator sensitivity (§2.2) |
 | Seasonality (January rises) | **[SGS]** | Year-over-year comparisons; 12-month averages for level charts |
-| Income bands move with the minimum wage | R$678 (2013) → R$1,621 (2026) **[SGS 1619]** | Compare bands within a month; across years, say "2–3 minimum wages", never "the same income". No re-banding is possible |
+| Income bands move with the minimum wage | R$678 (2013) → R$1,621 (2026) **[SGS 1619]**. In 8 of 10 Januaries 2017–2026 the top band loses ≥0.5 pp of PF portfolio and the lowest gains ≥0.4 pp; recodings in 2018-11, 2019-03, 2021-09, 2025-07, 2026-05 **[D]** | **Compare bands within a calendar year only** (no January inside). Across years, say "2–3 minimum wages", never "the same income". No re-banding is possible. Post-2025 income cuts need the 2025-07 and 2026-05 recodings handled |
 | Thin cells | Cells range from R$0.02 bn to R$433 bn **[D]** | Suppress a cell-month rate below a minimum `carteira_ativa`, to be set from the distribution (e.g. R$1 bn); pool to 12-month sums for thin cells |
 | Exposure weighting | Rates weight by R$ balance; one borrower can sit in several income bands across lenders **[3040]** | State that a cell rate is a balance-weighted portfolio rate, not the share of people who defaulted |
 
