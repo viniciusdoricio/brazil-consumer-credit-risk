@@ -34,7 +34,10 @@ seeds:
     description: >
       Months in which SCR.data changed how borrowers or balances are classified, who is covered,
       or what a measure counts, each with the document that records it. Charts mark these months,
-      and time comparisons that span them are labelled as classification events.
+      and time comparisons that span them are labelled as classification events. It also holds
+      every month since 2017 in which an occupation or income band's share jumped by more than
+      var weight_jump_threshold, which the design treats as reclassification; those with no known
+      cause say so (analysis_weight_jumps).
     config:
       column_types:
         month: date

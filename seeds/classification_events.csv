@@ -10,13 +10,19 @@ month,dimension,description,reference
 2016-09-01,product,"""Outros direitos creditórios descontados"" added",Carta-Circular 3.773/2016 (data dictionary §10.4)
 2017-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2017-01-01,occupation,"""Outros"" falls 11.3 pp; named occupations' 90-day rates rise 0.4 to 2.2 pp",data dictionary §10.2
+2017-02-01,income,"""Até 1 SM"" rises 0.54 pp; cause not established",data dictionary §10.2
+2017-03-01,income,"""Até 1 SM"" falls 2.51 pp, roughly reversing its January and February rises; cause not established",data dictionary §10.2
 2017-05-01,product,"Card sub-modalities split (""não migrado"" added)",Carta-Circulares 3.806/2017 and 3.817/2017 (data dictionary §10.4)
+2017-06-01,income,"""Acima de 20 SM"" falls 0.83 pp; cause not established",data dictionary §10.2
+2017-07-01,income,"""Até 1 SM"" falls 0.52 pp; cause not established",data dictionary §10.2
 2017-07-01,product,Rural modality renamed; agro-industrial financing split out,Carta-Circular 3.806/2017 (data dictionary §10.4)
+2017-10-01,income,"""1-2 SM"" falls 0.80 pp; cause not established",data dictionary §10.2
 2018-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2018-01-01,occupation,"""Outros"" falls 2.3 pp",data dictionary §10.2
 2018-11-01,income,"""Indisponível"" income band created",Carta-Circular 3.871/2018 (data dictionary §10.4)
 2019-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2019-03-01,income,"Banks move balances into ""Indisponível"", mostly loans and mortgages",data dictionary §10.5
+2019-05-01,income,"""Acima de 20 SM"" falls 0.69 pp; cause not established",data dictionary §10.2
 2020-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2020-02-01,income,Minimum wage rises mid-year; income bands shift,data dictionary §10.5
 2020-08-01,income,"""Indisponível"" falls 0.5 pp at banks",data dictionary §10.5
@@ -24,12 +30,15 @@ month,dimension,description,reference
 2021-01-01,occupation,"""Outros"" falls 2.1 pp",data dictionary §10.2
 2021-09-01,income,"""Indisponível"" falls 1.7 pp, largely reversing 2019-03",data dictionary §10.5
 2022-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
+2022-08-01,income,"""Acima de 20 SM"" rises 0.80 pp; cause not established",data dictionary §10.2
 2023-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2023-01-01,occupation,"""Outros"" falls 0.6 pp",data dictionary §10.2
 2023-05-01,income,Minimum wage rises mid-year; income bands shift,data dictionary §10.5
 2024-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
+2024-09-01,occupation,"""Outros"" rises 0.51 pp; cause not established",data dictionary §10.2
 2025-01-01,income,"Minimum wage rises; ""Sem rendimento"" also jumps 2.7 pp for one month, mostly at cooperatives in RS, PR and MT",data dictionary §10.5
 2025-01-01,measure,Res. CMN 4.966: write-offs delayed and problem assets redefined; 90-day stocks no longer comparable,data landscape Part A
+2025-05-01,occupation,"""Outros"" rises 0.63 pp; cause not established",data dictionary §10.2
 2025-07-01,income,Permanent step in the top income band across lenders and products,data dictionary §10.6
 2026-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2026-05-01,income,"Bank mortgage balances move from ""Até 1 SM"" to ""5-10 SM""",data dictionary §10.5

@@ -143,14 +143,23 @@ unstable where the alternative moves its product-mix part by more than 25% of th
   rendimento").
 - **Known classification events** (full history, data dictionary §10): occupation 2017-01 (breaks
   rates; before the window), 2018-01, 2021-01, 2023-01; income every January plus 2018-11, 2019-03,
-  2020-08, 2021-09, 2025-01, 2025-07, 2026-05. The 0.5 pp flag catches all of them. The rule is
-  kept to catch revisions in future releases.
+  2020-08, 2021-09, 2025-01, 2025-07, 2026-05. The 0.5 pp flag (`analysis_weight_jumps`) catches
+  all of them except three minimum-wage resets, January 2018 and the mid-year ones of February 2020
+  and May 2023, which move no band by 0.5 pp. It also flags months with no documented cause: from
+  2017, income in February, March, June, July and October 2017, May 2019 and August 2022, and
+  "Outros" in September 2024 and May 2025; before 2017, 24 further months, mostly in income bands.
+  The ones from 2017 are recorded as classification events with the cause marked unknown (data
+  dictionary §10.2), and a dbt test fails on any jump that isn't recorded, so a revision in a later
+  release can't pass as borrower mix.
 - MEI is reported from 2018-01, the first month after which its weight grows gradually rather than
   in January jumps (0.38% in 2016, 0.68% in 2017, 1.06% from 2018-01).
 
 ### 1.6 Tests (dbt)
 
 - `pure_rate + product_mix + borrower_mix = ΔR` within 1e-9 for every window.
+- Every occupation gap splits exactly under both product mappings (§1.4), and each occupation's
+  product shares sum to 1.
+- Every weight jump over 0.5 pp since 2017 is a recorded classification event (§1.5).
 - Weights sum to 1 per month (and per cell for `v`).
 - Cell-level numerator and denominator reconcile to the national PF totals, which reconcile to SGS
   21084 within 0.2 pp for every month 2017–2024 (observed on the full history; data dictionary §10).

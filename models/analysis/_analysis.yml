@@ -122,6 +122,21 @@ models:
           var max_crosswalk_shift of the gap, so the split depends on how products are grouped.
           Null when the gap is under 0.1 pp.
 
+  - name: analysis_weight_jumps
+    description: >
+      Every month in which an occupation or income band's share of the household portfolio moved
+      by more than var weight_jump_threshold, with the classification event it matches, if any.
+      The design treats these moves as reclassification rather than lending.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [month, dimension, category]
+    columns:
+      - name: change
+        description: share_after minus share_before, as a fraction of the household portfolio.
+      - name: classification_event
+        description: The matching classification_events description; null when the jump isn't recorded.
+
   - name: analysis_shift_share
     description: >
       Chart 5, mix versus rate. The change in the national household 90-day or 15-90-day rate

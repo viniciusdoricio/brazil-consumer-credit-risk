@@ -50,7 +50,8 @@ The results depend on each of these. The ones marked *could be wrong* are tested
 5. **Seven product groups are enough to separate product from occupation.** They come from a hand-built mapping of 68 modality and sub-modality pairs. *Could be wrong* for the ones whose group is a judgement call, such as card balances and unlabelled loans. So every split is re-run with those moved to their other plausible group and card purchases separated from card credit, and a split that shifts by more than a quarter of the gap is reported as unstable.
 6. **A segment's rate describes the portfolio lenders built for it, not the people in it.** Rates are weighted by balance, one borrower can appear in several cells, and lenders decide who gets credit. Public data can't separate that choice from borrower behaviour, so no claim here is about how a group behaves.
 7. **A cell needs R$1 bn of balance before its rate is ranked.** The threshold is a judgement. In 2024 it removes 16 of the 72 occupation-by-income cells, none of them in the headline comparisons.
-8. **The release used is final enough.** BCB republishes history. The analysis uses the release pinned in `data/raw/zips/MANIFEST.tsv`, and the September 2026 republication moved the household 90-day rate by at most 0.001 pp.
+8. **A share that moves more than 0.5 pp of household credit in one month is a reclassification, not lending.** Every documented reclassification since 2017 moves that much, except three minimum-wage resets. *Could be wrong* the other way: in nine months since 2017 a share moved that much with no documented cause, which may be real lending. Those months are flagged rather than read either way.
+9. **The release used is final enough.** BCB republishes history. The analysis uses the release pinned in `data/raw/zips/MANIFEST.tsv`, and the September 2026 republication moved the household 90-day rate by at most 0.001 pp.
 
 ## What this data cannot do
 
