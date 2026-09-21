@@ -1,3 +1,7 @@
+[build-system]
+requires = ["uv_build>=0.12.13,<0.13"]
+build-backend = "uv_build"
+
 [project]
 name = "brazil-consumer-credit-risk"
 version = "0.1.0"
@@ -27,6 +31,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.ruff.lint.per-file-ignores]
 # Recon scripts embed long SQL strings; wrapping them hurts readability more than it helps.
