@@ -142,13 +142,13 @@ The one-line answer: **nothing joins to SCR.data below the national-month or UF-
 nothing joins on occupation or income at all.** Every external source is context, validation, or a
 macro regressor, never a denominator for a segment rate.
 
-## B.1 SCR.data — licence note
+## B.1 SCR.data licence
 
 The CKAN record carries **Open Database License (ODbL)** **[D: CKAN API]**. ODbL requires
 attribution and, for a *derived database* made public, release under the same licence. A published
 report or chart is a "produced work" and needs attribution only. **Implication:** if the project
 publishes its marts (CSV/Parquet) or a Tableau data source, they must carry ODbL and attribution.
-The repo README currently says "check current terms". It should say ODbL.
+The README and `data/README.md` say so.
 
 ## B.2 BCB SGS — the ten series that matter
 

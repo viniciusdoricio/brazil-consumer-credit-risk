@@ -76,4 +76,4 @@ thinking was done, not only what it concluded:
 
 ## Licence
 
-Code MIT. Data belongs to the Banco Central do Brasil under its open data policy — check current terms before republishing derived data.
+Code: MIT, see [LICENSE](LICENSE). Data: published by the Banco Central do Brasil under the Open Database License (ODbL). Charts and reports built from it need attribution, and any derived dataset published from this repository must also be released under the ODbL. Details in [`data/README.md`](data/README.md).
