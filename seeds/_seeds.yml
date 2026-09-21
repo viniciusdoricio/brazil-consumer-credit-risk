@@ -50,3 +50,42 @@ seeds:
           - accepted_values:
               arguments:
                 values: [occupation, income, product, scope, measure]
+
+  - name: analysis_windows
+    description: >
+      The periods v1 compares. Cross-section windows pool months within one calendar year, so no
+      January income-band shift falls inside them; decomposition episodes each start in a January
+      after an occupation reclassification. None runs past December 2024, the last month in which
+      90-day stocks are comparable (docs/v1-decision.md, section 3).
+    config:
+      column_types:
+        window_id: varchar
+        kind: varchar
+        start_month: date
+        end_month: date
+        description: varchar
+    columns:
+      - name: window_id
+        data_tests:
+          - unique
+          - not_null
+      - name: kind
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [cross_section, episode]
+
+  - name: occupation_pairs
+    description: >
+      The three headline comparisons of v1: retirees against the self-employed, public against
+      private-sector employees, and MEI against business owners (docs/v1-decision.md, section 4).
+    config:
+      column_types:
+        pair_id: varchar
+        occupation_a: varchar
+        occupation_b: varchar
+    columns:
+      - name: pair_id
+        data_tests:
+          - unique
+          - not_null

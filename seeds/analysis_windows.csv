@@ -1,0 +1,7 @@
+window_id,kind,start_month,end_month,description
+cs_2024,cross_section,2024-01-01,2024-12-01,Headline: the last full year before the January 2025 accounting change
+cs_2022,cross_section,2022-01-01,2022-12-01,Stability check: the end of the 2021-22 tightening
+cs_2019,cross_section,2019-03-01,2019-12-01,"Stability check: after the March 2019 income recoding, before the pandemic"
+ep_2018_2020,episode,2018-01-01,2020-12-01,Before and into the pandemic
+ep_2021_2022,episode,2021-01-01,2022-12-01,The 2021-22 tightening
+ep_2023_2024,episode,2023-01-01,2024-12-01,High rates before the accounting change
