@@ -1,0 +1,135 @@
+{
+  "chart1_trap": {
+    "title": "Parte da alta da inadimplência das famílias desde janeiro de 2025 vem de uma mudança contábil, não dos devedores; a de 15 a 90 dias não saltou",
+    "subtitle": "Inadimplência das pessoas físicas, % da carteira. De dezembro de 2024 para janeiro de 2025, a de 90 dias variou +0,31 p.p. (no janeiro anterior, +0,03 p.p.) e a de 15 a 90 dias, +0,03 p.p. (+0,01 p.p.).",
+    "facts": {
+      "d90_step_january_2025": 0.0030922787003346067,
+      "d90_step_january_2024": 0.00028432708256288103,
+      "d15_step_january_2025": 0.0002564967270506126,
+      "d15_step_january_2024": 0.00010264377605573305,
+      "break_visible": true,
+      "d15_flat": true
+    }
+  },
+  "chart2_grid": {
+    "title": "Na mesma faixa de renda, a inadimplência de 90 dias varia até 2,5 p.p. conforme a ocupação",
+    "subtitle": "Inadimplência de 90 dias em 2024, por ocupação e faixa de renda, % da carteira. A maior diferença é entre MEI e empregados do setor privado com renda acima de 20 salários mínimos. Mesmo na faixa em que as ocupações ficam mais próximas, a diferença é de 1,86 p.p.",
+    "facts": {
+      "largest_spread": {
+        "income_band": "Acima de 20 salários mínimos",
+        "highest": "MEI",
+        "lowest": "Empregado de empresa privada",
+        "spread": 0.02543134266895633,
+        "holds_with_lag": true
+      },
+      "smallest_spread": 0.018647373027205386,
+      "spreads": [
+        {
+          "income_band": "Acima de 20 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Empregado de empresa privada",
+          "spread": 0.02543134266895633,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Até 1 salário mínimo",
+          "highest": "MEI",
+          "lowest": "Empresário",
+          "spread": 0.023990798150385375,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 1 a 2 salários mínimos",
+          "highest": "Autônomo",
+          "lowest": "Aposentado/pensionista",
+          "spread": 0.018647373027205386,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 10 a 20 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Servidor ou empregado público",
+          "spread": 0.02515062098185302,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 2 a 3 salários mínimos",
+          "highest": "Autônomo",
+          "lowest": "Aposentado/pensionista",
+          "spread": 0.023559854551841578,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 3 a 5 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Aposentado/pensionista",
+          "spread": 0.024922115338303987,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 5 a 10 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Servidor ou empregado público",
+          "spread": 0.022223732656608756,
+          "holds_with_lag": true
+        }
+      ]
+    }
+  },
+  "chart3_dispersion": {
+    "title": "Na inadimplência de 90 dias, a renda separa o risco mais do que a ocupação, e a distância entre ocupações não acompanhou o desemprego",
+    "subtitle": "Dispersão da inadimplência de 90 dias entre ocupações, dentro de cada faixa de renda, dividida pela dispersão entre faixas, dentro de cada ocupação: abaixo de 1, a renda separa mais. Nos recortes do teste (mar–dez/2019, 2022, 2024), a razão foi 0,62, 0,43 e 0,48. Correlação da dispersão entre ocupações com o desemprego, 2017 a 2024: 0,46 (oito anos). Na inadimplência de 15 a 90 dias, a razão passa de 1 em 2024.",
+    "facts": {
+      "verdict": "income",
+      "window_ratios": {
+        "cs_2019": 0.6223136360668913,
+        "cs_2022": 0.4305502404516369,
+        "cs_2024": 0.484165973803205
+      },
+      "unemployment_correlation": 0.4591357057856049,
+      "d15_years_above_one": [
+        "2024"
+      ]
+    }
+  },
+  "chart4_job_or_product": {
+    "title": "Pouco da diferença entre aposentados e autônomos vem dos produtos de crédito de cada grupo: ela aparece dentro dos mesmos produtos",
+    "subtitle": "Diferença na inadimplência de 90 dias em 2024 entre aposentados e autônomos, por faixa de renda, dividida entre a parte dentro dos mesmos produtos e a parte que vem do mix de produtos. Nas quatro faixas em que a divisão é estável, aposentados têm a menor taxa, e o mix de produtos responde por 14% da diferença; sem o crédito rural, por 30%.",
+    "facts": {
+      "pair": "retiree_vs_self_employed",
+      "stable_bands": [
+        "Mais de 1 a 2 salários mínimos",
+        "Mais de 2 a 3 salários mínimos",
+        "Mais de 3 a 5 salários mínimos",
+        "Mais de 5 a 10 salários mínimos"
+      ],
+      "product_mix_share": 0.13865890861334254,
+      "product_mix_share_excluding_rural": 0.3009896509024574
+    }
+  },
+  "chart5_mix_vs_rate": {
+    "title": "Em cada um dos três episódios de 2018 a 2024, a inadimplência de 90 dias das famílias mudou sobretudo dentro de cada ocupação e produto",
+    "subtitle": "Variação da inadimplência de 90 dias das pessoas físicas em cada episódio, dividida em três partes que somam exatamente a variação: taxa dentro de cada ocupação e produto, mix de produtos e mix de ocupações. Variação total: 2018–2020, −1,01 p.p.; 2021–2022, +1,02 p.p.; 2023–2024, −0,41 p.p. 2023–2024*: há uma reclassificação de ocupações dentro do episódio, e ela entra no mix de ocupações.",
+    "facts": {
+      "dominant_component": {
+        "ep_2018_2020": "pure_rate",
+        "ep_2021_2022": "pure_rate",
+        "ep_2023_2024": "pure_rate"
+      },
+      "episodes_with_reclassification": [
+        "2023–2024"
+      ]
+    }
+  },
+  "chart6_current_read": {
+    "title": "Desde a mudança contábil, a inadimplência de 15 a 90 dias subiu mais entre autônomos, e o crédito a eles continuou crescendo em termos reais",
+    "subtitle": "Variação da inadimplência de 15 a 90 dias entre 2024 e os 12 meses até jul/2026, por ocupação, ao lado da variação real do saldo (IPCA). Entre autônomos: +0,53 p.p. na taxa e +9,3% no saldo; entre as ocupações, a alta vai de 0,15 p.p. a 0,53 p.p.",
+    "facts": {
+      "latest_month": "2026-07-01",
+      "fastest": "Autônomo",
+      "fastest_with_lagged_denominator": "Autônomo",
+      "spread": 0.0037951749919244056,
+      "possible_tightening": []
+    }
+  }
+}

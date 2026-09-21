@@ -6,7 +6,7 @@
 
 An analysis of household credit risk in Brazil, built on Banco Central do Brasil public data. It rebuilds, at national scale and from open sources, the segment view a credit-risk team reviews every month: where delinquency concentrates, and whether that comes from the borrowers or from the products they hold.
 
-> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The data pipeline and the dbt models, including the ones that compute the analysis, are built and tested. The charts and the write-up are in progress, so there are no findings on the question yet.
+> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The data pipeline and the dbt models, including the ones that compute the analysis, are built and tested, and the six charts are drawn from them. The write-up is in progress, so this README states no findings on the question yet.
 
 ## Why this question
 
@@ -73,7 +73,7 @@ uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 
 `fetch-data` downloads every yearly SCR.data archive, checks each one against its CRC, records its size, date and SHA-256, converts each month to typed Parquet and fetches the SGS series. It skips whatever is already there. The first run takes about 15 minutes to download and 10 to convert; [`data/README.md`](data/README.md) has the details. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it. The scripts that read single sampled months need those months fetched first; section 9 of the [data dictionary](docs/data-dictionary.md) has the commands.
 
-For development, `make setup` installs the environment and the git hooks, `make fetch` runs `fetch-data`, `make build` builds the dbt models and runs their data tests, and `make lint` and `make test` run the Python checks. CI runs all of them, with the dbt tests on the 2023 to 2025 data.
+For development, `make setup` installs the environment and the git hooks, `make fetch` runs `fetch-data`, `make build` builds the dbt models and runs their data tests, `make charts` draws the six charts into `analysis/figures/`, and `make lint` and `make test` run the Python checks. CI runs all of them, with the dbt tests on the 2023 to 2025 data.
 
 ## Layout
 
@@ -83,7 +83,7 @@ src/             the pipeline package; fetch-data downloads, verifies and stages
 models/          dbt: staging, intermediate, marts, and the analysis models behind the charts
 seeds/           dbt lookup tables: product groups, classification events, windows, occupation pairs
 macros/          dbt macros
-analysis/        Quarto write-up (being written)
+analysis/        Quarto write-up (being written), and the charts in analysis/figures/
 tests/           pytest, and the dbt data tests in tests/dbt/
 docs/            the research
 ```
