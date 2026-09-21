@@ -4,18 +4,25 @@ config-version: 2
 profile: brazil_consumer_credit_risk
 
 model-paths: ["models"]
-test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests/dbt"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
 flags:
   send_anonymous_usage_stats: false
 
+vars:
+  # Last month in which the 90-day stocks are comparable: from January 2025, Res. CMN 4.966
+  # delays write-offs (docs/data-landscape.md, section A.3).
+  d90_last_comparable_month: "2024-12-01"
+
 models:
   brazil_consumer_credit_risk:
     staging:
       +materialized: view
     intermediate:
-      +materialized: view
+      +materialized: table
     marts:
       +materialized: table

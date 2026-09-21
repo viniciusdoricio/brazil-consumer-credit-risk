@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: int_pf_cells
+    description: >
+      Household (PF) credit summed to month x occupation x income band x product group. Numerators
+      and denominators only; rates are computed in the marts from summed balances, never by
+      averaging rates.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [month, occupation, income_band, product_group]
+    columns:
+      - name: occupation
+        description: Nature of occupation from the Receita Federal registry (the cnae_ocupacao column for PF).
+        data_tests:
+          - not_null
+      - name: income_band
+        description: Monthly income in minimum wages as reported by the lender (the porte column for PF).
+        data_tests:
+          - not_null
+      - name: product_group
+        description: >
+          From the pf_product_groups seed. A null here would mean a published product with no
+          group, so this test is also the check that the mapping is complete.
+        data_tests:
+          - not_null
+      - name: rows_with_count_withheld
+        description: Published rows in the cell whose operation count BCB withholds (-1).

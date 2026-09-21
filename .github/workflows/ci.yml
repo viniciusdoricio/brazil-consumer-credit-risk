@@ -23,3 +23,26 @@ jobs:
         run: uv run ruff format --check .
       - name: Tests
         run: uv run pytest -q
+
+  dbt:
+    # The data tests run on 2023 to 2025, which covers the January 2025 break and two years of the
+    # SGS reconciliation. `make build` runs them on the full history.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          enable-cache: true
+      - name: Restore the SCR.data archives
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/raw/zips
+          key: scrdata-2023-2025-v1
+      - name: Install
+        run: uv sync --locked
+      - name: Fetch 2023 to 2025 and the SGS series
+        run: uv run fetch-data --years 2023 2025
+      - name: Build and test the dbt models
+        run: |
+          uv run dbt deps
+          uv run dbt build

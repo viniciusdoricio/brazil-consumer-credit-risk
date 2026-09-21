@@ -3,5 +3,5 @@ brazil_consumer_credit_risk:
   outputs:
     dev:
       type: duckdb
-      path: brazil_consumer_credit_risk.duckdb
+      path: data/brazil_consumer_credit_risk.duckdb
       threads: 4

@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_bcb__scrdata
+    description: >
+      SCR.data V2 as published, one row per cell, with a month key. Two labels are cleaned: a
+      mis-encoded en dash in one real-estate sub-modality and a doubled space in the rural
+      modality, both of which would otherwise break joins.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              [month, uf, segmento, cliente, cnae_ocupacao, porte, modalidade, submodalidade, origem, indexador]
+    columns:
+      - name: month
+        description: First day of the reference month; data_base is its last day.
+        data_tests:
+          - not_null
+      - name: cliente
+        description: PF (individuals, households) or PJ (firms).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["PF", "PJ"]
+      - name: carteira_ativa
+        description: Active portfolio, the denominator of every rate.
+        data_tests:
+          - not_null
+      - name: numero_de_operacoes
+        description: Number of operations; -1 where BCB withholds the count for a sparse cell.
+
+  - name: stg_bcb__sgs
+    description: The SGS series, one row per series and month, values as published.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [sgs_code, month]
+    columns:
+      - name: sgs_code
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [21084, 24369, 1619, 433]
+                quote: false
+      - name: value
+        data_tests:
+          - not_null
