@@ -49,6 +49,7 @@ hand. The sampled-month scripts need `fetch_member.py` and `load_months.py` firs
 | Script | What it does | Used in |
 |---|---|---|
 | `panel.py` | Month-by-month profile of all V2 months, and a scan for candidate breaks | [`data-dictionary.md`](../../docs/data-dictionary.md) |
+| `vintage_diff.py` | What changed between two releases of the same months, when BCB republishes an archive | [`data-dictionary.md`](../../docs/data-dictionary.md) |
 | `breaks_context.py` | Context for each candidate break: January shifts, moves in "Outros", income recodings | [`data-dictionary.md`](../../docs/data-dictionary.md) |
 
 ## Official series and other sources
