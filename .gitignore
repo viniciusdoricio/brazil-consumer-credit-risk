@@ -24,3 +24,7 @@ logs/
 
 # os
 .DS_Store
+
+# derived data: typed Parquet and recon outputs (reproducible from scripts/recon/; ODbL applies if published)
+data/parquet/
+data/recon/
