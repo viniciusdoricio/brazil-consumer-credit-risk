@@ -17,6 +17,14 @@ vars:
   # Last month in which the 90-day stocks are comparable: from January 2025, Res. CMN 4.966
   # delays write-offs (docs/data-landscape.md, section A.3).
   d90_last_comparable_month: "2024-12-01"
+  # Categories kept in every total but left out of comparisons: "Outros" is a catch-all
+  # occupation, and the two income codes mean the lender reported no income
+  # (docs/v1-decision.md, section 3). Headlines are also run with them included.
+  residual_occupations: ["Outros"]
+  residual_income_bands: ["Indisponível", "Sem rendimento"]
+  # A cell's rate is shown only if its average monthly balance over the window is at least this
+  # many R$ billion (docs/analysis-design.md, section 4).
+  min_cell_balance_bn: 1.0
 
 models:
   brazil_consumer_credit_risk:
@@ -25,4 +33,6 @@ models:
     intermediate:
       +materialized: table
     marts:
+      +materialized: table
+    analysis:
       +materialized: table

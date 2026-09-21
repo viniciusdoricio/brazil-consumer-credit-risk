@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: analysis_grid
+    description: >
+      Chart 2, the grid. Household 90-day and 15-90-day rates by occupation and income band,
+      pooled over each cross-section window, with the lagged-denominator 90-day rate beside them.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [window_id, occupation, income_band]
+    columns:
+      - name: average_balance_bn
+        description: Average monthly carteira_ativa over the window, in R$ billion.
+      - name: d90_rate
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: d15_rate
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: d90_rate_lagged
+        description: >
+          90-day balance over the balance 12 months earlier. A seasoning sensitivity, not a
+          measure: for income bands the lag crosses a January.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: in_primary_grid
+        description: True for named occupations in named income bands, the cells v1 compares.
+      - name: below_minimum_size
+        description: True when the average monthly balance is under var min_cell_balance_bn; the rates are not shown.
+
+  - name: analysis_dispersion
+    description: >
+      Chart 3, which matters more. Per calendar year 2017-2024 and measure: the balance-weighted
+      spread of occupation rates within income bands against the spread of income-band rates
+      within occupations, next to unemployment. "primary" uses named occupations and bands only;
+      "all" adds the residual categories.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year, measure, variant]
+    columns:
+      - name: spread_across_occupations_within_bands
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: spread_across_bands_within_occupations
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: occupation_to_income_ratio
+        description: Above 1 means occupation separates risk more than income does that year.
+      - name: year_has_mid_year_income_event
+        description: True when a non-January income reclassification falls inside the year (classification_events).
+
+  - name: analysis_gap_decomposition
+    description: >
+      Chart 4, job or product. Each headline occupation pair's 90-day gap within a named income
+      band, split exactly into a same-product gap and a product-mix gap, in every cross-section
+      window, with all products and without rural credit.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [pair_id, window_id, product_scope, income_band]
+    columns:
+      - name: gap
+        description: rate_a minus rate_b, as a fraction.
+        data_tests:
+          - not_null
+      - name: product_mix_share_of_gap
+        description: >
+          The product-mix gap as a share of the gap. Above one half, the gap is mostly about which
+          products each occupation holds (docs/v1-decision.md, section 6). Null when the gap is
+          under 0.1 pp, where a share of it means nothing.
+      - name: gap_sign_holds_with_lag
+        description: False when lagged denominators reverse the order of the two occupations.
