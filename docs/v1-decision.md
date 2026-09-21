@@ -83,6 +83,15 @@ Headlines are written as *claims with a slot*, because the findings are not comp
 also names the headline that replaces it if the data says the opposite. No headline gets filled in
 by hand. Every number comes from a model.
 
+*As built* (`src/brazil_consumer_credit_risk/charts/`, `make charts`): each headline is chosen from
+the models by a rule fixed in code, with the numbers behind it in `analysis/figures/headlines.json`.
+Three departures from the table below:
+- **Chart 3:** the headline names the 90-day measure, because the 15–90-day measure can disagree.
+- **Chart 4:** it shows all seven named bands, marking the ones whose split isn't stable, instead
+  of choosing two.
+- **Chart 5:** the headline is generated from the episodes as they came out. 2023–24 was a fall,
+  not the rise the draft headline assumed.
+
 | # | Chart | Headline it should carry | If the data says the opposite |
 |---|---|---|---|
 | 1 | **The trap.** National PF D90 (SCR.data and SGS 21084) and D15, 2016-06 → 2026-07. January 2025 marked; BCB's 0.53-of-0.78 pp counterfactual annotated | "Part of the rise in household delinquency since January 2025 is an accounting change, not borrowers; the 15–90-day measure didn't jump" (already supported by BCB's estimate and the break measured in `docs/data-landscape.md`) | — |
