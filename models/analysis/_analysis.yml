@@ -88,3 +88,65 @@ models:
           under 0.1 pp, where a share of it means nothing.
       - name: gap_sign_holds_with_lag
         description: False when lagged denominators reverse the order of the two occupations.
+
+  - name: analysis_shift_share
+    description: >
+      Chart 5, mix versus rate. The change in the national household 90-day or 15-90-day rate
+      between two months, split exactly into pure rate, product mix and borrower (occupation) mix,
+      for the fixed episodes, for the 15-90-day rate since January 2025, and for every month
+      against a year earlier.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [comparison_id, measure, variant]
+    columns:
+      - name: kind
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [episode, year_over_year]
+      - name: variant
+        description: '"all" sums to the published total; "excluding_residual" drops the occupation "Outros".'
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [all, excluding_residual]
+      - name: spans_occupation_reclassification
+        description: >
+          True when an occupation reclassification falls between the two months, so part of the
+          borrower-mix term is classification rather than lending.
+
+  - name: analysis_current_read
+    description: >
+      Chart 6, the current read. Each occupation's 15-90-day rate over the last 12 months against
+      calendar 2024, with lagged denominators, next to its real portfolio growth.
+    columns:
+      - name: occupation
+        data_tests:
+          - unique
+          - not_null
+      - name: months_2024
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [12]
+                quote: false
+      - name: months_last_12
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [12]
+                quote: false
+      - name: d15_rate_last_12_months
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: real_balance_growth
+        description: Average real balance over the last 12 months against 2024, minus one.
+        data_tests:
+          - not_null
+      - name: possible_tightening
+        description: True when the rate fell while the real portfolio shrank; not read as borrowers improving.
