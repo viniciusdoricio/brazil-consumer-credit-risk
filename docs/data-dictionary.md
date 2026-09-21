@@ -1,6 +1,6 @@
 # SCR.data — data dictionary
 
-*Phase 1 of the reconnaissance (`docs/research-prompt.md`). Written from files opened and profiled,
+*Written from files opened and profiled,
 not from documentation alone. Where the data and BCB's documentation disagree, the disagreement is
 recorded and the data wins.*
 
@@ -249,7 +249,7 @@ different modality taxonomy, and is no longer maintained.
 
 ## 4. When does V1 become V2?
 
-**It doesn't, in the sense the brief assumed.** There is no data-base month at which the schema
+**It doesn't, in the sense the original plan assumed.** There is no data-base month at which the schema
 switches:
 
 - All 175 V1 files share one header; all 169 V2 files share another **[D]**
@@ -332,7 +332,7 @@ What that does to each measure:
 | `ativo_problematico` | **No.** Definition changed | Section 2.3; `docs/data-landscape.md` |
 | `carteira_ativa` (denominator) | **Same identity, same scope rule, no visible level shift for PF.** But from 2025 it contains the non-written-off defaulted stock, so it is slightly inflated relative to 2024 | PF carteira Dec→Jan: +1.05% (2025) vs +0.99% (2024) **[D]**. Whether 4.966's amortised-cost measurement changed reported balances is **unknown**. It would need BCB confirmation or a same-institution comparison |
 
-**Conclusion for the design.** The brief's premise that the overdue bands are "consistent across
+**Conclusion for the design.** The original plan's premise that the overdue bands are "consistent across
 the whole series" holds for the *definitions* and fails for the >90 *stocks*. Only the 15–90 bucket
 is defensible as a measure that runs through January 2025 with no adjustment. It has its own
 earlier break, in March 2014 (section 10). Any >90 series across
@@ -367,11 +367,11 @@ marginal slices?
 
 | # | Unknown | How to find out |
 |---|---|---|
-| U1 | Where SCR.data puts doc 3040 maturity codes 205 (1–14 days overdue) and 199 (open-ended). Both are inside "carteira" (codes 110–290) **[M2][3040]**, but no published column holds them and the identities are exact | Ask BCB (`docs/bcb-email-draft.md`) |
+| U1 | Where SCR.data puts doc 3040 maturity codes 205 (1–14 days overdue) and 199 (open-ended). Both are inside "carteira" (codes 110–290) **[M2][3040]**, but no published column holds them and the identities are exact | Ask BCB |
 | U2 | Whether `numero_de_operacoes = -1` means ≤15 operations, and whether the official suppression/aggregation of sparse cells (§10.4) also moves balances into other categories ("Outros", "Indisponível", "Outros créditos") | Partly answered: BCB confirms sparse cells are hidden or aggregated. The marker's meaning and any reallocation: ask BCB |
 | U3 | Which IRPF *natureza da ocupação* categories map to each SCR group, which filing year each data-base uses, and how non-filers are classified | Partly answered (§10.4: CPF registry field tied to a filing year; 24 IRPF categories). Mapping and process: ask BCB |
 | U4 | Whether SCR.data uses each lender's reported `PorteCli` as is, or recomputes the band from reported income | Partly answered. Lenders assign `PorteCli` from their most current information **[3040]**. BCB states there is no client-level consolidation (LAI, §10.4). Bands move against the minimum wage in force at the data-base, including at the mid-year resets (§10.5). Ask BCB which of the two options applies |
-| U5 | Cause of the income shifts | **Largely located** (§10.5). 2018-11: new "Indisponível" code. 2019-03, 2020-08, 2021-09, 2026-05: bank reporting changes, mostly in real-estate financing. 2025-01: cooperatives in RS/PR/MT, reversed next month. Januaries: minimum wage. 2025-07: permanent step in the size field, in V2 and V1, PF and PJ, while occupation doesn't move. Most likely a production change at BCB (§10.6, inference). **What changed in band assignment is undocumented.** Ask BCB (email question 7), and whether the lender events will be revised |
+| U5 | Cause of the income shifts | **Largely located** (§10.5). 2018-11: new "Indisponível" code. 2019-03, 2020-08, 2021-09, 2026-05: bank reporting changes, mostly in real-estate financing. 2025-01: cooperatives in RS/PR/MT, reversed next month. Januaries: minimum wage. 2025-07: permanent step in the size field, in V2 and V1, PF and PJ, while occupation doesn't move. Most likely a production change at BCB (§10.6, inference). **What changed in band assignment is undocumented.** Ask BCB, and whether the lender events will be revised |
 | ~~U6~~ | ~~Exact months when `submodalidade`, `segmento`, `indexador` categories changed~~ | **Resolved** on the full history (§2.1, §10) |
 | U7 | Why V2 reports 1–2% more PF portfolio than V1 | Not needed for the design, since V1 is dropped. Ask BCB if it ever matters |
 | ~~U8~~ | ~~Whether the 2025 rules changed how reported balances are valued~~ | **Answered** (§10.4): from Jan/2025 overdue values include accrued contractual interest except on problem assets (IN BCB 414/2023). Performing values remain the present value of instalments |
@@ -590,7 +590,7 @@ Checked on 2026-09-15, before asking BCB anything. Sources:
 | Voto 159/2024–BCB | Amends Circular 3.870/2017 on how often SCR information is compiled and on events that change a debt balance | Unrelated to the breaks |
 | **No client-level consolidation; sparse cells hidden or aggregated** | BCB answer to LAI 18810.021683/2023-64 (appeal answered 02/01/2024 by the head of Desig, substitute; `buscalai.cgu.gov.br/busca/6633034`). SCR.data results from processing "cerca de 1 bilhão de operações reportadas mensalmente". BCB built "rotinas adicionais de pré-processamento para a ocultação e agregação de operações de modo a prevenir uma eventual quebra indireta do sigilo bancário dos tomadores, enquadrados em recortes esparsos de atividade econômica, unidade da federação e porte/rendimento". Client-level (CPF/CNPJ) consolidation "não existe atualmente no SCR.Data ou em qualquer outra publicação do Banco Central" | **Officially documented.** (a) Sparse cells are suppressed or aggregated, which is consistent with the `-1` sentinel and matters for thin v1 cells. Whether values are *moved* into other categories is not stated. (b) No client consolidation means SCR.data almost certainly does not apply the REF's single-band-per-borrower rule (inference from the official statement) |
 | **2025 months withdrawn and revised** | BCB answers to LAI 18810.007763/2025-79 (22/04/2025; `busca/8635493`): "Os dados de 2025 foram retirados da página para revisão interna e deverão ser divulgados posteriormente". And to LAI 18810.008534/2025-71 (05/05/2025; `busca/8683869`): the Jan/Feb-2025 data "estão em processo de revisão devido ao início de vigência da ResCMN 4.966" | **Officially documented.** The 2025 months in today's files are a revised production, and SCR.data vintages differ |
-| **No document found for:** January-2017 occupation break; income shifts 2019-03, 2020-08, 2021-09, 2025-01, 2025-07, 2026-05 (no Anexo 25 change on those dates; located by lender type and product in §10.5); 2014-03 15–90 drop; `TCR/TRFC` from 2019-08; the `-1` sentinel; where SCR.data puts maturity codes 199 (open-ended) and 205 (1–14 days overdue); the 2026 SCR–SGS gap (SGS values unchanged on 2026-09-15); whether the REF counterfactual series are published | — | Open. These go to BCB (`docs/bcb-email-draft.md`) |
+| **No document found for:** January-2017 occupation break; income shifts 2019-03, 2020-08, 2021-09, 2025-01, 2025-07, 2026-05 (no Anexo 25 change on those dates; located by lender type and product in §10.5); 2014-03 15–90 drop; `TCR/TRFC` from 2019-08; the `-1` sentinel; where SCR.data puts maturity codes 199 (open-ended) and 205 (1–14 days overdue); the 2026 SCR–SGS gap (SGS values unchanged on 2026-09-15); whether the REF counterfactual series are published | — | Open questions for BCB (section 7) |
 
 ### 10.5 Where the income-band shifts come from
 
@@ -678,6 +678,6 @@ The most likely explanation is **a change in how SCR.data is produced from data-
 - deriving the band from the reported amount ("Renda mensal PF") instead of the reported size code;
 - assigning one band per borrower across lenders, as the REF annex does (BCB said in 2023 that SCR.data had no client consolidation).
 
-A lender-side cause is unlikely. No rule required re-reporting, and banks and cooperatives moved together for PF but not for PJ. This goes to BCB as email question 7.
+A lender-side cause is unlikely. No rule required re-reporting, and banks and cooperatives moved together for PF but not for PJ. It stays an open question for BCB (U12).
 
 **For v1.** v1's income cross-sections end in 2024 and are unaffected. Any income-band series or band-level rate that crosses July 2025 needs a break flag, and a level adjustment can't be estimated from the data alone.

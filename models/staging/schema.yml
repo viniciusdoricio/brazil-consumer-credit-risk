@@ -1,6 +1,6 @@
 version: 2
 
-# Populated during Phase 1 of the reconnaissance, from the real files.
+# Filled in as the marts are built.
 # Every mart below must carry, at minimum:
 #   - not_null + unique on its grain
 #   - accepted_range 0..1 on any share/rate column

@@ -1,8 +1,7 @@
 # Analysis design
 
-*Phase 4 of the reconnaissance. It decides how the analysis is done before any model or chart
-exists. Every constraint cited comes from `docs/data-dictionary.md` (Phase 1) or
-`docs/data-landscape.md` (Phases 2–3).*
+*How the analysis is done, decided before any model or chart exists. Every constraint cited
+comes from `docs/data-dictionary.md` or `docs/data-landscape.md`.*
 
 ---
 

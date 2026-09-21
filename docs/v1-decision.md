@@ -1,6 +1,6 @@
 # v1 — the locked decision
 
-*Phase 5 of the reconnaissance. This is a decision, not a menu. It rests on
+*The decision rests on
 `docs/data-dictionary.md` (what the data is), `docs/data-landscape.md` (the break and the
 landscape) and `docs/analysis-design.md` (method).*
 
@@ -22,7 +22,7 @@ landscape) and `docs/analysis-design.md` (method).*
   present". It fails in two places:
   1. **After January 2025 the 90-day stock is inflated by an accounting change.** BCB estimates
      about 70% of the first-half-2025 rise in 90-day delinquency was regulatory (write-offs
-     delayed under Res. CMN 4.966), not borrower behaviour. The brief's premise that the overdue
+     delayed under Res. CMN 4.966), not borrower behaviour. The original plan's premise that the overdue
      bands are consistent across the break holds for the definitions, not for the numbers.
   2. **Before June 2016 the population is different.** The SCR reporting threshold fell from R$1,000
      to R$200. PF operations rose a third in one month and the "Até 1 SM" portfolio a fifth.
@@ -51,9 +51,9 @@ o que muda é o tipo de crédito a que cada ocupação tem acesso?**
 
 | Alternative | Why it lost |
 |---|---|
-| **A. The brief's v1 as specified** (90-day overdue, 2012–present, raw rates by occupation × income) | Measure breaks in 2025; low-income cells change population in 2016; raw occupation gaps are confounded with product access. The question survives, the specification doesn't |
+| **A. The original v1 as specified** (90-day overdue, 2012–present, raw rates by occupation × income) | Measure breaks in 2025; low-income cells change population in 2016; raw occupation gaps are confounded with product access. The question survives, the specification doesn't |
 | **B. The January-2025 break as v1** | BCB already published the quantification (the ~70% counterfactual). Re-deriving it nationally adds little. The segment-level version is unidentifiable, because no public counterfactual exists below the aggregate. It remains the best *LinkedIn post 1* and is carried in chart 1 |
-| **C. Occupation only** (the brief's fallback if the data were marginals) | Not needed: the cross-tab exists. Income is clean *within* a year, and "at the same income" is exactly the control that makes the occupation comparison fair. The January-2025 income anomaly falls outside the 90-day window |
+| **C. Occupation only** (the original plan's fallback if the data were marginals) | Not needed: the cross-tab exists. Income is clean *within* a year, and "at the same income" is exactly the control that makes the occupation comparison fair. The January-2025 income anomaly falls outside the 90-day window |
 | **D. Product spread (payroll vs card)** | Close to what BCB's Financial Stability Report already publishes by modality, so it differentiates less. It enters v1 anyway, as the decomposition term |
 | **E. Regional (UF)** | Cells get thin fast (27 × 72), and the 2024 Rio Grande do Sul flood restructurings are treated specially in the regulation (art. 72-A). Extension |
 | **F. Early warning / Selic lag model** | One clean tightening episode inside the consistent cell-level window. No lag estimate from this data would be honest. Extension, descriptive only |
@@ -85,7 +85,7 @@ by hand. Every number comes from a model.
 
 | # | Chart | Headline it should carry | If the data says the opposite |
 |---|---|---|---|
-| 1 | **The trap.** National PF D90 (SCR.data and SGS 21084) and D15, 2016-06 → 2026-07. January 2025 marked; BCB's 0.53-of-0.78 pp counterfactual annotated | "Part of the rise in household delinquency since January 2025 is an accounting change, not borrowers; the 15–90-day measure didn't jump" (already supported by BCB's estimate and the Phase 2 data) | — |
+| 1 | **The trap.** National PF D90 (SCR.data and SGS 21084) and D15, 2016-06 → 2026-07. January 2025 marked; BCB's 0.53-of-0.78 pp counterfactual annotated | "Part of the rise in household delinquency since January 2025 is an accounting change, not borrowers; the 15–90-day measure didn't jump" (already supported by BCB's estimate and the break measured in `docs/data-landscape.md`) | — |
 | 2 | **The grid.** D90 heatmap, 7 × 7 cells, pooled 2024, cell size shown | "At the same income, 90-day delinquency differs by up to [x] points depending on occupation" | "Within an income band, occupation barely changes delinquency" |
 | 3 | **Which matters more.** Balance-weighted spread across occupations within bands vs across bands within occupations, one point per calendar year 2017–2024 (so no January band shift falls inside a point), unemployment overlaid | "Occupation separates risk [more/less] than income does, and the gap [widened/held] when unemployment rose" | Stated with the reversed comparison |
 | 4 | **Job or product?** For the three headline pairs (Aposentado vs Autônomo, Servidor vs Empregado privado, MEI vs Empresário) in two income bands: raw gap split into same-product and product-mix | "[Most/little] of the retiree–self-employed gap comes from access to payroll-deducted credit" | Same chart, reversed claim |
@@ -112,7 +112,7 @@ by hand. Every number comes from a model.
 5. **PJ** by CNAE section × firm size.
 6. **Tableau Public** version of charts 2, 4 and 6.
 
-This reorders the brief's list. Early warning moves first because it costs least on top of v1 and
+This reorders the original list. Early warning moves first because it costs least on top of v1 and
 is the metric that still works today. Regional drops because of cell thinness.
 
 ## 6. Risks to this design, and what would falsify the finding
@@ -147,6 +147,6 @@ is the metric that still works today. Regional drops because of cell thinness.
 | Contingency (~15%) | 8–10 |
 | **Total** | **≈ 59–80 hours** |
 
-The brief's "ships in two weeks" is realistic only at close to full-time. At 15–20 hours a week it
+The original two-week target is realistic only at close to full-time. At 15–20 hours a week it
 is four to five weeks. **A finished v1 beats an expanded one**, so the extensions list stays closed
 until chart 6 is published.

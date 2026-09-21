@@ -4,7 +4,7 @@ The BCB open-data portal is a CKAN instance, so resources are discoverable
 through the CKAN action API rather than by guessing URL patterns. This script
 asks the portal what exists and downloads what you ask for.
 
-    # Phase 1 of the reconnaissance: three months, not the whole history.
+    # A three-month sample rather than the whole history.
     uv run python scripts/fetch_scr.py --recon
 
     # List what the portal actually offers, without downloading
@@ -45,7 +45,7 @@ RAW = Path(__file__).resolve().parent.parent / "data" / "raw"
 TIMEOUT = 60
 CHUNK = 1 << 20
 
-# Phase 1 of the reconnaissance deliberately samples the series rather than
+# The reconnaissance deliberately samples the series rather than
 # pulling fourteen years: one early month, one before the Res. 4.966 break,
 # one after it. Three files answer the schema-drift and cross-tab questions.
 RECON_MONTHS = ("2013-06", "2024-06")

@@ -1,6 +1,6 @@
 # Brazilian public credit data — the landscape, and the January-2025 break
 
-*Phases 2 and 3 of the reconnaissance (`docs/research-prompt.md`). Part A is the regulatory break,
+*Part A is the regulatory break,
 checked in the data. Part B is every other source worth knowing, bounded to what it joins to.
 Evidence tags are the ones defined in `docs/data-dictionary.md`: **[D]** data profiled, **[M2]**
 SCR.data V2 methodology, **[3040]** reporting layout, **[R]** regulation text, **[SGS]** BCB series
