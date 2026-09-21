@@ -53,12 +53,19 @@ def fetch_scr(data_dir: Path, years: range, jobs: int, refresh: bool = False) ->
     failures = 0
     available = []
     for year, message, error in results:
-        if error is not None:
+        archive = raw_dir / scr.archive_name(year)
+        if error is None:
+            log.info("%s", message)
+        else:
+            # Still a failure, but an archive already on disk was verified when it was downloaded,
+            # so staging it lets the build run while BCB is unreachable.
             failures += 1
-            log.error("%s: %s", scr.archive_name(year), error)
-            continue
-        log.info("%s", message)
-        if (raw_dir / scr.archive_name(year)).exists():
+            log.error("%s: %s", archive.name, error)
+            if archive.exists():
+                log.warning(
+                    "%s: couldn't check for a newer release; using the local copy", archive.name
+                )
+        if archive.exists():
             available.append(year)
 
     con = duckdb.connect()

@@ -18,6 +18,13 @@ recorded and the data wins.*
 
 Every number here is reproducible with `scripts/recon/` (section 9).
 
+**Data release.** The figures here come from the V2 archives downloaded on 15 September 2026, which
+BCB had last published between 27 March and 12 September 2026 (section 8), and from SGS as fetched
+the same month. BCB has since republished the 2024 and 2026 archives, on 15 and 19 September 2026.
+The pipeline now uses those, and they move the household portfolio by at most R$0.3 bn and its
+90-day rate by at most 0.001 pp (section 1.1, *Revisions*). Of the sampled V2 files, only
+`scrdata_202607.csv` changed: a fresh fetch returns 310,240 rows, 47 more than section 8 records.
+
 ---
 
 ## 0. The six things that change the design
@@ -432,14 +439,21 @@ Plus the header line and first data row of all 344 monthly files, read by range 
 | `scrdata_2025.zip` | 12 | 5 Sep 2026 | `b6c4e3a02bf3698e` |
 | `scrdata_2026.zip` | 2026-01 … 2026-07 | 12 Sep 2026 | `b43d659873815e09` |
 
+BCB has since republished two of them: `scrdata_2024.zip` on 15 Sep 2026 (`962c6aaf6cf7d475`) and
+`scrdata_2026.zip` on 19 Sep 2026 (`db8b30a712591a1d`). Both releases are in the manifest, and the
+pipeline uses the later ones (section 1.1, *Revisions*).
+
 ## 9. Reproducing this document
 
 ```bash
 # index every archive and read every header (no bulk download)
 uv run python scripts/recon/remote_zip_index.py
 uv run python scripts/recon/header_scan.py
-# fetch individual months (4 MB range requests, CRC-verified)
-uv run python scripts/recon/fetch_member.py data/raw/months scrdata_202607 scrdata_202412 scrdata_202501
+# fetch the 18 months in section 8 (4 MB range requests, CRC-verified, 2.4 GB on disk)
+uv run python scripts/recon/fetch_member.py data/raw/months \
+    scrdata_201306 scrdata_201605 scrdata_201606 scrdata_202312 scrdata_202401 scrdata_202406 \
+    scrdata_202411 scrdata_202412 scrdata_202501 scrdata_202502 scrdata_202506 scrdata_202512 \
+    scrdata_202607 planilha_201306 planilha_202412 planilha_202506 planilha_202507 planilha_202607
 # load typed into DuckDB and profile
 uv run python scripts/recon/load_months.py data/recon.duckdb data/raw/months/*.csv
 uv run python scripts/recon/structure_checks.py data/recon.duckdb profile scrdata_202607
@@ -456,14 +470,15 @@ uv run python scripts/recon/sgs.py
 Full history (section 10): about 15 minutes to download, 10 to convert, seconds to profile.
 
 ```bash
-uv run python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
-uv run python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
+uv run fetch-data
 uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 uv run python scripts/recon/breaks_context.py data/parquet/scrdata
 ```
 
-Run `uv sync` first. The scripts run in the project environment, which pins Python 3.13 and
-`dbt-core` 1.11 (1.12 pulls in a parser whose build downloads a binary at install time).
+`fetch-data` does what `scripts/recon/fetch_years.py` and `to_parquet.py` did during the research,
+and also records which archive each month came from. Run `uv sync` first. The scripts run in the
+project environment, which pins Python 3.13 and `dbt-core` 1.11 (1.12 pulls in a parser whose
+build downloads a binary at install time).
 
 ---
 

@@ -8,11 +8,14 @@ For each scrdata_YYYYMM table: rows, whether the 10-dimension grain is unique, h
 """
 
 import os
+import sys
 
 import duckdb
 
 con = duckdb.connect(os.environ.get("RECON_DB", "data/recon.duckdb"), read_only=True)
 tables = sorted(r[0] for r in con.execute("SHOW TABLES").fetchall() if r[0].startswith("scrdata_"))
+if not tables:
+    sys.exit("no scrdata_ tables loaded: see docs/data-dictionary.md, section 9")
 dims = "data_base, uf, segmento, cliente, cnae_ocupacao, porte, modalidade, submodalidade, origem, indexador"
 print(
     "month | rows | grain unique | PF cells populated | % Sem rendimento | % Indisponível | % Outros | % MEI"

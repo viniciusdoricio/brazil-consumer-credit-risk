@@ -15,7 +15,8 @@ make fetch        # the same as: uv run fetch-data
 Every archive member is checked against its CRC32 before anything is converted. BCB republishes
 past years, so a local archive is kept even when a newer version appears, until
 `uv run fetch-data --refresh` replaces it, and a month is converted again whenever its archive
-changes. The manifest records which release a run used.
+changes. The manifest records which release a run used. If BCB can't be reached, archives already
+on disk are still staged, and the run ends with an error so the missed check isn't silent.
 
 ## Provenance
 

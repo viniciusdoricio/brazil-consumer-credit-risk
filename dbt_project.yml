@@ -14,6 +14,9 @@ flags:
   send_anonymous_usage_stats: false
 
 vars:
+  # First month in which occupation-level rates are comparable: occupations were reclassified in
+  # January 2017 (docs/data-dictionary.md, section 10.2).
+  first_comparable_month: "2017-01-01"
   # Last month in which the 90-day stocks are comparable: from January 2025, Res. CMN 4.966
   # delays write-offs (docs/data-landscape.md, section A.3).
   d90_last_comparable_month: "2024-12-01"
