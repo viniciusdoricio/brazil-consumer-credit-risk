@@ -1,7 +1,7 @@
 [project]
-name = "br-credit-monitor"
+name = "brazil-consumer-credit-risk"
 version = "0.1.0"
-description = "Credit portfolio monitoring on Brazilian public data (BCB SCR.data + SGS)"
+description = "Consumer credit risk in Brazil from Banco Central public data (SCR.data, SGS)"
 # dbt-core 1.11 supports Python up to 3.13
 requires-python = ">=3.11,<3.14"
 dependencies = [

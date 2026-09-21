@@ -1,7 +1,7 @@
-name: br_credit_monitor
+name: brazil_consumer_credit_risk
 version: "0.1.0"
 config-version: 2
-profile: br_credit_monitor
+profile: brazil_consumer_credit_risk
 
 model-paths: ["models"]
 test-paths: ["tests"]
@@ -9,7 +9,7 @@ target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
 models:
-  br_credit_monitor:
+  brazil_consumer_credit_risk:
     staging:
       +materialized: view
     intermediate:

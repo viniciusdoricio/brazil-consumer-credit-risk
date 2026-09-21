@@ -135,7 +135,7 @@ def main() -> int:
     args = ap.parse_args()
 
     session = requests.Session()
-    session.headers["User-Agent"] = "br-credit-monitor/0.1 (public research)"
+    session.headers["User-Agent"] = "brazil-consumer-credit-risk/0.1 (public research)"
 
     try:
         resources = discover_resources(session)

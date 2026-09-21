@@ -1,7 +1,7 @@
-br_credit_monitor:
+brazil_consumer_credit_risk:
   target: dev
   outputs:
     dev:
       type: duckdb
-      path: br_credit_monitor.duckdb
+      path: brazil_consumer_credit_risk.duckdb
       threads: 4
