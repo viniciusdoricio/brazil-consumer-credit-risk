@@ -1,4 +1,4 @@
-# br-credit-monitor
+# brazil-consumer-credit-risk
 
 **Who falls behind in Brazil — and does it depend more on what you earn, or on how you're employed?**
 

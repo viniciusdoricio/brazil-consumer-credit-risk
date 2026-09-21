@@ -1,19 +1,22 @@
 [project]
-name = "br-credit-monitor"
+name = "brazil-consumer-credit-risk"
 version = "0.1.0"
-description = "Credit portfolio monitoring on Brazilian public data (BCB SCR.data + SGS)"
-requires-python = ">=3.11"
+description = "Consumer credit risk in Brazil from Banco Central public data (SCR.data, SGS)"
+# dbt-core 1.11 supports Python up to 3.13
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "duckdb>=1.0",
     "pandas>=2.2",
     "matplotlib>=3.9",
     "requests>=2.32",
-    "dbt-core>=1.8",
-    "dbt-duckdb>=1.8",
+    # 1.12 depends on dbt-core-experimental-parser, whose build downloads a binary
+    # at install time; stay on 1.11 until that is a normal wheel
+    "dbt-core>=1.11,<1.12",
+    "dbt-duckdb>=1.11,<1.12",
 ]
 
 [dependency-groups]
-dev = ["pytest>=8.0", "ruff>=0.6", "pre-commit>=3.8"]
+dev = ["pytest>=8.0", "ruff>=0.16", "pre-commit>=4.0"]
 
 [tool.ruff]
 line-length = 100
