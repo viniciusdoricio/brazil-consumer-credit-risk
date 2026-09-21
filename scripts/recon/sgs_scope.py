@@ -1,6 +1,6 @@
 """Does the SCR.data vs SGS 21084 gap come from scope? Recompute the PF 90-day rate on SGS's scope.
 
-    uv run --no-project --with duckdb python scripts/recon/sgs_scope.py data/parquet/scrdata
+    uv run python scripts/recon/sgs_scope.py data/parquet/scrdata
 
 BCB's credit-statistics methodology note (notaempr.pdf, footnote 2) says SGS delinquency rates, built
 from doc 3050, exclude credit cooperatives, development agencies and microcredit companies. SCR.data

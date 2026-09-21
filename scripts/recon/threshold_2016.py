@@ -1,6 +1,6 @@
 """June-2016 scope change (SCR threshold R$1,000 -> R$200): what moved between May and June 2016.
 
-RECON_DB=data/recon.duckdb uv run --no-project --with duckdb python scripts/recon/threshold_2016.py
+RECON_DB=data/recon.duckdb uv run python scripts/recon/threshold_2016.py
 """
 
 import os

@@ -1,6 +1,6 @@
-# SCR.data — data dictionary
+# SCR.data data dictionary
 
-*Phase 1 of the reconnaissance (`docs/research-prompt.md`). Written from files opened and profiled,
+*Written from files opened and profiled,
 not from documentation alone. Where the data and BCB's documentation disagree, the disagreement is
 recorded and the data wins.*
 
@@ -58,11 +58,11 @@ Every number here is reproducible with `scripts/recon/` (section 9).
 | Item | Finding |
 |---|---|
 | Portal | CKAN dataset `scr_data` on `dadosabertos.bcb.gov.br`; licence **ODbL** (`license_id: odc-odbl`) **[D: CKAN API]** |
-| **Trap — discovery** | The CKAN resources for the monthly data have **empty `url` fields**. The URL is a pattern written in the resource *description* **[D: CKAN API]**. `scripts/fetch_scr.py` assumes resources carry URLs, so as written it cannot find the data. The fetch script has to be rewritten before the build phase |
+| **Trap: discovery** | The CKAN resources for the monthly data have **empty `url` fields**. The URL is a pattern written in the resource *description* **[D: CKAN API]**. `scripts/fetch_scr.py` assumes resources carry URLs, so as written it cannot find the data. The fetch script has to be rewritten before the build phase |
 | V2 files | `https://www.bcb.gov.br/pda/desig/scrdata_{YYYY}.zip`, one ZIP per **year** holding one CSV per month (`scrdata_YYYYMM.csv`) **[D][M2]** |
 | V1 files | `https://www.bcb.gov.br/pda/desig/planilha_{YYYY}.zip` holding `planilha_YYYYMM.csv` **[D]** |
-| Coverage, V2 | **2012-07 to 2026-07**, 169 months, no gaps, no duplicates **[D]** — the V1 methodology says the series starts June 2012 **[M1]**; V2 has no June 2012 file |
-| Coverage, V1 | **2012-01 to 2026-07**, 175 months, no gaps **[D]** — BCB's portal says V1 "is available up to data-base June/2025 and will not be updated". **Disagreement:** V1 files exist through July 2026, with changed structure from July 2025 (section 3) |
+| Coverage, V2 | **2012-07 to 2026-07**, 169 months, no gaps, no duplicates **[D]**; the V1 methodology says the series starts June 2012 **[M1]**; V2 has no June 2012 file |
+| Coverage, V1 | **2012-01 to 2026-07**, 175 months, no gaps **[D]**. BCB's portal says V1 "is available up to data-base June/2025 and will not be updated". **Disagreement:** V1 files exist through July 2026, with changed structure from July 2025 (section 3) |
 | Release lag | "updated on the last business day of the month… 30 days after the close of each period" **[M2]**. On 2026-09-14 the latest month is 2026-07 **[D]** |
 | Revisions | The Last-Modified dates of the V2 ZIPs for 2012–2023 are 27 Mar–16 Apr 2026, and for 2024–2026 are 2–12 Sep 2026 **[D: HTTP headers]**. **History is re-published.** BCB also withdrew the 2025 months in April 2025 "para revisão interna" linked to Res. 4.966, and republished them later (LAI answers, §10.4). A file downloaded later may not match one downloaded now. The build must pin SHA-256 hashes and Last-Modified dates (`data/raw/zips/MANIFEST.tsv`, written by `scripts/recon/fetch_years.py`) and say which vintage it used |
 
@@ -73,8 +73,8 @@ Every number here is reproducible with `scripts/recon/` (section 9).
 | Encoding | UTF-8 **with BOM** **[D]** | UTF-8 with BOM **[D]** |
 | Delimiter | `;` | `;` |
 | Quoting | every field double-quoted **[D]** | unquoted, except `"-"` placeholders **[D]** |
-| **Trap — delimiter inside a value** | CNAE label `Comércio; reparação de veículos automotores e motocicletas` contains `;` inside quotes. A naive split on `;` corrupts every PJ commerce row **[D]** | same label, unquoted form not observed in the rows sampled |
-| Decimals | comma, no thousands separator (`633904,03`) **[D]** — no measure value in any profiled month contains `.`, and every value parses **[D]** | same **[D]** |
+| **Trap: delimiter inside a value** | CNAE label `Comércio; reparação de veículos automotores e motocicletas` contains `;` inside quotes. A naive split on `;` corrupts every PJ commerce row **[D]** | same label, unquoted form not observed in the rows sampled |
+| Decimals | comma, no thousands separator (`633904,03`) **[D]**; no measure value in any profiled month contains `.`, and every value parses **[D]** | same **[D]** |
 | Dates | `data_base` ISO `YYYY-MM-DD`, last calendar day of the month **[D]** | same |
 
 ### 1.3 Volume for the full history
@@ -95,7 +95,7 @@ unexpected compression method, and the highest compression ratio is 10.5× **[D]
 suggests a malformed or hostile archive. Each month used here was CRC32-verified against the
 archive's central directory before it was written.
 
-**Trap — transport.** The host resets long transfers. Whole-year downloads at roughly 0.3 MB/s
+**Trap: transport.** The host resets long transfers. Whole-year downloads at roughly 0.3 MB/s
 failed or stalled repeatedly, and so did single 30 MB range requests. Fetching in 4 MB ranges with
 retries worked every time **[D]**. The fetch script needs to do the same.
 
@@ -115,7 +115,7 @@ retries worked every time **[D]**. The fetch script needs to do the same.
 
 ---
 
-## 2. V2 (`scrdata_YYYYMM.csv`) — column by column
+## 2. V2 (`scrdata_YYYYMM.csv`), column by column
 
 24 columns, identical header in all 169 months **[D]**. Types below are after parsing (the files
 are text). Months profiled in full: 2013-06, 2023-12, 2024-01, 2024-06, 2024-11, 2024-12, 2025-01,
@@ -138,7 +138,7 @@ No dimension column has a null or empty value in any month profiled **[D]**.
 | `origem` | Earmarked or not, Anexo 4 first level **[M2]** | Sem destinação específica; Com destinação específica **[D]** | — | — |
 | `indexador` | Rate index, Anexo 5 first level **[M2]** | Prefixado, Pós-fixado, Flutuantes, Índices de preços, TCR/TRFC, Outros indexadores **[D]** | **TCR/TRFC first appears 2019-08 for PF, 2019-10 for PJ** (5 values before) **[D, full history]** | — |
 
-**Unstable PF categories, share of PF portfolio (%)** **[D]** — `scripts/recon/cells.py`
+**Unstable PF categories, share of PF portfolio (%)** **[D]**, from `scripts/recon/crosstab_cells.py`
 
 | Category | 2013-06 | 2016-05 | 2016-06 | 2023-12 | 2024-06 | 2024-12 | **2025-01** | 2025-02 | 2025-06 | 2025-12 | 2026-07 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -154,7 +154,7 @@ not with borrowers gaining income. When this happened and why is **unknown**. Th
 haven't been profiled, and doc 3040's rule reserves "Indisponível" for reported income ≤ R$1
 **[3040]**. The January-2025 spike did not recur in February, June or December 2025. In December
 2024 → January 2025 the "Acima de 20 SM" share also fell from 20.28% to 17.50% and "Até 1 SM" rose
-from 8.51% to 9.28% **[D]** (`scripts/recon/control.py`).
+from 8.51% to 9.28% **[D]** (`scripts/recon/jan2025_control.py`).
 
 In January 2025, "Sem rendimento" went from R$5.4 bn to R$116.8 bn. That included R$56.1 bn of
 rural credit, up from R$0.4 bn, and spread across every occupation (Autônomo R$0.4 → 23.8 bn,
@@ -186,7 +186,7 @@ negative values in any month profiled **[D]**.
 | `carteira_inadimplencia` | Full balance (performing + overdue) of operations with **any instalment >90 days overdue**. The V1 name is `carteira_inadimplida_arrastada` **[M2][M1]** | ≠ `vencido_acima_de_90_dias` on 58,961–89,136 rows per month. PF 2026-07: 5.82% of portfolio vs 3.18% | **This, divided by `carteira_ativa`, is BCB's official 90-day delinquency concept.** It reconciles with SGS 21084 for PF (table below). The two ">90" columns are different measures. Label them explicitly everywhere |
 | `ativo_problematico` | Balance of operations classified as problem assets **[M2]** | ≥ `carteira_inadimplencia` except 2–118 rows per month | **Definition changed in January 2025** **[M2]**: until Dec 2024, >90 days overdue OR restructured with an E–H rating (restructuring detected by a BCB algorithm). From Jan 2025, operations that lenders themselves flag as problem assets (*característica especial 19* in doc 3040). Not comparable across the break. See `docs/data-landscape.md` |
 
-**Reconciliation to the official series** — PF `carteira_inadimplencia / carteira_ativa` **[D]** vs
+**Reconciliation to the official series.** PF `carteira_inadimplencia / carteira_ativa` **[D]** vs
 SGS 21084, "Percent of 90 days past due loans of credit operations outstanding – Households – Total"
 **[SGS]**:
 
@@ -204,7 +204,7 @@ consolidated statistics **[M1]**, and PJ is out of scope for v1 anyway.
 
 ---
 
-## 3. V1 (`planilha_YYYYMM.csv`) — and why it is not used
+## 3. V1 (`planilha_YYYYMM.csv`), and why it is not used
 
 23 columns, identical header in all 175 months **[D]**. Grain `(data_base, uf, tcb, sr, cliente,
 ocupacao, cnae_secao, cnae_subclasse, porte, modalidade, origem, indexador)` unique **[D]**.
@@ -249,7 +249,7 @@ different modality taxonomy, and is no longer maintained.
 
 ## 4. When does V1 become V2?
 
-**It doesn't, in the sense the brief assumed.** There is no data-base month at which the schema
+**It doesn't, in the sense the original plan assumed.** There is no data-base month at which the schema
 switches:
 
 - All 175 V1 files share one header; all 169 V2 files share another **[D]**
@@ -266,10 +266,10 @@ switches:
 | V1 | V2 | Notes |
 |---|---|---|
 | `data_base`, `uf`, `cliente`, `origem`, `indexador` | same | V1 values unquoted |
-| `tcb`, `sr` | — (removed) | V2 has `segmento` instead, a different grouping |
+| `tcb`, `sr` | (removed) | V2 has `segmento` instead, a different grouping |
 | — | `segmento` (added) | |
 | `ocupacao` + `cnae_secao` | `cnae_ocupacao` | merged; prefixes dropped |
-| `cnae_subclasse` | — (removed) | V2 stops at CNAE section |
+| `cnae_subclasse` | (removed) | V2 stops at CNAE section |
 | `porte` | `porte` | prefix and padding dropped |
 | `modalidade` (16 IF.data groups) | `modalidade` (13 layout groups) + `submodalidade` (added) | **same name, different taxonomy** |
 | `numero_de_operacoes` (`<= 15`) | `numero_de_operacoes` (`-1`) | sentinel changed |
@@ -332,7 +332,7 @@ What that does to each measure:
 | `ativo_problematico` | **No.** Definition changed | Section 2.3; `docs/data-landscape.md` |
 | `carteira_ativa` (denominator) | **Same identity, same scope rule, no visible level shift for PF.** But from 2025 it contains the non-written-off defaulted stock, so it is slightly inflated relative to 2024 | PF carteira Dec→Jan: +1.05% (2025) vs +0.99% (2024) **[D]**. Whether 4.966's amortised-cost measurement changed reported balances is **unknown**. It would need BCB confirmation or a same-institution comparison |
 
-**Conclusion for the design.** The brief's premise that the overdue bands are "consistent across
+**Conclusion for the design.** The original plan's premise that the overdue bands are "consistent across
 the whole series" holds for the *definitions* and fails for the >90 *stocks*. Only the 15–90 bucket
 is defensible as a measure that runs through January 2025 with no adjustment. It has its own
 earlier break, in March 2014 (section 10). Any >90 series across
@@ -367,11 +367,11 @@ marginal slices?
 
 | # | Unknown | How to find out |
 |---|---|---|
-| U1 | Where SCR.data puts doc 3040 maturity codes 205 (1–14 days overdue) and 199 (open-ended). Both are inside "carteira" (codes 110–290) **[M2][3040]**, but no published column holds them and the identities are exact | Ask BCB (`docs/bcb-email-draft.md`) |
+| U1 | Where SCR.data puts doc 3040 maturity codes 205 (1–14 days overdue) and 199 (open-ended). Both are inside "carteira" (codes 110–290) **[M2][3040]**, but no published column holds them and the identities are exact | Ask BCB |
 | U2 | Whether `numero_de_operacoes = -1` means ≤15 operations, and whether the official suppression/aggregation of sparse cells (§10.4) also moves balances into other categories ("Outros", "Indisponível", "Outros créditos") | Partly answered: BCB confirms sparse cells are hidden or aggregated. The marker's meaning and any reallocation: ask BCB |
 | U3 | Which IRPF *natureza da ocupação* categories map to each SCR group, which filing year each data-base uses, and how non-filers are classified | Partly answered (§10.4: CPF registry field tied to a filing year; 24 IRPF categories). Mapping and process: ask BCB |
 | U4 | Whether SCR.data uses each lender's reported `PorteCli` as is, or recomputes the band from reported income | Partly answered. Lenders assign `PorteCli` from their most current information **[3040]**. BCB states there is no client-level consolidation (LAI, §10.4). Bands move against the minimum wage in force at the data-base, including at the mid-year resets (§10.5). Ask BCB which of the two options applies |
-| U5 | Cause of the income shifts | **Largely located** (§10.5). 2018-11: new "Indisponível" code. 2019-03, 2020-08, 2021-09, 2026-05: bank reporting changes, mostly in real-estate financing. 2025-01: cooperatives in RS/PR/MT, reversed next month. Januaries: minimum wage. 2025-07: permanent step in the size field, in V2 and V1, PF and PJ, while occupation doesn't move. Most likely a production change at BCB (§10.6, inference). **What changed in band assignment is undocumented.** Ask BCB (email question 7), and whether the lender events will be revised |
+| U5 | Cause of the income shifts | **Largely located** (§10.5). 2018-11: new "Indisponível" code. 2019-03, 2020-08, 2021-09, 2026-05: bank reporting changes, mostly in real-estate financing. 2025-01: cooperatives in RS/PR/MT, reversed next month. Januaries: minimum wage. 2025-07: permanent step in the size field, in V2 and V1, PF and PJ, while occupation doesn't move. Most likely a production change at BCB (§10.6, inference). **What changed in band assignment is undocumented.** Ask BCB, and whether the lender events will be revised |
 | ~~U6~~ | ~~Exact months when `submodalidade`, `segmento`, `indexador` categories changed~~ | **Resolved** on the full history (§2.1, §10) |
 | U7 | Why V2 reports 1–2% more PF portfolio than V1 | Not needed for the design, since V1 is dropped. Ask BCB if it ever matters |
 | ~~U8~~ | ~~Whether the 2025 rules changed how reported balances are valued~~ | **Answered** (§10.4): from Jan/2025 overdue values include accrued contractual interest except on problem assets (IN BCB 414/2023). Performing values remain the present value of instalments |
@@ -436,39 +436,38 @@ Plus the header line and first data row of all 344 monthly files, read by range 
 
 ```bash
 # index every archive and read every header (no bulk download)
-uv run --no-project python scripts/recon/remote_zip_index.py
-uv run --no-project python scripts/recon/header_scan.py
+uv run python scripts/recon/remote_zip_index.py
+uv run python scripts/recon/header_scan.py
 # fetch individual months (4 MB range requests, CRC-verified)
-uv run --no-project python scripts/recon/fetch_member.py data/raw/months scrdata_202607 scrdata_202412 scrdata_202501
+uv run python scripts/recon/fetch_member.py data/raw/months scrdata_202607 scrdata_202412 scrdata_202501
 # load typed into DuckDB and profile
-uv run --no-project --with duckdb python scripts/recon/load.py data/recon.duckdb data/raw/months/*.csv
-uv run --no-project --with duckdb python scripts/recon/checks.py data/recon.duckdb profile scrdata_202607
-uv run --no-project --with duckdb python scripts/recon/checks.py data/recon.duckdb recon planilha_202607 scrdata_202607
-uv run --no-project --with duckdb python scripts/recon/presence.py
-uv run --no-project --with duckdb python scripts/recon/control.py
-uv run --no-project --with duckdb python scripts/recon/v1_structure.py
-uv run --no-project --with duckdb python scripts/recon/threshold_2016.py
-uv run --no-project --with duckdb python scripts/recon/cells.py
-uv run --no-project python scripts/recon/sgs.py
+uv run python scripts/recon/load_months.py data/recon.duckdb data/raw/months/*.csv
+uv run python scripts/recon/structure_checks.py data/recon.duckdb profile scrdata_202607
+uv run python scripts/recon/structure_checks.py data/recon.duckdb recon planilha_202607 scrdata_202607
+uv run python scripts/recon/category_presence.py
+uv run python scripts/recon/jan2025_break.py
+uv run python scripts/recon/jan2025_control.py
+uv run python scripts/recon/v1_structure.py
+uv run python scripts/recon/threshold_2016.py
+uv run python scripts/recon/crosstab_cells.py
+uv run python scripts/recon/sgs.py
 ```
 
 Full history (section 10): about 15 minutes to download, 10 to convert, seconds to profile.
 
 ```bash
-uv run --no-project python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
-uv run --no-project --with duckdb python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
-uv run --no-project --with duckdb python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
-uv run --no-project --with duckdb python scripts/recon/breaks_context.py data/parquet/scrdata
+uv run python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
+uv run python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
+uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
+uv run python scripts/recon/breaks_context.py data/parquet/scrdata
 ```
 
-`uv sync` for the full project currently fails: `dbt-core` 1.12.4 depends on a pre-release parser
-whose build step downloads a wheel from GitHub, and that download failed certificate verification
-on this machine. The recon scripts avoid the project environment for that reason. Pinning
-`dbt-core` is a build-phase task.
+Run `uv sync` first. The scripts run in the project environment, which pins Python 3.13 and
+`dbt-core` 1.11 (1.12 pulls in a parser whose build downloads a binary at install time).
 
 ---
 
-## 10. Full-history profile — all 169 V2 months
+## 10. Full-history profile: all 169 V2 months
 
 Sections 1–9 were built from 13 sampled months. This section profiles **every** V2 month, 2012-07 to
 2026-07 (43,062,885 rows), so that every change inside the analysis window is dated rather than
@@ -478,7 +477,7 @@ guessed. Outputs: `data/recon/panel/` (`month_summary.csv`, `category_presence.c
 standard deviations from that series' own typical move, and material in size (≥0.25 pp for a share,
 ≥0.15 pp for a rate on ≥R$10 bn). A flag starts an inspection; it is not a finding.
 
-### 10.1 Structure — clean throughout
+### 10.1 Structure: clean throughout
 
 | Check | Result **[D]** |
 |---|---|
@@ -591,7 +590,7 @@ Checked on 2026-09-15, before asking BCB anything. Sources:
 | Voto 159/2024–BCB | Amends Circular 3.870/2017 on how often SCR information is compiled and on events that change a debt balance | Unrelated to the breaks |
 | **No client-level consolidation; sparse cells hidden or aggregated** | BCB answer to LAI 18810.021683/2023-64 (appeal answered 02/01/2024 by the head of Desig, substitute; `buscalai.cgu.gov.br/busca/6633034`). SCR.data results from processing "cerca de 1 bilhão de operações reportadas mensalmente". BCB built "rotinas adicionais de pré-processamento para a ocultação e agregação de operações de modo a prevenir uma eventual quebra indireta do sigilo bancário dos tomadores, enquadrados em recortes esparsos de atividade econômica, unidade da federação e porte/rendimento". Client-level (CPF/CNPJ) consolidation "não existe atualmente no SCR.Data ou em qualquer outra publicação do Banco Central" | **Officially documented.** (a) Sparse cells are suppressed or aggregated, which is consistent with the `-1` sentinel and matters for thin v1 cells. Whether values are *moved* into other categories is not stated. (b) No client consolidation means SCR.data almost certainly does not apply the REF's single-band-per-borrower rule (inference from the official statement) |
 | **2025 months withdrawn and revised** | BCB answers to LAI 18810.007763/2025-79 (22/04/2025; `busca/8635493`): "Os dados de 2025 foram retirados da página para revisão interna e deverão ser divulgados posteriormente". And to LAI 18810.008534/2025-71 (05/05/2025; `busca/8683869`): the Jan/Feb-2025 data "estão em processo de revisão devido ao início de vigência da ResCMN 4.966" | **Officially documented.** The 2025 months in today's files are a revised production, and SCR.data vintages differ |
-| **No document found for:** January-2017 occupation break; income shifts 2019-03, 2020-08, 2021-09, 2025-01, 2025-07, 2026-05 (no Anexo 25 change on those dates; located by lender type and product in §10.5); 2014-03 15–90 drop; `TCR/TRFC` from 2019-08; the `-1` sentinel; where SCR.data puts maturity codes 199 (open-ended) and 205 (1–14 days overdue); the 2026 SCR–SGS gap (SGS values unchanged on 2026-09-15); whether the REF counterfactual series are published | — | Open. These go to BCB (`docs/bcb-email-draft.md`) |
+| **No document found for:** January-2017 occupation break; income shifts 2019-03, 2020-08, 2021-09, 2025-01, 2025-07, 2026-05 (no Anexo 25 change on those dates; located by lender type and product in §10.5); 2014-03 15–90 drop; `TCR/TRFC` from 2019-08; the `-1` sentinel; where SCR.data puts maturity codes 199 (open-ended) and 205 (1–14 days overdue); the 2026 SCR–SGS gap (SGS values unchanged on 2026-09-15); whether the REF counterfactual series are published | — | Open questions for BCB (section 7) |
 
 ### 10.5 Where the income-band shifts come from
 
@@ -615,7 +614,7 @@ The diagnostic is the **within-segment share**. A lender event moves one segment
 the others flat, as in 2025-01 and 2026-05. A common cause moves them all the same way, as in 2025-07
 and the Januaries.
 
-**Minimum-wage test** (`scripts/recon/sm_midyear_test.py`). The minimum wage changed every January,
+**Minimum-wage test** (`scripts/recon/minimum_wage_test.py`). The minimum wage changed every January,
 and also in **2020-02 (+0.6%)** and **2023-05 (+1.4%)** **[SGS 1619]**. If bands respond to it,
 those two months should move the January way:
 
@@ -632,7 +631,7 @@ passes the 90th percentile in both reset months, but so does 2023-04, a control 
 20 SM" stays below its 90th percentile in both reset months. Across Januaries the size link is loose.
 The smallest reset, 2018 (+1.8%), has the smallest moves: "Acima de 20 SM" −0.16 pp and "Até 1 SM"
 −0.08 pp. The largest, 2022 (+10.2%), has the largest "1–2 SM" gain (+1.85 pp) but not the largest
-top-band fall (2023: −0.84 pp) **[SGS 1619; `sm_midyear_test.py`]**.
+top-band fall (2023: −0.84 pp) **[SGS 1619; `minimum_wage_test.py`]**.
 
 **Reading.** PF bands behave as if measured against the minimum wage in force at each data-base,
 and they shift in the month it changes, mid-year included. Whether lenders reclassify `PorteCli` or
@@ -646,7 +645,7 @@ isolates.
 
 ### 10.6 The July-2025 step
 
-**Data tests.** From `scripts/recon/shift_2025_07.py`, comparing 2025-06 with 2025-07 unless stated:
+**Data tests.** From `scripts/recon/income_step_2025_07.py`, comparing 2025-06 with 2025-07 unless stated:
 
 | Test | Result | Reading |
 |---|---|---|
@@ -679,6 +678,6 @@ The most likely explanation is **a change in how SCR.data is produced from data-
 - deriving the band from the reported amount ("Renda mensal PF") instead of the reported size code;
 - assigning one band per borrower across lenders, as the REF annex does (BCB said in 2023 that SCR.data had no client consolidation).
 
-A lender-side cause is unlikely. No rule required re-reporting, and banks and cooperatives moved together for PF but not for PJ. This goes to BCB as email question 7.
+A lender-side cause is unlikely. No rule required re-reporting, and banks and cooperatives moved together for PF but not for PJ. It stays an open question for BCB (U12).
 
 **For v1.** v1's income cross-sections end in 2024 and are unaffected. Any income-band series or band-level rate that crosses July 2025 needs a break flag, and a level adjustment can't be estimated from the data alone.

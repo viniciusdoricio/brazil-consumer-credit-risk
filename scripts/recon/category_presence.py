@@ -1,3 +1,12 @@
+"""Which dimension values are missing from some of the five sampled V2 months.
+
+    RECON_DB=data/recon.duckdb uv run python scripts/recon/category_presence.py
+
+Months: 2013-06, 2024-06, 2024-12, 2025-01 and 2026-07, loaded by load_months.py. For
+sub-modality, segment, index, modality and size or income band, prints every value that is
+not present in all five months, with the months it appears in and its balance in R$ bn.
+"""
+
 import os
 
 import duckdb

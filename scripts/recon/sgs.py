@@ -1,12 +1,12 @@
 """SGS reconciliation used in docs/: series names, coverage, and Dec->Jan seasonality.
 
-    uv run --no-project --with duckdb python scripts/recon/sgs.py
+    uv run python scripts/recon/sgs.py
 
 1. Prints the official English name, unit and source of each SGS series cited in docs/, read
    from the SGS web-service metadata (so no series code is quoted from memory).
 2. Prints first/last observation for each.
 3. For the 90-day delinquency series 21082-21084, prints every December->January change since
-   2012 and the distribution of month-on-month moves — the seasonal baseline against which the
+   2012 and the distribution of month-on-month moves: the seasonal baseline against which the
    January-2025 step is judged in docs/data-landscape.md.
 """
 

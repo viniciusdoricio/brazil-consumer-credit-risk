@@ -1,6 +1,6 @@
 """Fetch a single monthly CSV out of a yearly BCB archive using HTTP Range requests.
 
-    python fetch_member.py OUT_DIR scrdata_202607 planilha_201306 ...
+    uv run python scripts/recon/fetch_member.py OUT_DIR scrdata_202607 planilha_201306 ...
 
 Integrity: the member is inflated in memory and checked against the CRC32 and uncompressed
 size in the archive's central directory before anything is written; a SHA-256 of the
@@ -98,7 +98,7 @@ def fetch(out_dir: Path, stem: str) -> None:
         raise OSError(f"short read {len(comp)} != {info['csize']}")
     data = zlib.decompressobj(-15).decompress(comp)
     if len(data) != info["usize"] or zlib.crc32(data) != info["crc"]:
-        raise OSError(f"{stem}: CRC/size mismatch — discarding")
+        raise OSError(f"{stem}: CRC/size mismatch, discarding")
     dest = out_dir / f"{stem}.csv"
     dest.write_bytes(data)
     digest = hashlib.sha256(data).hexdigest()

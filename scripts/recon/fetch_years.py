@@ -1,6 +1,6 @@
 """Download SCR.data yearly archives in 4 MB range requests, resumably, and verify them.
 
-    uv run --no-project python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
+    uv run python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
 
 For each year:
   1. HEAD for size and Last-Modified (the publication vintage).
@@ -173,7 +173,7 @@ def main() -> int:
         nonlocal failures
         try:
             log(fetch(args.out, args.prefix, year))
-        except Exception as exc:  # noqa: BLE001 — report and continue with the other years
+        except Exception as exc:  # noqa: BLE001 (report and continue with the other years)
             failures += 1
             log(f"FAILED {args.prefix}_{year}: {exc}")
 

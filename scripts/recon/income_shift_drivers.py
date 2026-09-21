@@ -1,6 +1,6 @@
 """Where do the PF income-band shifts come from? Decompose each shift by lender segment, modality, UF.
 
-    uv run --no-project --with duckdb python scripts/recon/income_shift_drivers.py data/parquet/scrdata
+    uv run python scripts/recon/income_shift_drivers.py data/parquet/scrdata
 
 For each event (month-on-month change in one band's share of the PF portfolio) prints the
 contribution of each segmento, modalidade and UF to the change in that band's share, in pp.

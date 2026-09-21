@@ -1,4 +1,9 @@
-"""Seasonal control for the Jan-2025 break: Dec23->Jan24 vs Nov24->Dec24->Jan25 (V2, PF)."""
+"""Seasonal control for the Jan-2025 break: Dec23->Jan24 vs Nov24->Dec24->Jan25 (V2, PF).
+
+    RECON_DB=data/recon.duckdb uv run python scripts/recon/jan2025_control.py
+
+Reads the monthly tables loaded by load_months.py.
+"""
 
 import os
 

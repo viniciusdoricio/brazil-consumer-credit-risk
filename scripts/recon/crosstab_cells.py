@@ -1,6 +1,6 @@
 """Cross-tab completeness and income-band stability for every loaded V2 month.
 
-    RECON_DB=data/recon.duckdb uv run --no-project --with duckdb python scripts/recon/cells.py
+    RECON_DB=data/recon.duckdb uv run python scripts/recon/crosstab_cells.py
 
 For each scrdata_YYYYMM table: rows, whether the 10-dimension grain is unique, how many of the
 8 x 9 PF occupation-by-income cells are populated, and the PF shares of the unstable categories
