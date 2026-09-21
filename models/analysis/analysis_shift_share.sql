@@ -19,7 +19,7 @@ with cells as (
         sum(carteira_inadimplencia) as numerator_d90,
         sum(vencido_de_15_ate_90_dias) as numerator_d15
     from {{ ref('mart_pf_cells') }}
-    where month >= date '2017-01-01'
+    where month >= cast('{{ var("first_comparable_month") }}' as date)
     group by all
 ),
 

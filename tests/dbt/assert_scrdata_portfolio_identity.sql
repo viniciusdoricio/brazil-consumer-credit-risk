@@ -9,5 +9,5 @@ select month, cliente, uf, segmento, cnae_ocupacao, porte, modalidade, submodali
     carteira_ativa - (carteira_a_vencer + carteira_vencida) as difference
 from {{ ref('stg_bcb__scrdata') }}
 where
-    month >= date '2017-01-01'
+    month >= cast('{{ var("first_comparable_month") }}' as date)
     and carteira_ativa <> carteira_a_vencer + carteira_vencida

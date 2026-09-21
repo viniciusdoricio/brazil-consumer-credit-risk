@@ -15,7 +15,8 @@ with cells as (
         sum(carteira_inadimplencia) as numerator_d90,
         sum(vencido_de_15_ate_90_dias) as numerator_d15
     from {{ ref('mart_pf_cells') }}
-    where month between date '2017-01-01' and cast('{{ var("d90_last_comparable_month") }}' as date)
+    where month between cast('{{ var("first_comparable_month") }}' as date)
+        and cast('{{ var("d90_last_comparable_month") }}' as date)
     group by all
     having sum(carteira_ativa) / 12 / 1e9 >= {{ var('min_cell_balance_bn') }}
 ),
