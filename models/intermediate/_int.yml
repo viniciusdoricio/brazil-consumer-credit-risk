@@ -52,14 +52,32 @@ models:
               arguments:
                 values: [all_products, excluding_rural]
 
-  - name: int_gap_terms
+  - name: int_cross_section_by_mapping
     description: >
-      The same-product and product-mix terms of each headline occupation pair's gap, per product
-      group, income band, window and product scope.
+      Household balances pooled over each cross-section window by product group under the primary
+      product mapping and the alternative one, for chart 4's crosswalk sensitivity. Rural scope
+      follows the primary mapping in both.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns: [pair_id, window_id, product_scope, income_band, product_group]
+            combination_of_columns:
+              [window_id, product_mapping, product_scope, income_band, occupation, product_group]
+    columns:
+      - name: product_mapping
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [primary, alternative]
+
+  - name: int_gap_terms
+    description: >
+      The same-product and product-mix terms of each headline occupation pair's gap, per product
+      group, income band, window, product scope and product mapping.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              [pair_id, window_id, product_mapping, product_scope, income_band, product_group]
 
   - name: int_price_index
     description: >

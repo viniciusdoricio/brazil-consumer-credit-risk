@@ -124,6 +124,14 @@ Cheque especial / outros. The crosswalk must include the 2013 labels that were s
 groups, which makes the result comparable with BCB's framing. **The whitespace trap in
 `submodalidade` must be trimmed before the join.**
 
+**Crosswalk sensitivity.** The seed `product_group_alternatives` gives a second mapping. It moves
+the sub-modalities whose group is a judgement call (card "não migrado", home equity, microcredit,
+unlabelled loans, goods other than vehicles, agro-industrial finance, card-bill advances), and it
+separates card purchases awaiting the bill from card credit. Overdraft and guaranteed accounts
+already share a group, so the 2014 split between them can't move a term. Chart 4 treats a split as
+unstable where the alternative moves its product-mix part by more than 25% of the gap (v1 decision
+§6).
+
 ### 1.5 Residual and unstable categories
 
 - "Outros", "Indisponível" and "Sem rendimento" stay in as **explicit cells**, so the decomposition

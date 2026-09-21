@@ -28,6 +28,9 @@ vars:
   # A cell's rate is shown only if its average monthly balance over the window is at least this
   # many R$ billion (docs/analysis-design.md, section 4).
   min_cell_balance_bn: 1.0
+  # The product-mix part of a gap may move by at most this share of the gap when ambiguous
+  # sub-modalities change group; beyond it the split is unstable (docs/v1-decision.md, section 6).
+  max_crosswalk_shift: 0.25
 
 models:
   brazil_consumer_credit_risk:

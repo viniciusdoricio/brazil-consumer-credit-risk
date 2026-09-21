@@ -1,0 +1,10 @@
+modalidade,submodalidade,alternative_group,reason
+Direitos creditórios descontados,Antecipação de fatura de cartão de crédito,Cartão,Advances on card bills
+Empréstimos,Cartão de crédito - não migrado,Cheque especial e outros,A residual card label from May 2017 (Carta-Circular 3.817/2017) for balances not moved to the new card sub-modalities
+Empréstimos,Home Equity,Imobiliário,Loans secured on property
+Empréstimos,Microcrédito,Pessoal não consignado,Small unsecured loans
+Empréstimos,Outros empréstimos,Pessoal não consignado,"Unlabelled loans, whose nearest labelled product is unsecured personal credit"
+Financiamentos,Aquisição de bens - outros bens,Pessoal não consignado,"Finance for goods other than vehicles, closer to consumer credit than to the residual group"
+Financiamentos,Financiamentos agroindustriais,Cheque especial e outros,"Agro-industrial finance, which BCB split from the rural modality in July 2017 (Carta-Circular 3.806/2017)"
+Financiamentos,Microcrédito,Pessoal não consignado,Small unsecured loans
+Outros créditos,Cartão de crédito - compra à vista e parcelado lojista,Cartão à vista,"Card purchases awaiting the bill, closer to payment float than to borrowing"

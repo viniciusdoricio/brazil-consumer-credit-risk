@@ -114,6 +114,13 @@ models:
           under 0.1 pp, where a share of it means nothing.
       - name: gap_sign_holds_with_lag
         description: False when lagged denominators reverse the order of the two occupations.
+      - name: product_mix_gap_alternative_mapping
+        description: The product-mix gap with the alternative product mapping (product_group_alternatives).
+      - name: split_holds_under_alternative_mapping
+        description: >
+          False when the alternative mapping moves the product-mix gap by more than
+          var max_crosswalk_shift of the gap, so the split depends on how products are grouped.
+          Null when the gap is under 0.1 pp.
 
   - name: analysis_shift_share
     description: >

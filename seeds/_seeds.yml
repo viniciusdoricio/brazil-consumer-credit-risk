@@ -55,6 +55,41 @@ seeds:
               arguments:
                 values: [occupation, income, product, scope, measure]
 
+  - name: product_group_alternatives
+    description: >
+      The alternative product mapping for chart 4's crosswalk sensitivity: the sub-modalities whose
+      group is a judgement call, each moved to the other group it could belong to, with card
+      purchases separated from card credit (docs/v1-decision.md, section 6). Sub-modalities not
+      listed keep their pf_product_groups group.
+    config:
+      column_types:
+        modalidade: varchar
+        submodalidade: varchar
+        alternative_group: varchar
+        reason: varchar
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [modalidade, submodalidade]
+    columns:
+      - name: alternative_group
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Imobiliário
+                  - Consignado
+                  - Pessoal não consignado
+                  - Cartão
+                  - Cartão à vista
+                  - Veículos
+                  - Rural
+                  - Cheque especial e outros
+      - name: reason
+        data_tests:
+          - not_null
+
   - name: analysis_windows
     description: >
       The periods v1 compares. Cross-section windows pool months within one calendar year, so no
