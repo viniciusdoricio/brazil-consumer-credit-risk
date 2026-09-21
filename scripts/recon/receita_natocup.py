@@ -14,7 +14,7 @@ import io
 import subprocess
 
 URL = "https://www.gov.br/receitafederal/dados/natureza-de-ocupacao.csv"
-UA = "br-credit-monitor/0.1 (public research)"
+UA = "brazil-consumer-credit-risk/0.1 (public research)"
 
 raw = subprocess.run(
     ["curl", "-sSL", "--fail", "--http1.1", "--proto", "=https", "-m", "180", "-A", UA, URL],

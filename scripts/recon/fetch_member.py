@@ -18,7 +18,7 @@ import zlib
 from pathlib import Path
 
 BASE = "https://www.bcb.gov.br/pda/desig"
-UA = "br-credit-monitor/0.1 (public research)"
+UA = "brazil-consumer-credit-risk/0.1 (public research)"
 NAME = re.compile(r"(planilha|scrdata)_(\d{4})(\d{2})")
 
 

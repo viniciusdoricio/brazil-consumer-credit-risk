@@ -16,7 +16,7 @@ import json
 import re
 import subprocess
 
-UA = "br-credit-monitor/0.1 (public research)"
+UA = "brazil-consumer-credit-risk/0.1 (public research)"
 SERIES = [
     432,
     4189,

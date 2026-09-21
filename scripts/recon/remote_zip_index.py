@@ -10,7 +10,7 @@ import subprocess
 from pathlib import Path
 
 BASE = "https://www.bcb.gov.br/pda/desig"
-UA = "br-credit-monitor/0.1 (public research)"
+UA = "brazil-consumer-credit-risk/0.1 (public research)"
 
 
 def fetch(url: str, rng: str) -> bytes:

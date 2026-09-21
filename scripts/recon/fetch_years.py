@@ -27,7 +27,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 BASE = "https://www.bcb.gov.br/pda/desig"
-UA = "br-credit-monitor/0.1 (public research)"
+UA = "brazil-consumer-credit-risk/0.1 (public research)"
 STEP = 4 << 20
 MEMBER = re.compile(r"(planilha|scrdata)_(\d{6})\.csv")
 
