@@ -59,15 +59,21 @@ models:
 
   - name: analysis_dispersion
     description: >
-      Chart 3, which matters more. Per calendar year 2017-2024 and measure: the balance-weighted
-      spread of occupation rates within income bands against the spread of income-band rates
-      within occupations, next to unemployment. "primary" uses named occupations and bands only;
-      "all" adds the residual categories.
+      Chart 3, which matters more. Per period and measure: the balance-weighted spread of
+      occupation rates within income bands against the spread of income-band rates within
+      occupations, next to unemployment. Periods are the calendar years 2017-2024 and the three
+      cross-section windows. "primary" uses named occupations and bands only; "all" adds the
+      residual categories.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns: [year, measure, variant]
+            combination_of_columns: [period_id, measure, variant]
     columns:
+      - name: period_kind
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [calendar_year, window]
       - name: spread_across_occupations_within_bands
         data_tests:
           - not_null
@@ -82,8 +88,10 @@ models:
                 min_value: 0
       - name: occupation_to_income_ratio
         description: Above 1 means occupation separates risk more than income does that year.
-      - name: year_has_mid_year_income_event
-        description: True when a non-January income reclassification falls inside the year (classification_events).
+      - name: reclassifications_inside
+        description: >
+          Occupation and income events in classification_events after the period's first month and
+          up to its last. Above zero, some cells changed membership inside the period.
 
   - name: analysis_gap_decomposition
     description: >
