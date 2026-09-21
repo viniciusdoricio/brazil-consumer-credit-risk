@@ -20,8 +20,7 @@ test:           ## python tests
 lint:
 	uv run ruff check . && uv run ruff format --check .
 
-report:         ## render the Quarto write-up (needs Quarto: brew install --cask quarto)
-	@if ls analysis/*.qmd >/dev/null 2>&1; then quarto render analysis/; \
-	else echo "no Quarto documents in analysis/ yet"; fi
+report: charts  ## render the write-up to analysis/_output (needs Quarto: brew install --cask quarto)
+	uv run quarto render analysis/
 
 all: setup fetch build charts test report

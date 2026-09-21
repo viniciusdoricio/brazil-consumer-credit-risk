@@ -24,7 +24,16 @@ fetch-data = "brazil_consumer_credit_risk.fetch:main"
 make-charts = "brazil_consumer_credit_risk.charts.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8.0", "ruff>=0.16", "pre-commit>=4.0"]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.16",
+    "pre-commit>=4.0",
+    # what Quarto needs to run the write-up's Python cells in this environment
+    "ipykernel>=6.29",
+    "nbclient>=0.10",
+    "nbformat>=5.10",
+    "pyyaml>=6.0",
+]
 
 [tool.ruff]
 line-length = 100

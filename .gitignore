@@ -18,9 +18,10 @@ logs/
 .user.yml
 
 # quarto
-/.quarto/
+.quarto/
 *_files/
 /_site/
+analysis/_output/
 
 # os
 .DS_Store
