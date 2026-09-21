@@ -13,13 +13,13 @@ asks the portal what exists and downloads what you ask for.
     # Specific months
     uv run python scripts/fetch_scr.py --months 2013-06 2024-06 2026-07
 
-FIRST-RUN CHECK — not yet verified against the live portal
+FIRST-RUN CHECK: not yet verified against the live portal
 ----------------------------------------------------------
 The CKAN endpoint below is the documented shape for this portal type but has
 not been confirmed against dadosabertos.bcb.gov.br. On the first run:
 
   1. `--list` and confirm resources come back with usable URLs.
-  2. If the API shape differs, fix `discover_resources()` — do not paper over
+  2. If the API shape differs, fix `discover_resources()`; do not paper over
      it with hardcoded URLs, because they rot and the next person can't tell.
   3. If there is genuinely no API, document the manual download procedure in
      data/README.md and make this script consume a local directory instead.
@@ -139,7 +139,7 @@ def main() -> int:
 
     try:
         resources = discover_resources(session)
-    except Exception as exc:  # noqa: BLE001 — surface the real cause to the operator
+    except Exception as exc:  # noqa: BLE001 (surface the real cause to the operator)
         print(f"discovery failed: {exc}\n", file=sys.stderr)
         print(
             "See FIRST-RUN CHECK in this file's docstring before working around it.",
@@ -153,7 +153,7 @@ def main() -> int:
     if args.list:
         for r in sorted(resources, key=lambda x: (x.period or "", x.name)):
             print(f"  {r.period or '    -  '}  {r.fmt:8}  {r.name[:70]}")
-        print("\nIf periods are all '-', the naming doesn't encode YYYY-MM — fix _period_from().")
+        print("\nIf periods are all '-', the naming doesn't encode YYYY-MM; fix _period_from().")
         return 0
 
     if args.all:

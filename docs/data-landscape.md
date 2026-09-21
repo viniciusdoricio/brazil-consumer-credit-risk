@@ -1,4 +1,4 @@
-# Brazilian public credit data — the landscape, and the January-2025 break
+# Brazilian public credit data: the landscape, and the January-2025 break
 
 *Part A is the regulatory break,
 checked in the data. Part B is every other source worth knowing, bounded to what it joins to.
@@ -15,7 +15,7 @@ API. Plus:*
 
 ---
 
-# Part A — The January-2025 break
+# Part A. The January-2025 break
 
 ## A.1 What changed, in two paragraphs
 
@@ -122,7 +122,7 @@ counterfactual to size the 2025 break rather than attempt to construct one.
 
 ---
 
-# Part B — The landscape
+# Part B. The landscape
 
 ## B.0 Summary
 
@@ -150,7 +150,7 @@ report or chart is a "produced work" and needs attribution only. **Implication:*
 publishes its marts (CSV/Parquet) or a Tableau data source, they must carry ODbL and attribution.
 The README and `data/README.md` say so.
 
-## B.2 BCB SGS — the ten series that matter
+## B.2 BCB SGS: the ten series that matter
 
 Names are the official metadata strings from the SGS web service, not recalled codes **[SGS]**
 (`scripts/recon/sgs.py`).
@@ -176,12 +176,12 @@ Considered and left out: 21082/21083 (total, PJ), because v1 is PF. 29035/29038 
 variants) are worth a sensitivity check only. 20575 (*Nonearmarked… Personal credit –
 renegotiation*) is relevant to restructuring but is a stock of one product.
 
-**Trap — modality taxonomies.** SGS credit statistics come from doc 3050 (aggregate by modality),
+**Trap: modality taxonomies.** SGS credit statistics come from doc 3050 (aggregate by modality),
 SCR.data from doc 3040 (operation-level), with scope differences such as receivables prepayments
 for firms **[RPM fn 6]**. SGS "modality" series do not map 1:1 onto SCR.data `modalidade` or
 `submodalidade`.
 
-## B.3 BCB Relatório de Estabilidade Financeira — the deliverable being imitated
+## B.3 BCB Relatório de Estabilidade Financeira: the deliverable being imitated
 
 **How section 1.2.2 *Crédito* is built (REF May 2026)** **[REF26]**. The same order is used in the
 Nov-2025 edition:
@@ -212,7 +212,7 @@ that is a finding. Public data can support *materialisation* by segment (SCR.dat
 to pay* and *appetite* only nationally (SGS 29034/29037, 20633, PTC). It cannot support PD, LGD or
 provisions at all.
 
-## B.4 IBGE — PNAD Contínua and IPCA
+## B.4 IBGE: PNAD Contínua and IPCA
 
 Tables verified through the SIDRA metadata API (`servicodados.ibge.gov.br/api/v3/agregados/{id}/metadados`):
 
@@ -258,7 +258,7 @@ is survey-reported work income.
   ocupação*. **No PF occupation join.** For a national PF v1, CAGED adds little that PNAD
   unemployment does not.
 
-## B.6 BCB Pesquisa Trimestral de Condições de Crédito (PTC) — the only public supply-side read
+## B.6 BCB Pesquisa Trimestral de Condições de Crédito (PTC): the only public supply-side read
 
 - Lenders assess credit standards (supply) and demand over the past and next three months, plus
   the factors behind them. Four segments: **PJ large firms; PJ micro-small-medium; PF consumer
@@ -285,7 +285,7 @@ is survey-reported work income.
   split, and still national.** It is the best public evidence of the *direction* of supply by
   product.
 
-## B.7 CNC — PEIC
+## B.7 CNC: PEIC
 
 - Survey of **about 18,000 consumers in all state capitals and the Federal District, monthly since
   January 2010**. Seven indicators: share of families with debt; main debt types; self-assessed
@@ -323,7 +323,7 @@ renegotiation programme (2023–24), caps on revolving card interest, and change
 *saque-aniversário* lending. REF26 notes the last one moved unsecured personal credit. **Not
 verified here**; don't annotate a chart from memory.
 
-## B.10 Where taxonomies do not reconcile — the list to check before any join
+## B.10 Where taxonomies do not reconcile: check before any join
 
 | Dimension | Sources | Reconciles? |
 |---|---|---|

@@ -173,7 +173,7 @@ def main() -> int:
         nonlocal failures
         try:
             log(fetch(args.out, args.prefix, year))
-        except Exception as exc:  # noqa: BLE001 — report and continue with the other years
+        except Exception as exc:  # noqa: BLE001 (report and continue with the other years)
             failures += 1
             log(f"FAILED {args.prefix}_{year}: {exc}")
 

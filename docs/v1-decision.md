@@ -1,4 +1,4 @@
-# v1 — the locked decision
+# The v1 decision
 
 *The decision rests on
 `docs/data-dictionary.md` (what the data is), `docs/data-landscape.md` (the break and the
@@ -41,10 +41,10 @@ weaker question under the old name. The additions make the original question ans
 
 ## 1. The question
 
-> **At the same income, does the kind of work you do change how often your debts go bad — or is
+> **At the same income, does the kind of work you do change how often your debts go bad, or is
 > it the kind of credit your work lets you get?**
 
-*Em português (README):* **Com a mesma renda, o tipo de ocupação muda o risco de inadimplência — ou
+*Em português (README):* **Com a mesma renda, o tipo de ocupação muda o risco de inadimplência, ou
 o que muda é o tipo de crédito a que cada ocupação tem acesso?**
 
 ## 2. Why this question, and the alternatives that lost
@@ -67,8 +67,8 @@ o que muda é o tipo de crédito a que cada ocupação tem acesso?**
 | Population | PF, national. Sum over UF, lender segment, origin, index and sub-modality |
 | Cells | 8 occupations × 9 income bands. **Primary analysis on 7 × 7 = 49 cells**, excluding occupation "Outros" and income "Indisponível"/"Sem rendimento" from comparisons. They stay in totals, and every headline is re-run with them included |
 | Products | 7 PF groups built from `modalidade` + trimmed `submodalidade`: Imobiliário, Consignado, Pessoal não consignado, Cartão, Veículos, Rural, Cheque especial/outros (analysis design §1.4) |
-| **Primary measure — D90** | `Σ carteira_inadimplencia / Σ carteira_ativa`: the full balance of operations with an instalment >90 days overdue. BCB's own concept, reconciles to SGS 21084 within ~0.1 pp. Sum numerators and denominators, never average rates |
-| **Break-robust measure — D15** | `Σ vencido_de_15_ate_90_dias / Σ carteira_ativa` |
+| **Primary measure: D90** | `Σ carteira_inadimplencia / Σ carteira_ativa`: the full balance of operations with an instalment >90 days overdue. BCB's own concept, reconciles to SGS 21084 within ~0.1 pp. Sum numerators and denominators, never average rates |
+| **Break-robust measure: D15** | `Σ vencido_de_15_ate_90_dias / Σ carteira_ativa` |
 | Period, D90 | **2017-01 → 2024-12** (96 months) |
 | Period, D15 | **2017-01 → 2026-07** (115 months; extends with each release). After 2024, by occupation only (income bands reclassified 2025-07 and 2026-05) |
 | Headline cross-sections | Pooled windows: **calendar 2024** (last full year before the break), with **March–December 2019** (after the 2019-03 income recoding, before the January-2020 minimum-wage step and the pandemic) and **calendar 2022** (end of tightening) as stability checks. Calendar-year windows contain no January band shift |
@@ -89,7 +89,7 @@ by hand. Every number comes from a model.
 | 2 | **The grid.** D90 heatmap, 7 × 7 cells, pooled 2024, cell size shown | "At the same income, 90-day delinquency differs by up to [x] points depending on occupation" | "Within an income band, occupation barely changes delinquency" |
 | 3 | **Which matters more.** Balance-weighted spread across occupations within bands vs across bands within occupations, one point per calendar year 2017–2024 (so no January band shift falls inside a point), unemployment overlaid | "Occupation separates risk [more/less] than income does, and the gap [widened/held] when unemployment rose" | Stated with the reversed comparison |
 | 4 | **Job or product?** For the three headline pairs (Aposentado vs Autônomo, Servidor vs Empregado privado, MEI vs Empresário) in two income bands: raw gap split into same-product and product-mix | "[Most/little] of the retiree–self-employed gap comes from access to payroll-deducted credit" | Same chart, reversed claim |
-| 5 | **Mix vs rate.** National PF D90 change by episode (2018-01→2020-12, 2021-01→2022-12, 2023-01→2024-12; each starts after a January reclassification): pure rate / product mix / occupation mix | "The 2022–24 rise in household delinquency was mostly [borrowers paying worse within the same group and product / a shift into riskier products / lending moving to riskier groups]" | — (all three outcomes are publishable) |
+| 5 | **Mix vs rate.** National PF D90 change by episode (2018-01→2020-12, 2021-01→2022-12, 2023-01→2024-12; each starts after a January reclassification): pure rate / product mix / occupation mix | "The 2022–24 rise in household delinquency was mostly [borrowers paying worse within the same group and product / a shift into riskier products / lending moving to riskier groups]" | None: all three outcomes are publishable |
 | 6 | **The current read.** D15 change, 12 months to 2026-07 vs 2024, **by occupation** (income bands were reclassified in 2025-07 and 2026-05), next to each group's real portfolio growth | "Since the accounting change, early delinquency has risen fastest among [group], while lending to them [kept growing/shrank]" | "Early delinquency has risen evenly across groups" |
 
 **The recommendation section is conditional on chart 4, and both branches are written in advance.**

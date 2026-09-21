@@ -5,7 +5,7 @@
 
 profile: grain, per-dimension values (split PF/PJ), cross-tab completeness of occupation x
 income for PF, accounting identities, sentinels, national PF aggregates.
-recon:   same month in V1 and V2 — do portfolio, overdue and problem-asset totals agree, by
+recon:   same month in V1 and V2: do portfolio, overdue and problem-asset totals agree, by
 occupation and by income band?
 """
 

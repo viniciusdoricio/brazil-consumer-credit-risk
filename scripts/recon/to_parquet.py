@@ -130,7 +130,7 @@ def main() -> int:
                 f"ok {month} rows={stats['rows']:,} parquet={stats['parquet_bytes'] / 1e6:.1f}MB",
                 flush=True,
             )
-        except Exception as exc:  # noqa: BLE001 — report every bad month, keep going
+        except Exception as exc:  # noqa: BLE001 (report every bad month, keep going)
             failures += 1
             print(f"FAILED {month}: {exc}", flush=True)
 

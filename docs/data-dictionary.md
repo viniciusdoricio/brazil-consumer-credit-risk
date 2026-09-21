@@ -1,4 +1,4 @@
-# SCR.data — data dictionary
+# SCR.data data dictionary
 
 *Written from files opened and profiled,
 not from documentation alone. Where the data and BCB's documentation disagree, the disagreement is
@@ -58,11 +58,11 @@ Every number here is reproducible with `scripts/recon/` (section 9).
 | Item | Finding |
 |---|---|
 | Portal | CKAN dataset `scr_data` on `dadosabertos.bcb.gov.br`; licence **ODbL** (`license_id: odc-odbl`) **[D: CKAN API]** |
-| **Trap — discovery** | The CKAN resources for the monthly data have **empty `url` fields**. The URL is a pattern written in the resource *description* **[D: CKAN API]**. `scripts/fetch_scr.py` assumes resources carry URLs, so as written it cannot find the data. The fetch script has to be rewritten before the build phase |
+| **Trap: discovery** | The CKAN resources for the monthly data have **empty `url` fields**. The URL is a pattern written in the resource *description* **[D: CKAN API]**. `scripts/fetch_scr.py` assumes resources carry URLs, so as written it cannot find the data. The fetch script has to be rewritten before the build phase |
 | V2 files | `https://www.bcb.gov.br/pda/desig/scrdata_{YYYY}.zip`, one ZIP per **year** holding one CSV per month (`scrdata_YYYYMM.csv`) **[D][M2]** |
 | V1 files | `https://www.bcb.gov.br/pda/desig/planilha_{YYYY}.zip` holding `planilha_YYYYMM.csv` **[D]** |
-| Coverage, V2 | **2012-07 to 2026-07**, 169 months, no gaps, no duplicates **[D]** — the V1 methodology says the series starts June 2012 **[M1]**; V2 has no June 2012 file |
-| Coverage, V1 | **2012-01 to 2026-07**, 175 months, no gaps **[D]** — BCB's portal says V1 "is available up to data-base June/2025 and will not be updated". **Disagreement:** V1 files exist through July 2026, with changed structure from July 2025 (section 3) |
+| Coverage, V2 | **2012-07 to 2026-07**, 169 months, no gaps, no duplicates **[D]**; the V1 methodology says the series starts June 2012 **[M1]**; V2 has no June 2012 file |
+| Coverage, V1 | **2012-01 to 2026-07**, 175 months, no gaps **[D]**. BCB's portal says V1 "is available up to data-base June/2025 and will not be updated". **Disagreement:** V1 files exist through July 2026, with changed structure from July 2025 (section 3) |
 | Release lag | "updated on the last business day of the month… 30 days after the close of each period" **[M2]**. On 2026-09-14 the latest month is 2026-07 **[D]** |
 | Revisions | The Last-Modified dates of the V2 ZIPs for 2012–2023 are 27 Mar–16 Apr 2026, and for 2024–2026 are 2–12 Sep 2026 **[D: HTTP headers]**. **History is re-published.** BCB also withdrew the 2025 months in April 2025 "para revisão interna" linked to Res. 4.966, and republished them later (LAI answers, §10.4). A file downloaded later may not match one downloaded now. The build must pin SHA-256 hashes and Last-Modified dates (`data/raw/zips/MANIFEST.tsv`, written by `scripts/recon/fetch_years.py`) and say which vintage it used |
 
@@ -73,8 +73,8 @@ Every number here is reproducible with `scripts/recon/` (section 9).
 | Encoding | UTF-8 **with BOM** **[D]** | UTF-8 with BOM **[D]** |
 | Delimiter | `;` | `;` |
 | Quoting | every field double-quoted **[D]** | unquoted, except `"-"` placeholders **[D]** |
-| **Trap — delimiter inside a value** | CNAE label `Comércio; reparação de veículos automotores e motocicletas` contains `;` inside quotes. A naive split on `;` corrupts every PJ commerce row **[D]** | same label, unquoted form not observed in the rows sampled |
-| Decimals | comma, no thousands separator (`633904,03`) **[D]** — no measure value in any profiled month contains `.`, and every value parses **[D]** | same **[D]** |
+| **Trap: delimiter inside a value** | CNAE label `Comércio; reparação de veículos automotores e motocicletas` contains `;` inside quotes. A naive split on `;` corrupts every PJ commerce row **[D]** | same label, unquoted form not observed in the rows sampled |
+| Decimals | comma, no thousands separator (`633904,03`) **[D]**; no measure value in any profiled month contains `.`, and every value parses **[D]** | same **[D]** |
 | Dates | `data_base` ISO `YYYY-MM-DD`, last calendar day of the month **[D]** | same |
 
 ### 1.3 Volume for the full history
@@ -95,7 +95,7 @@ unexpected compression method, and the highest compression ratio is 10.5× **[D]
 suggests a malformed or hostile archive. Each month used here was CRC32-verified against the
 archive's central directory before it was written.
 
-**Trap — transport.** The host resets long transfers. Whole-year downloads at roughly 0.3 MB/s
+**Trap: transport.** The host resets long transfers. Whole-year downloads at roughly 0.3 MB/s
 failed or stalled repeatedly, and so did single 30 MB range requests. Fetching in 4 MB ranges with
 retries worked every time **[D]**. The fetch script needs to do the same.
 
@@ -115,7 +115,7 @@ retries worked every time **[D]**. The fetch script needs to do the same.
 
 ---
 
-## 2. V2 (`scrdata_YYYYMM.csv`) — column by column
+## 2. V2 (`scrdata_YYYYMM.csv`), column by column
 
 24 columns, identical header in all 169 months **[D]**. Types below are after parsing (the files
 are text). Months profiled in full: 2013-06, 2023-12, 2024-01, 2024-06, 2024-11, 2024-12, 2025-01,
@@ -138,7 +138,7 @@ No dimension column has a null or empty value in any month profiled **[D]**.
 | `origem` | Earmarked or not, Anexo 4 first level **[M2]** | Sem destinação específica; Com destinação específica **[D]** | — | — |
 | `indexador` | Rate index, Anexo 5 first level **[M2]** | Prefixado, Pós-fixado, Flutuantes, Índices de preços, TCR/TRFC, Outros indexadores **[D]** | **TCR/TRFC first appears 2019-08 for PF, 2019-10 for PJ** (5 values before) **[D, full history]** | — |
 
-**Unstable PF categories, share of PF portfolio (%)** **[D]** — `scripts/recon/crosstab_cells.py`
+**Unstable PF categories, share of PF portfolio (%)** **[D]**, from `scripts/recon/crosstab_cells.py`
 
 | Category | 2013-06 | 2016-05 | 2016-06 | 2023-12 | 2024-06 | 2024-12 | **2025-01** | 2025-02 | 2025-06 | 2025-12 | 2026-07 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -186,7 +186,7 @@ negative values in any month profiled **[D]**.
 | `carteira_inadimplencia` | Full balance (performing + overdue) of operations with **any instalment >90 days overdue**. The V1 name is `carteira_inadimplida_arrastada` **[M2][M1]** | ≠ `vencido_acima_de_90_dias` on 58,961–89,136 rows per month. PF 2026-07: 5.82% of portfolio vs 3.18% | **This, divided by `carteira_ativa`, is BCB's official 90-day delinquency concept.** It reconciles with SGS 21084 for PF (table below). The two ">90" columns are different measures. Label them explicitly everywhere |
 | `ativo_problematico` | Balance of operations classified as problem assets **[M2]** | ≥ `carteira_inadimplencia` except 2–118 rows per month | **Definition changed in January 2025** **[M2]**: until Dec 2024, >90 days overdue OR restructured with an E–H rating (restructuring detected by a BCB algorithm). From Jan 2025, operations that lenders themselves flag as problem assets (*característica especial 19* in doc 3040). Not comparable across the break. See `docs/data-landscape.md` |
 
-**Reconciliation to the official series** — PF `carteira_inadimplencia / carteira_ativa` **[D]** vs
+**Reconciliation to the official series.** PF `carteira_inadimplencia / carteira_ativa` **[D]** vs
 SGS 21084, "Percent of 90 days past due loans of credit operations outstanding – Households – Total"
 **[SGS]**:
 
@@ -204,7 +204,7 @@ consolidated statistics **[M1]**, and PJ is out of scope for v1 anyway.
 
 ---
 
-## 3. V1 (`planilha_YYYYMM.csv`) — and why it is not used
+## 3. V1 (`planilha_YYYYMM.csv`), and why it is not used
 
 23 columns, identical header in all 175 months **[D]**. Grain `(data_base, uf, tcb, sr, cliente,
 ocupacao, cnae_secao, cnae_subclasse, porte, modalidade, origem, indexador)` unique **[D]**.
@@ -266,10 +266,10 @@ switches:
 | V1 | V2 | Notes |
 |---|---|---|
 | `data_base`, `uf`, `cliente`, `origem`, `indexador` | same | V1 values unquoted |
-| `tcb`, `sr` | — (removed) | V2 has `segmento` instead, a different grouping |
+| `tcb`, `sr` | (removed) | V2 has `segmento` instead, a different grouping |
 | — | `segmento` (added) | |
 | `ocupacao` + `cnae_secao` | `cnae_ocupacao` | merged; prefixes dropped |
-| `cnae_subclasse` | — (removed) | V2 stops at CNAE section |
+| `cnae_subclasse` | (removed) | V2 stops at CNAE section |
 | `porte` | `porte` | prefix and padding dropped |
 | `modalidade` (16 IF.data groups) | `modalidade` (13 layout groups) + `submodalidade` (added) | **same name, different taxonomy** |
 | `numero_de_operacoes` (`<= 15`) | `numero_de_operacoes` (`-1`) | sentinel changed |
@@ -467,7 +467,7 @@ Run `uv sync` first. The scripts run in the project environment, which pins Pyth
 
 ---
 
-## 10. Full-history profile — all 169 V2 months
+## 10. Full-history profile: all 169 V2 months
 
 Sections 1–9 were built from 13 sampled months. This section profiles **every** V2 month, 2012-07 to
 2026-07 (43,062,885 rows), so that every change inside the analysis window is dated rather than
@@ -477,7 +477,7 @@ guessed. Outputs: `data/recon/panel/` (`month_summary.csv`, `category_presence.c
 standard deviations from that series' own typical move, and material in size (≥0.25 pp for a share,
 ≥0.15 pp for a rate on ≥R$10 bn). A flag starts an inspection; it is not a finding.
 
-### 10.1 Structure — clean throughout
+### 10.1 Structure: clean throughout
 
 | Check | Result **[D]** |
 |---|---|
