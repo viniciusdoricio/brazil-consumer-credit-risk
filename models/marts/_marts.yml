@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: mart_pf_cells
+    description: >
+      Household cells (month x occupation x income band x product group) with 90-day, 15-90-day
+      and problem-asset rates and each cell's share of the household portfolio.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [month, occupation, income_band, product_group]
+    columns:
+      - name: d90_rate
+        description: >
+          carteira_inadimplencia / carteira_ativa. Comparable only while d90_comparable is true:
+          from January 2025 delayed write-offs inflate it.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: d15_rate
+        description: vencido_de_15_ate_90_dias / carteira_ativa, comparable across January 2025.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: problem_asset_rate
+        description: ativo_problematico / carteira_ativa. Redefined in January 2025.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: share_of_pf
+        description: The cell's share of that month's household portfolio.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+  - name: mart_pf_monthly
+    description: >
+      National household credit by month: portfolio, 90-day, 15-90-day and problem-asset rates,
+      the official 90-day series (SGS 21084) and the gap to it, and that month's classification
+      events.
+    columns:
+      - name: month
+        data_tests:
+          - unique
+          - not_null
+      - name: d90_rate
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: d15_rate
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: problem_asset_rate
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: d90_comparable
+        description: True up to December 2024, the last month before Res. CMN 4.966.
+      - name: d90_gap_to_sgs
+        description: >
+          d90_rate minus SGS 21084, as a fraction. Held within 0.002 (0.2 pp) for 2017 to 2024 by
+          assert_pf_d90_matches_sgs_21084.
