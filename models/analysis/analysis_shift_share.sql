@@ -70,6 +70,16 @@ comparisons as (
         )
 ),
 
+available as (
+    -- a comparison needs both of its months in the data; a build on part of the history (as in
+    -- CI) would otherwise divide by an empty starting month
+    select comparisons.*
+    from comparisons
+    where
+        comparisons.month_0 in (select month from cells)
+        and comparisons.month_1 in (select month from cells)
+),
+
 variants as (
     select 'all' as variant
     union all
@@ -87,7 +97,7 @@ ends as (
         coalesce(sum(measured.balance) filter (where measured.month = comparisons.month_1), 0) as balance_1,
         coalesce(sum(measured.numerator) filter (where measured.month = comparisons.month_0), 0) as numerator_0,
         coalesce(sum(measured.numerator) filter (where measured.month = comparisons.month_1), 0) as numerator_1
-    from comparisons
+    from available as comparisons
     inner join measured
         on measured.measure = comparisons.measure
         and measured.month in (comparisons.month_0, comparisons.month_1)
@@ -208,7 +218,7 @@ select
             and events.month > comparisons.month_0
             and events.month <= comparisons.month_1
     ) as spans_occupation_reclassification
-from comparisons
+from available as comparisons
 inner join decomposed
     on comparisons.comparison_id = decomposed.comparison_id
     and comparisons.measure = decomposed.measure
