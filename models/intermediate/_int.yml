@@ -60,3 +60,20 @@ models:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [pair_id, window_id, product_scope, income_band, product_group]
+
+  - name: int_price_index
+    description: >
+      Consumer prices (IPCA, SGS 433) as an index equal to 1 in the latest SCR.data month, so a
+      balance divided by it is in reais of that month.
+    columns:
+      - name: month
+        data_tests:
+          - unique
+          - not_null
+      - name: price_index
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: false
