@@ -3,9 +3,9 @@
     uv run make-charts                       reads data/brazil_consumer_credit_risk.duckdb
     uv run make-charts --out analysis/figures
 
-Writes one PNG per chart and headlines.json, which holds each chart's headline, subtitle and the
-numbers behind them, for the write-up to cite. Needs a full build (make fetch, make build): the
-charts span 2016 to the latest month.
+Writes, for each language, one PNG per chart and headlines.json, which holds each chart's
+headline, subtitle and the numbers behind them, into <out>/pt and <out>/en. Needs a full build
+(make fetch, make build): the charts span 2016 to the latest month.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ from pathlib import Path
 
 import duckdb
 import matplotlib
+import yaml
 
 matplotlib.use("Agg")
 
@@ -25,7 +26,8 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from . import figures, headlines  # noqa: E402
-from .style import SOURCE, use_style  # noqa: E402
+from .language import LANGUAGES, PT, Language  # noqa: E402
+from .style import use_style  # noqa: E402
 
 log = logging.getLogger("make-charts")
 
@@ -36,6 +38,10 @@ HEADLINE_PERIOD = "2024"
 # Chart 1 starts when the reporting threshold fell to R$200, the start of the comparable national
 # series (docs/v1-decision.md, section 4).
 TRAP_START = "2016-06-01"
+# Design parameters the chart notes quote, read from where the models take them.
+_DESIGN = yaml.safe_load((Path(__file__).parents[3] / "dbt_project.yml").read_text())["vars"]
+MIN_CELL_BALANCE_BN = _DESIGN["min_cell_balance_bn"]
+MAX_CROSSWALK_SHIFT = _DESIGN["max_crosswalk_shift"]
 
 QUERIES = {
     "monthly": f"""
@@ -57,56 +63,55 @@ def load(con: duckdb.DuckDBPyConnection) -> dict[str, pd.DataFrame]:
     return {name: con.execute(sql).df() for name, sql in QUERIES.items()}
 
 
-def build(frames: dict[str, pd.DataFrame]) -> dict[str, tuple[headlines.Headline, plt.Figure]]:
-    """Every chart's headline and figure, keyed by the file name it is saved under."""
+def build(
+    frames: dict[str, pd.DataFrame], lang: Language = PT
+) -> dict[str, tuple[headlines.Headline, plt.Figure]]:
+    """Every chart's headline and figure in one language, keyed by the file it is saved as."""
     use_style()
     latest = pd.Timestamp(frames["monthly"]["month"].max()).date()
-    footer = f"{SOURCE} {headlines.as_of(latest)}"
+    footer = f"{lang.t('source')} {lang.t('as_of', month=lang.month(latest))}"
+    material = lang.pp(headlines.MATERIAL, 1)
+    min_cell = lang.number(MIN_CELL_BALANCE_BN, 0)
     specs = {
         "chart1_trap": (
-            headlines.the_trap(frames["monthly"]),
+            headlines.the_trap(frames["monthly"], lang),
             figures.the_trap,
             frames["monthly"],
             "",
         ),
         "chart2_grid": (
-            headlines.the_grid(frames["grid"], HEADLINE_PERIOD),
+            headlines.the_grid(frames["grid"], HEADLINE_PERIOD, lang),
             figures.the_grid,
             frames["grid"],
-            " Células abaixo de R$ 1 bi de saldo médio não são mostradas. Contornos: a maior "
-            "diferença numa faixa.",
+            lang.t("grid.note", min_cell=min_cell),
         ),
         "chart3_dispersion": (
-            headlines.which_matters_more(frames["dispersion"]),
+            headlines.which_matters_more(frames["dispersion"], lang),
             figures.which_matters_more,
             frames["dispersion"],
-            " Ocupações e faixas nomeadas, células acima de R$ 1 bi. Desemprego: média anual "
-            "da PNAD Contínua (SGS 24369).",
+            lang.t("dispersion.note", min_cell=min_cell),
         ),
         "chart4_job_or_product": (
-            headlines.job_or_product(frames["gaps"], HEADLINE_PERIOD),
+            headlines.job_or_product(frames["gaps"], HEADLINE_PERIOD, lang=lang),
             figures.job_or_product,
             frames["gaps"],
-            " Divisão estável: diferença de ao menos 0,1 p.p., mesma ordem com o denominador "
-            "de 12 meses antes e parte do mix que muda menos de 25% da diferença quando produtos "
-            "ambíguos trocam de grupo.",
+            lang.t("split.note", material=material, shift=lang.pct(MAX_CROSSWALK_SHIFT, 0)),
         ),
         "chart5_mix_vs_rate": (
-            headlines.mix_versus_rate(frames["episodes"]),
+            headlines.mix_versus_rate(frames["episodes"], lang),
             figures.mix_versus_rate,
             frames["episodes"],
-            " Episódios de janeiro a dezembro; a taxa de 90 dias é comparável até dez/2024.",
+            lang.t("mix.note"),
         ),
         "chart6_current_read": (
-            headlines.current_read(frames["current"]),
+            headlines.current_read(frames["current"], lang),
             figures.current_read,
             frames["current"],
-            " Desde 2025, valores vencidos incluem juros contratuais até o ativo ser "
-            "problemático, o que pode elevar um pouco os saldos com 60 a 90 dias de atraso.",
+            lang.t("current.note"),
         ),
     }
     return {
-        name: (headline, draw(frame, headline, footer + note))
+        name: (headline, draw(frame, headline, footer + note, lang))
         for name, (headline, draw, frame, note) in specs.items()
     }
 
@@ -134,19 +139,21 @@ def main(argv: list[str] | None = None) -> int:
     with duckdb.connect(str(args.database), read_only=True) as con:
         frames = load(con)
 
-    args.out.mkdir(parents=True, exist_ok=True)
-    record = {}
-    for name, (headline, fig) in build(frames).items():
-        path = args.out / f"{name}.png"
-        fig.savefig(path)
-        plt.close(fig)
-        record[name] = {
-            "title": headline.title,
-            "subtitle": headline.subtitle,
-            "facts": headline.facts,
-        }
-        log.info("%s: %s", path, headline.title)
-    (args.out / "headlines.json").write_text(
-        json.dumps(record, ensure_ascii=False, indent=2, default=_plain) + "\n"
-    )
+    for lang in LANGUAGES.values():
+        out = args.out / lang.code
+        out.mkdir(parents=True, exist_ok=True)
+        record = {}
+        for name, (headline, fig) in build(frames, lang).items():
+            path = out / f"{name}.png"
+            fig.savefig(path)
+            plt.close(fig)
+            record[name] = {
+                "title": headline.title,
+                "subtitle": headline.subtitle,
+                "facts": headline.facts,
+            }
+            log.info("%s: %s", path, headline.title)
+        (out / "headlines.json").write_text(
+            json.dumps(record, ensure_ascii=False, indent=2, default=_plain) + "\n"
+        )
     return 0

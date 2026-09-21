@@ -11,266 +11,28 @@ format:
     number-sections: true
     embed-resources: true
     fig-align: left
+    lightbox: true
 jupyter: python3
 ---
 
+*[English version](en/index.html)*
+
 ```{python}
 #| include: false
-# Every number in the text is computed here, from the dbt models and the same headline rules the
-# charts use (src/brazil_consumer_credit_risk/charts). Nothing below is typed by hand.
+# Every figure from the data is computed in brazil_consumer_credit_risk.report, which the English
+# translation (en/index.qmd) also uses, and every claim the text makes is checked there first.
 from types import SimpleNamespace
 
-import duckdb
-import yaml
 from IPython.display import Markdown
 
-from brazil_consumer_credit_risk.charts import cli, figures
-from brazil_consumer_credit_risk.charts import headlines as h
-from brazil_consumer_credit_risk.charts.style import (
-    INCOME_BANDS,
-    OCCUPATIONS_IN_TEXT,
-    PAIRS,
-    in_words,
-    month_label,
-    number,
-    pct,
-    pp,
-)
+from brazil_consumer_credit_risk import report
+from brazil_consumer_credit_risk.charts.language import PT
 
-con = duckdb.connect("../data/brazil_consumer_credit_risk.duckdb", read_only=True)
-frames = cli.load(con)
-design = yaml.safe_load(open("../dbt_project.yml"))["vars"]
-
-trap = h.the_trap(frames["monthly"])
-grid = h.the_grid(frames["grid"], cli.HEADLINE_PERIOD)
-dispersion = h.which_matters_more(frames["dispersion"])
-split = h.job_or_product(frames["gaps"], cli.HEADLINE_PERIOD)
-episodes = h.mix_versus_rate(frames["episodes"])
-current = h.current_read(frames["current"])
-
-
-def one(sql, *params):
-    return con.execute(sql, list(params)).fetchone()
-
-
-def join(items):
-    items = list(items)
-    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " e " + items[-1]
-
-
-PRODUCTS_IN_TEXT = {
-    "Cartão": "cartão de crédito",
-    "Consignado": "consignado",
-    "Imobiliário": "crédito imobiliário",
-    "Pessoal não consignado": "crédito pessoal sem consignação",
-    "Veículos": "financiamento de veículos",
-    "Rural": "crédito rural",
-    "Cheque especial e outros": "cheque especial e outros",
-}
-
-# The data
-first_month, latest_month, months = one(
-    "select min(month), max(month), count(*) from mart_pf_monthly"
-)
-(portfolio_bn,) = one(
-    "select carteira_ativa / 1e9 from mart_pf_monthly where month = ?", latest_month
-)
-gap_low, gap_high = one(
-    """select min(d90_gap_to_sgs), max(d90_gap_to_sgs) from mart_pf_monthly
-    where month between date '2017-01-01' and date '2024-12-01'"""
-)
-rural_self_employed, rural_top_band, rural_all = one(
-    """select
-        sum(carteira_ativa) filter (where product_group = 'Rural' and occupation = 'Autônomo')
-            / sum(carteira_ativa) filter (where occupation = 'Autônomo'),
-        sum(carteira_ativa) filter (
-            where product_group = 'Rural' and income_band = 'Acima de 20 salários mínimos')
-            / sum(carteira_ativa) filter (where income_band = 'Acima de 20 salários mínimos'),
-        sum(carteira_ativa) filter (where product_group = 'Rural') / sum(carteira_ativa)
-    from mart_pf_cells where year(month) = 2024"""
-)
-outros_low, outros_high = one(
-    """select min(share), max(share) from (
-        select year(month),
-            sum(carteira_ativa) filter (where occupation = 'Outros') / sum(carteira_ativa) as share
-        from mart_pf_cells where month between date '2017-01-01' and date '2024-12-01'
-        group by 1)"""
-)
-(unexplained_jumps,) = one(
-    "select count(*) from classification_events where description like '%cause not established%'"
-)
-small_cells = int(frames["grid"]["below_minimum_size"].sum())
-occupations, income_bands, product_groups = one(
-    """select count(distinct occupation), count(distinct income_band), count(distinct product_group)
-    from mart_pf_cells where year(month) = 2024"""
-)
-shown = frames["grid"][~frames["grid"]["below_minimum_size"]]
-top_two_riskiest = 0
-safest = 0
-for _, band in shown.groupby("income_band"):
-    ranked = band.sort_values("d90_rate")["occupation"].tolist()
-    top_two_riskiest += set(ranked[-2:]) == {"MEI", "Autônomo"}
-    safest += ranked[0] in {"Servidor ou empregado público", "Aposentado/pensionista"}
-
-# Chart 4 in detail
-gaps = frames["gaps"]
-named = gaps[
-    (gaps["product_scope"] == "all_products")
-    & gaps["income_band"].isin(INCOME_BANDS)
-    & ~gaps["below_minimum_size"]
-]
-material_splits = int((named["gap"].abs() >= h.MATERIAL).sum())
-stable_splits = sum(len(h.stable_bands(gaps, pair, "all_products")) for pair in PAIRS)
-pair_shares = {
-    pair: h.product_mix_share(h.stable_bands(gaps, pair, "all_products")) for pair in PAIRS
-}
-bands = split.facts["stable_bands"]
-by_product = (
-    con.execute(
-        """select product_group,
-            sum(carteira_inadimplencia) filter (where occupation = 'Aposentado/pensionista')
-                / sum(carteira_ativa) filter (where occupation = 'Aposentado/pensionista')
-                as retirees,
-            sum(carteira_inadimplencia) filter (where occupation = 'Autônomo')
-                / sum(carteira_ativa) filter (where occupation = 'Autônomo') as self_employed
-        from int_cross_section_by_mapping
-        where window_id = ? and product_scope = 'all_products' and product_mapping = 'primary'
-            and list_contains(?, income_band)
-        group by 1""",
-        [cli.HEADLINE_WINDOW, bands],
-    )
-    .df()
-    .set_index("product_group")
-)
-same_product_terms = (
-    con.execute(
-        """select product_group, sum(same_product_term) as term
-        from int_gap_terms
-        where pair_id = 'retiree_vs_self_employed' and window_id = ?
-            and product_scope = 'all_products' and product_mapping = 'primary'
-            and list_contains(?, income_band)
-        group by 1""",
-        [cli.HEADLINE_WINDOW, bands],
-    )
-    .df()
-    .set_index("product_group")["term"]
-)
-top_product = same_product_terms.abs().idxmax()
-widest_rate_gap = (by_product["self_employed"] - by_product["retirees"]).idxmax()
-stable_by_pair = {pair: len(h.stable_bands(gaps, pair, "all_products")) for pair in PAIRS}
-self_employed_higher_everywhere = bool(
-    (by_product["self_employed"] > by_product["retirees"]).all()
-)
-
-# Chart 5 and chart 6
-eps = frames["episodes"].sort_values("month_0")
-pure_shares = (eps["pure_rate"] / eps["change"]).tolist()
-mix_shares = ((eps["product_mix"] + eps["borrower_mix"]) / eps["change"]).abs().tolist()
-flagged = eps[eps["spans_occupation_reclassification"]].iloc[0]
-calendar = frames["dispersion"][
-    (frames["dispersion"]["measure"] == "d90")
-    & (frames["dispersion"]["period_kind"] == "calendar_year")
-]
-cur = frames["current"].set_index("occupation")
-fastest = current.facts["fastest"]
-slowest = cur["d15_change"].idxmin()
-
-ratios = list(dispersion.facts["window_ratios"].values())
-largest = grid.facts["largest_spread"]
-
-# The text below is written for the results as they came out. If a later data release changes
-# any of these, the render stops here rather than publishing a sentence that is no longer true.
-assert trap.facts["break_visible"] and trap.facts["d15_flat"]
-assert set(frames["grid"].loc[frames["grid"]["below_minimum_size"], "occupation"]) == {
-    "Empregado de entidades sem fins lucrativos"
-}
-assert (
-    split.facts["product_mix_share"]
-    < split.facts["product_mix_share_excluding_rural"]
-    < h.PRODUCT_MIX_MAJORITY
-)
-assert dispersion.facts["verdict"] == "income"
-assert (calendar["occupation_to_income_ratio"] < 1).all()
-assert len(dispersion.facts["d15_years_above_one"]) == 1
-assert abs(dispersion.facts["unemployment_correlation"]) < h.UNEMPLOYMENT_CORRELATION
-assert split.facts["product_mix_share"] <= h.PRODUCT_MIX_LITTLE
-assert self_employed_higher_everywhere and widest_rate_gap == top_product
-assert all(share is not None and share < h.PRODUCT_MIX_MAJORITY for share in pair_shares.values())
-assert stable_by_pair["public_vs_private_employee"] < len(INCOME_BANDS) / 2
-assert stable_by_pair["mei_vs_business_owner"] < len(INCOME_BANDS) / 2
-assert set(episodes.facts["dominant_component"].values()) == {"pure_rate"}
-assert len(episodes.facts["episodes_with_reclassification"]) == 1
-assert (cur["d15_change"] > 0).all()
-assert fastest == current.facts["fastest_with_lagged_denominator"]
-assert cur.loc[fastest, "real_balance_growth"] > 0
-
-M = Markdown
+facts = report.facts()
+report.check(facts)
+# "$" in "R$" is escaped so Pandoc never reads it as the start of a formula.
 N = SimpleNamespace(
-    occupations=M(in_words(occupations, feminine=True)),
-    income_bands=M(in_words(income_bands, feminine=True)),
-    product_groups=M(in_words(product_groups)),
-    min_cell=M(f"R$ {number(design['min_cell_balance_bn'], 0)} bilhão"),
-    material=M(pp(h.MATERIAL, 1)),
-    crosswalk_shift=M(pct(design["max_crosswalk_shift"], 0)),
-    weight_jump=M(pp(design["weight_jump_threshold"], 1)),
-    top_two_riskiest=M(in_words(top_two_riskiest, feminine=True)),
-    safest=M(in_words(safest)),
-    bands_shown=M(in_words(shown["income_band"].nunique(), feminine=True)),
-    years=M(in_words(len(calendar))),
-    episodes=M(in_words(len(eps))),
-    mix_max=M(pct(max(mix_shares), 0)),
-    flagged_episode=M(h._episode_name(flagged)),
-    flagged_borrower_mix=M(pp(flagged["borrower_mix"], sign=True)),
-    months=M(str(months)),
-    first_month=M(month_label(first_month)),
-    latest_month=M(month_label(latest_month)),
-    portfolio=M(f"R$ {number(portfolio_bn / 1000, 1)} trilhões"),
-    gap_low=M(pp(gap_low, sign=True)),
-    gap_high=M(pp(gap_high, sign=True)),
-    rural_self_employed=M(pct(rural_self_employed, 0)),
-    rural_top_band=M(pct(rural_top_band, 0)),
-    rural_all=M(pct(rural_all, 0)),
-    outros_low=M(pct(outros_low, 0)),
-    outros_high=M(pct(outros_high, 0)),
-    unexplained_jumps=M(in_words(unexplained_jumps)),
-    small_cells=M(in_words(small_cells, feminine=True)),
-    bcb_regulatory=M(f"{number(figures.BCB_REGULATORY_PP)} p.p."),
-    bcb_total=M(f"{number(figures.BCB_TOTAL_PP)} p.p."),
-    d90_step=M(pp(trap.facts["d90_step_january_2025"], sign=True)),
-    d90_step_before=M(pp(trap.facts["d90_step_january_2024"], sign=True)),
-    d15_step=M(pp(trap.facts["d15_step_january_2025"], sign=True)),
-    d15_step_before=M(pp(trap.facts["d15_step_january_2024"], sign=True)),
-    grid_spread=M(pp(largest["spread"], 1)),
-    grid_high=M(OCCUPATIONS_IN_TEXT[largest["highest"]]),
-    grid_low=M(OCCUPATIONS_IN_TEXT[largest["lowest"]]),
-    grid_band=M(h.INCOME_IN_TEXT[largest["income_band"]]),
-    grid_smallest=M(pp(grid.facts["smallest_spread"])),
-    ratio_low=M(number(min(ratios))),
-    ratio_high=M(number(max(ratios))),
-    correlation=M(number(dispersion.facts["unemployment_correlation"])),
-    d15_years=M(join(dispersion.facts["d15_years_above_one"]) or "nenhum ano"),
-    split_bands=M(in_words(len(bands), feminine=True)),
-    split_band_names=M(join(INCOME_BANDS[b] for b in bands) + " salários mínimos"),
-    mix_share=M(pct(split.facts["product_mix_share"], 0)),
-    mix_share_no_rural=M(pct(split.facts["product_mix_share_excluding_rural"], 0)),
-    material_splits=M(str(material_splits)),
-    stable_splits=M(in_words(stable_splits)),
-    public_share=M(pct(pair_shares["public_vs_private_employee"], 0)),
-    mei_share=M(pct(pair_shares["mei_vs_business_owner"], 0)),
-    top_product=M(PRODUCTS_IN_TEXT[top_product]),
-    top_product_share=M(pct(same_product_terms[top_product] / same_product_terms.sum(), 0)),
-    card_self_employed=M(pct(by_product.loc["Cartão", "self_employed"])),
-    card_retirees=M(pct(by_product.loc["Cartão", "retirees"])),
-    payroll_self_employed=M(pct(by_product.loc["Consignado", "self_employed"])),
-    payroll_retirees=M(pct(by_product.loc["Consignado", "retirees"])),
-    pure_low=M(pct(min(pure_shares), 0)),
-    pure_high=M(pct(max(pure_shares), 0)),
-    fastest=M(OCCUPATIONS_IN_TEXT[fastest]),
-    fastest_change=M(pp(cur.loc[fastest, "d15_change"], sign=True)),
-    fastest_growth=M(pct(cur.loc[fastest, "real_balance_growth"], sign=True)),
-    slowest=M(OCCUPATIONS_IN_TEXT[slowest]),
-    slowest_change=M(pp(cur.loc[slowest, "d15_change"], sign=True)),
-    slowest_growth=M(pct(cur.loc[slowest, "real_balance_growth"], sign=True)),
+    **{k: Markdown(v.replace("$", "\\$")) for k, v in report.values(facts, PT).items()}
 )
 ```
 
@@ -327,7 +89,7 @@ A análise usa duas medidas, ambas como fração do saldo da carteira:
 
 - **Inadimplência de 90 dias:** o saldo das operações com parcela vencida há mais de 90 dias. É o
   conceito oficial do Banco Central; entre 2017 e 2024, a série calculada aqui fica entre
-  `{python} N.gap_low` e `{python} N.gap_high` da série oficial (SGS 21084).
+  `{python} N.sgs_gap_low` e `{python} N.sgs_gap_high` da série oficial (SGS 21084).
 - **Inadimplência de 15 a 90 dias:** os valores vencidos nesse intervalo. É a única medida que
   atravessa a mudança contábil de 2025 (seção 4).
 
@@ -350,7 +112,7 @@ de rolagem observada entre faixas de atraso (seção 7).
 
 # A armadilha: a mudança contábil de janeiro de 2025
 
-![](figures/chart1_trap.png){fig-alt="Inadimplência de 90 dias e de 15 a 90 dias das pessoas físicas, de junho de 2016 a julho de 2026, com a mudança de janeiro de 2025 marcada."}
+![](figures/pt/chart1_trap.png){fig-alt="Inadimplência de 90 dias e de 15 a 90 dias das pessoas físicas, de junho de 2016 a julho de 2026, com a mudança de janeiro de 2025 marcada."}
 
 Em janeiro de 2025, a **Resolução CMN 4.966** trouxe para o Brasil o modelo de perda esperada do
 IFRS 9. O efeito que mais mexe nos números não é a nova definição de ativo problemático, e sim a
@@ -374,7 +136,7 @@ revisão futura do Banco Central a apagar.
 
 ## Na mesma renda, a ocupação ainda muda a inadimplência
 
-![](figures/chart2_grid.png){fig-alt="Mapa de calor da inadimplência de 90 dias em 2024 por ocupação e faixa de renda."}
+![](figures/pt/chart2_grid.png){fig-alt="Mapa de calor da inadimplência de 90 dias em 2024 por ocupação e faixa de renda."}
 
 Dentro de cada faixa de renda, a taxa de 90 dias em 2024 varia com a ocupação. A maior diferença é
 de `{python} N.grid_spread`, entre `{python} N.grid_high` e `{python} N.grid_low` com renda
@@ -387,7 +149,7 @@ células de empregados de entidades sem fins lucrativos ficam abaixo do tamanho 
 
 ## Mas a renda separa mais o risco do que a ocupação
 
-![](figures/chart3_dispersion.png){fig-alt="Razão entre a dispersão da inadimplência entre ocupações e entre faixas de renda, de 2017 a 2024, com o desemprego abaixo."}
+![](figures/pt/chart3_dispersion.png){fig-alt="Razão entre a dispersão da inadimplência entre ocupações e entre faixas de renda, de 2017 a 2024, com o desemprego abaixo."}
 
 A pergunta que decide o peso da ocupação é qual das duas dimensões afasta mais as taxas. A razão
 do gráfico divide a dispersão entre ocupações, dentro de cada faixa de renda, pela dispersão entre
@@ -408,7 +170,7 @@ derrubaria: a renda separar mais nos três recortes. Foi o que aconteceu. Duas r
 
 ## Entre aposentados e autônomos, a diferença está dentro dos mesmos produtos
 
-![](figures/chart4_job_or_product.png){fig-alt="Diferença na inadimplência de 90 dias entre três pares de ocupações, por faixa de renda, dividida entre a parte dentro dos mesmos produtos e a parte do mix de produtos."}
+![](figures/pt/chart4_job_or_product.png){fig-alt="Diferença na inadimplência de 90 dias entre três pares de ocupações, por faixa de renda, dividida entre a parte dentro dos mesmos produtos e a parte do mix de produtos."}
 
 Este é o teste central. Para cada par de ocupações e cada faixa de renda, a diferença de taxa se
 divide exatamente em duas partes: a que existe dentro dos mesmos produtos e a que vem de cada grupo
@@ -439,7 +201,7 @@ mais fraca, porque a maior parte das faixas não resiste ao teste.
 
 ## As mudanças da inadimplência nacional vieram de dentro dos segmentos
 
-![](figures/chart5_mix_vs_rate.png){fig-alt="Variação da inadimplência de 90 dias em três episódios, dividida entre taxa dentro de cada ocupação e produto, mix de produtos e mix de ocupações."}
+![](figures/pt/chart5_mix_vs_rate.png){fig-alt="Variação da inadimplência de 90 dias em três episódios, dividida entre taxa dentro de cada ocupação e produto, mix de produtos e mix de ocupações."}
 
 A mesma divisão, aplicada ao longo do tempo, pergunta se a inadimplência nacional subiu ou caiu
 porque o crédito migrou para produtos ou ocupações mais arriscados, ou porque as taxas mudaram
@@ -451,7 +213,7 @@ ocupações; nele, esse mix somou `{python} N.flagged_borrower_mix`
 
 ## Desde 2025, o atraso inicial subiu mais entre autônomos
 
-![](figures/chart6_current_read.png){fig-alt="Variação da inadimplência de 15 a 90 dias por ocupação entre 2024 e os 12 meses até julho de 2026, ao lado da variação real do saldo."}
+![](figures/pt/chart6_current_read.png){fig-alt="Variação da inadimplência de 15 a 90 dias por ocupação entre 2024 e os 12 meses até julho de 2026, ao lado da variação real do saldo."}
 
 A inadimplência de 15 a 90 dias dos últimos 12 meses, comparada com a de 2024, subiu em todas as
 ocupações. A alta foi maior entre `{python} N.fastest` (`{python} N.fastest_change`), enquanto o

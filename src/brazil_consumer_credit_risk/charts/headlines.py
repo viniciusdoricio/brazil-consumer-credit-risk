@@ -4,26 +4,18 @@ The v1 decision wrote every headline in advance as a claim with a slot, with the
 replaces it if the data says the opposite (docs/v1-decision.md, section 4). These functions fill
 the slot and pick the branch from the analysis models, using thresholds fixed here rather than
 chosen after looking. Each returns the headline, a subtitle that states the numbers behind it,
-and those numbers as facts, which the write-up cites.
+and those numbers as facts, which the write-up cites. The branch and the facts don't depend on
+the language; only the wording does (`language`).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date
 
 import pandas as pd
 
-from .style import (
-    INCOME_BANDS,
-    OCCUPATIONS_IN_TEXT,
-    PAIRS,
-    in_words,
-    month_label,
-    number,
-    pct,
-    pp,
-)
+from .language import PT, Language
+from .style import INCOME_BANDS
 
 # A rate difference under 0.1 pp counts as no difference, as in analysis_gap_decomposition.
 MATERIAL = 0.001
@@ -42,21 +34,7 @@ UNEMPLOYMENT_CORRELATION = 0.5
 # A component explains a change "mostly" when it has the change's sign and over half its size.
 MOSTLY = 0.5
 
-INCOME_IN_TEXT = {
-    "Até 1 salário mínimo": "até 1 salário mínimo",
-    "Mais de 1 a 2 salários mínimos": "de 1 a 2 salários mínimos",
-    "Mais de 2 a 3 salários mínimos": "de 2 a 3 salários mínimos",
-    "Mais de 3 a 5 salários mínimos": "de 3 a 5 salários mínimos",
-    "Mais de 5 a 10 salários mínimos": "de 5 a 10 salários mínimos",
-    "Mais de 10 a 20 salários mínimos": "de 10 a 20 salários mínimos",
-    "Acima de 20 salários mínimos": "acima de 20 salários mínimos",
-}
-
-COMPONENTS = {
-    "pure_rate": "dentro de cada ocupação e produto",
-    "product_mix": "da mudança no mix de produtos",
-    "borrower_mix": "da mudança no mix de ocupações",
-}
+COMPONENTS = ("pure_rate", "product_mix", "borrower_mix")
 
 
 @dataclass
@@ -77,7 +55,7 @@ def _at(frame: pd.DataFrame, column: str, month: str) -> float:
     return float(rows.iloc[0])
 
 
-def the_trap(monthly: pd.DataFrame) -> Headline:
+def the_trap(monthly: pd.DataFrame, lang: Language = PT) -> Headline:
     """Chart 1. monthly: mart_pf_monthly (month, d90_rate, d15_rate)."""
     d90 = _at(monthly, "d90_rate", "2025-01-01") - _at(monthly, "d90_rate", "2024-12-01")
     d90_before = _at(monthly, "d90_rate", "2024-01-01") - _at(monthly, "d90_rate", "2023-12-01")
@@ -86,29 +64,16 @@ def the_trap(monthly: pd.DataFrame) -> Headline:
     visible = d90 >= BREAK_D90_STEP and d90 >= BREAK_D90_MULTIPLE * abs(d90_before)
     flat = abs(d15) <= BREAK_D15_TOLERANCE
 
-    if not visible:
-        title = (
-            "A mudança contábil de janeiro de 2025 não aparece como salto na inadimplência de "
-            "90 dias das famílias"
-        )
-    elif flat:
-        title = (
-            "Parte da alta da inadimplência das famílias desde janeiro de 2025 vem de uma "
-            "mudança contábil, não dos devedores; a de 15 a 90 dias não saltou"
-        )
-    else:
-        title = (
-            "Parte da alta da inadimplência das famílias desde janeiro de 2025 vem de uma "
-            "mudança contábil, e até a de 15 a 90 dias saltou naquele mês"
-        )
-    subtitle = (
-        "Inadimplência das pessoas físicas, % da carteira. De dezembro de 2024 para janeiro de "
-        f"2025, a de 90 dias variou {pp(d90, sign=True)} (no janeiro anterior, "
-        f"{pp(d90_before, sign=True)}) e a de 15 a 90 dias, {pp(d15, sign=True)} "
-        f"({pp(d15_before, sign=True)})."
+    branch = "hidden" if not visible else ("flat" if flat else "jumped")
+    subtitle = lang.t(
+        "trap.subtitle",
+        d90=lang.pp(d90, sign=True),
+        d90_before=lang.pp(d90_before, sign=True),
+        d15=lang.pp(d15, sign=True),
+        d15_before=lang.pp(d15_before, sign=True),
     )
     return Headline(
-        title,
+        lang.t(f"trap.title.{branch}"),
         subtitle,
         {
             "d90_step_january_2025": d90,
@@ -121,7 +86,7 @@ def the_trap(monthly: pd.DataFrame) -> Headline:
     )
 
 
-def the_grid(grid: pd.DataFrame, period: str) -> Headline:
+def the_grid(grid: pd.DataFrame, period: str, lang: Language = PT) -> Headline:
     """Chart 2. grid: analysis_grid rows for one window and the primary grid."""
     cells = grid[~grid["below_minimum_size"] & grid["income_band"].isin(INCOME_BANDS)]
     spreads = []
@@ -141,34 +106,26 @@ def the_grid(grid: pd.DataFrame, period: str) -> Headline:
     largest = max(held, key=lambda s: s["spread"], default=None)
 
     if largest is None or largest["spread"] < MATERIAL:
-        title = "Dentro de uma mesma faixa de renda, a ocupação quase não muda a inadimplência"
-        subtitle = (
-            f"Inadimplência de 90 dias em {period}, por ocupação e faixa de renda, % da carteira. "
-            "Em nenhuma faixa a diferença entre ocupações chega a 0,1 p.p. com a ordem mantida "
-            "pelo denominador defasado."
-        )
-        return Headline(title, subtitle, {"spreads": spreads})
+        subtitle = lang.t("grid.subtitle.flat", period=period, material=lang.pp(MATERIAL, 1))
+        return Headline(lang.t("grid.title.flat"), subtitle, {"spreads": spreads})
 
     smallest = min(s["spread"] for s in spreads)
-    title = (
-        "Na mesma faixa de renda, a inadimplência de 90 dias varia até "
-        f"{pp(largest['spread'], 1)} conforme a ocupação"
-    )
-    subtitle = (
-        f"Inadimplência de 90 dias em {period}, por ocupação e faixa de renda, % da carteira. A "
-        f"maior diferença é entre {OCCUPATIONS_IN_TEXT[largest['highest']]} e "
-        f"{OCCUPATIONS_IN_TEXT[largest['lowest']]} com renda "
-        f"{INCOME_IN_TEXT[largest['income_band']]}. Mesmo na faixa em que as ocupações ficam "
-        f"mais próximas, a diferença é de {pp(smallest)}."
+    subtitle = lang.t(
+        "grid.subtitle",
+        period=period,
+        high=lang.label("occupation_in_text", largest["highest"]),
+        low=lang.label("occupation_in_text", largest["lowest"]),
+        band=lang.label("band_in_text", largest["income_band"]),
+        smallest=lang.pp(smallest),
     )
     return Headline(
-        title,
+        lang.t("grid.title", spread=lang.pp(largest["spread"], 1)),
         subtitle,
         {"largest_spread": largest, "smallest_spread": smallest, "spreads": spreads},
     )
 
 
-def which_matters_more(dispersion: pd.DataFrame) -> Headline:
+def which_matters_more(dispersion: pd.DataFrame, lang: Language = PT) -> Headline:
     """Chart 3. dispersion: analysis_dispersion, primary variant."""
     d90 = dispersion[dispersion["measure"] == "d90"]
     windows = d90[d90["period_kind"] == "window"].sort_values("start_month")
@@ -177,42 +134,39 @@ def which_matters_more(dispersion: pd.DataFrame) -> Headline:
 
     if all(r < 1 for r in ratios):
         verdict = "income"
-        title = "Na inadimplência de 90 dias, a renda separa o risco mais do que a ocupação"
     elif all(r > 1 for r in ratios):
         verdict = "occupation"
-        title = "Na inadimplência de 90 dias, a ocupação separa o risco mais do que a renda"
     else:
         verdict = "mixed"
-        title = "Na inadimplência de 90 dias, nem a ocupação nem a renda separa sempre mais o risco"
 
     correlation = float(
         years["spread_across_occupations_within_bands"].corr(years["unemployment_rate"])
     )
     if correlation >= UNEMPLOYMENT_CORRELATION:
-        title += ", e a distância entre ocupações acompanhou o desemprego"
+        clause = "with"
     elif correlation <= -UNEMPLOYMENT_CORRELATION:
-        title += ", e a distância entre ocupações andou na contramão do desemprego"
+        clause = "against"
     else:
-        title += ", e a distância entre ocupações não acompanhou o desemprego"
+        clause = "neither"
 
     d15_years = dispersion[
         (dispersion["measure"] == "d15")
         & (dispersion["period_kind"] == "calendar_year")
         & (dispersion["occupation_to_income_ratio"] > 1)
     ]["period_id"].tolist()
-    window_names = ", ".join(_window_name(row) for _, row in windows.iterrows())
-    subtitle = (
-        "Dispersão da inadimplência de 90 dias entre ocupações, dentro de cada faixa de renda, "
-        "dividida pela dispersão entre faixas, dentro de cada ocupação: abaixo de 1, a renda "
-        f"separa mais. Nos recortes do teste ({window_names}), a razão foi "
-        f"{_join(number(r) for r in ratios)}. Correlação da dispersão entre ocupações com o "
-        f"desemprego, {years['period_id'].iloc[0]} a {years['period_id'].iloc[-1]}: "
-        f"{number(correlation)} ({in_words(len(years))} anos)."
+    subtitle = lang.t(
+        "dispersion.subtitle",
+        windows=", ".join(_window_name(row, lang) for _, row in windows.iterrows()),
+        ratios=lang.join(lang.number(r) for r in ratios),
+        first=years["period_id"].iloc[0],
+        last=years["period_id"].iloc[-1],
+        correlation=lang.number(correlation),
+        years=lang.count(len(years)),
     )
     if d15_years:
-        subtitle += f" Na inadimplência de 15 a 90 dias, a razão passa de 1 em {_join(d15_years)}."
+        subtitle += lang.t("dispersion.d15", years=lang.join(d15_years))
     return Headline(
-        title,
+        lang.t(f"dispersion.title.{verdict}") + lang.t(f"dispersion.{clause}"),
         subtitle,
         {
             "verdict": verdict,
@@ -223,16 +177,11 @@ def which_matters_more(dispersion: pd.DataFrame) -> Headline:
     )
 
 
-def _window_name(row) -> str:
+def _window_name(row, lang: Language) -> str:
     start, end = pd.Timestamp(row["start_month"]), pd.Timestamp(row["end_month"])
     if start.month == 1 and end.month == 12:
         return str(start.year)
-    return f"{month_label(start)[:3]}–{month_label(end)}"
-
-
-def _join(items) -> str:
-    items = list(items)
-    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " e " + items[-1]
+    return lang.month_range(start, end)
 
 
 def stable_bands(gaps: pd.DataFrame, pair: str, scope: str) -> pd.DataFrame:
@@ -260,51 +209,39 @@ def product_mix_share(bands: pd.DataFrame) -> float | None:
 
 
 def job_or_product(
-    gaps: pd.DataFrame, period: str, pair: str = "retiree_vs_self_employed"
+    gaps: pd.DataFrame,
+    period: str,
+    pair: str = "retiree_vs_self_employed",
+    lang: Language = PT,
 ) -> Headline:
     """Chart 4. gaps: analysis_gap_decomposition rows for one window."""
-    a, b = PAIRS[pair]
+    a, b = lang.label("pair_a", pair), lang.label("pair_b", pair)
     bands = stable_bands(gaps, pair, "all_products")
     share = product_mix_share(bands)
     share_without_rural = product_mix_share(stable_bands(gaps, pair, "excluding_rural"))
 
     if share is None:
-        title = (
-            f"Para {a} e {b}, a divisão entre ocupação e produto não é estável o bastante para "
-            "uma conclusão"
-        )
+        branch = "unstable"
     elif share > PRODUCT_MIX_MAJORITY:
-        title = (
-            f"A maior parte da diferença entre {a} e {b} vem dos produtos de crédito de cada grupo"
-        )
+        branch = "most"
     elif share > PRODUCT_MIX_LITTLE:
-        title = (
-            f"Menos da metade da diferença entre {a} e {b} vem dos produtos de crédito de cada "
-            "grupo"
-        )
+        branch = "less"
     else:
-        title = (
-            f"Pouco da diferença entre {a} e {b} vem dos produtos de crédito de cada grupo: ela "
-            "aparece dentro dos mesmos produtos"
-        )
+        branch = "little"
+    title = lang.t(f"split.title.{branch}", a=a, b=b)
+    title = title[0].upper() + title[1:]
 
-    subtitle = (
-        f"Diferença na inadimplência de 90 dias em {period} entre {a} e {b}, por faixa de renda, "
-        "dividida entre a parte dentro dos mesmos produtos e a parte que vem do mix de produtos."
-    )
+    subtitle = lang.t("split.subtitle", period=period, a=a, b=b)
     if share is not None:
         lower = a if bands["gap"].iloc[0] < 0 else b
         where = (
-            "Na única faixa em que a divisão é estável"
+            lang.t("split.where.one")
             if len(bands) == 1
-            else f"Nas {in_words(len(bands), feminine=True)} faixas em que a divisão é estável"
+            else lang.t("split.where.many", n=lang.count(len(bands), feminine=True))
         )
+        subtitle += lang.t("split.share", where=where, lower=lower, share=lang.pct(share, 0))
         subtitle += (
-            f" {where}, {lower} têm a menor taxa, e o mix de produtos responde por "
-            f"{pct(share, 0)} da diferença"
-        )
-        subtitle += (
-            f"; sem o crédito rural, por {pct(share_without_rural, 0)}."
+            lang.t("split.rural", share=lang.pct(share_without_rural, 0))
             if share_without_rural is not None
             else "."
         )
@@ -320,7 +257,7 @@ def job_or_product(
     )
 
 
-def _episode_name(row) -> str:
+def episode_name(row) -> str:
     return f"{pd.Timestamp(row['month_0']).year}–{pd.Timestamp(row['month_1']).year}"
 
 
@@ -334,7 +271,7 @@ def dominant_component(row) -> str | None:
     return None
 
 
-def mix_versus_rate(episodes: pd.DataFrame) -> Headline:
+def mix_versus_rate(episodes: pd.DataFrame, lang: Language = PT) -> Headline:
     """Chart 5. episodes: analysis_shift_share, 90-day episodes, all occupations."""
     episodes = episodes.sort_values("month_0")
     dominant = [dominant_component(row) for _, row in episodes.iterrows()]
@@ -342,38 +279,40 @@ def mix_versus_rate(episodes: pd.DataFrame) -> Headline:
     last = pd.Timestamp(episodes["month_1"].iloc[-1]).year
 
     if dominant and dominant[0] is not None and len(set(dominant)) == 1:
-        title = (
-            f"Em cada um dos {in_words(len(episodes))} episódios de {first} a {last}, a "
-            f"inadimplência de 90 dias das famílias mudou sobretudo {COMPONENTS[dominant[0]]}"
+        title = lang.t(
+            "mix.title.shared",
+            n=lang.count(len(episodes)),
+            first=first,
+            last=last,
+            component=lang.label("component", dominant[0]),
         )
     else:
         biggest = episodes.loc[episodes["change"].abs().idxmax()]
         which = dominant_component(biggest)
-        direction = "alta" if biggest["change"] > 0 else "queda"
-        title = (
-            f"A {direction} de {pp(abs(biggest['change']))} na inadimplência de 90 dias das "
-            f"famílias em {_episode_name(biggest)} "
+        title = lang.t(
+            "mix.title.biggest",
+            direction=lang.t("mix.rise" if biggest["change"] > 0 else "mix.fall"),
+            size=lang.pp(abs(biggest["change"])),
+            episode=episode_name(biggest),
         )
-        title += f"veio sobretudo {COMPONENTS[which]}" if which else "não teve uma fonte dominante"
+        title += (
+            lang.t("mix.came", component=lang.label("component", which))
+            if which
+            else lang.t("mix.no_source")
+        )
 
     changes = "; ".join(
-        f"{_episode_name(row)}, {pp(row['change'], sign=True)}" for _, row in episodes.iterrows()
+        f"{episode_name(row)}, {lang.pp(row['change'], sign=True)}"
+        for _, row in episodes.iterrows()
     )
-    subtitle = (
-        "Variação da inadimplência de 90 dias das pessoas físicas em cada episódio, dividida em "
-        "três partes que somam exatamente a variação: taxa dentro de cada ocupação e produto, mix "
-        f"de produtos e mix de ocupações. Variação total: {changes}."
-    )
+    subtitle = lang.t("mix.subtitle", changes=changes)
     flagged = [
-        _episode_name(row)
+        episode_name(row)
         for _, row in episodes.iterrows()
         if row["spans_occupation_reclassification"]
     ]
     if flagged:
-        subtitle += (
-            f" {_join(f'{name}*' for name in flagged)}: há uma reclassificação de ocupações dentro "
-            "do episódio, e ela entra no mix de ocupações."
-        )
+        subtitle += lang.t("mix.flagged", episodes=lang.join(f"{name}*" for name in flagged))
     return Headline(
         title,
         subtitle,
@@ -384,45 +323,34 @@ def mix_versus_rate(episodes: pd.DataFrame) -> Headline:
     )
 
 
-def current_read(current: pd.DataFrame) -> Headline:
+def current_read(current: pd.DataFrame, lang: Language = PT) -> Headline:
     """Chart 6. current: analysis_current_read, named occupations."""
     latest = pd.Timestamp(current["latest_month"].iloc[0]).date()
     spread = float(current["d15_change"].max() - current["d15_change"].min())
     fastest = current.loc[current["d15_change"].idxmax()]
     fastest_lagged = current.loc[current["d15_change_lagged"].idxmax(), "occupation"]
-    base = (
-        "Variação da inadimplência de 15 a 90 dias entre 2024 e os 12 meses até "
-        f"{month_label(latest)}, por ocupação, ao lado da variação real do saldo (IPCA)."
-    )
+    who = lang.label("occupation_in_text", fastest["occupation"])
 
     if spread < MATERIAL:
-        title = (
-            "Desde a mudança contábil, a inadimplência de 15 a 90 dias subiu de forma parecida "
-            "em todas as ocupações"
-        )
+        title = lang.t("current.title.even")
     elif fastest_lagged != fastest["occupation"]:
-        title = (
-            "Desde a mudança contábil, a inadimplência de 15 a 90 dias subiu de forma desigual, "
-            "mas qual ocupação subiu mais depende do denominador"
-        )
+        title = lang.t("current.title.depends")
     else:
-        growth = "continuou crescendo" if fastest["real_balance_growth"] > 0 else "encolheu"
-        title = (
-            "Desde a mudança contábil, a inadimplência de 15 a 90 dias subiu mais entre "
-            f"{OCCUPATIONS_IN_TEXT[fastest['occupation']]}, e o crédito a eles {growth} em "
-            "termos reais"
-        )
-    who = OCCUPATIONS_IN_TEXT[fastest["occupation"]]
-    subtitle = base + (
-        f" Entre {who}: {pp(fastest['d15_change'], sign=True)} na taxa e "
-        f"{pct(fastest['real_balance_growth'], sign=True)} no saldo; entre as ocupações, a alta "
-        f"vai de {pp(current['d15_change'].min())} a {pp(current['d15_change'].max())}."
+        growth = "current.grew" if fastest["real_balance_growth"] > 0 else "current.shrank"
+        title = lang.t("current.title.fastest", who=who, growth=lang.t(growth))
+    subtitle = lang.t("current.base", latest=lang.month(latest)) + lang.t(
+        "current.detail",
+        who=who,
+        change=lang.pp(fastest["d15_change"], sign=True),
+        growth=lang.pct(fastest["real_balance_growth"], sign=True),
+        low=lang.pp(current["d15_change"].min()),
+        high=lang.pp(current["d15_change"].max()),
     )
     tightening = current.loc[current["possible_tightening"], "occupation"].tolist()
     if tightening:
-        subtitle += (
-            f" Taxa e saldo em queda juntos ({_join(OCCUPATIONS_IN_TEXT[o] for o in tightening)}) "
-            "sugerem crédito mais restrito, não devedores melhores."
+        subtitle += lang.t(
+            "current.tightening",
+            who=lang.join(lang.label("occupation_in_text", o) for o in tightening),
         )
     return Headline(
         title,
@@ -435,7 +363,3 @@ def current_read(current: pd.DataFrame) -> Headline:
             "possible_tightening": tightening,
         },
     )
-
-
-def as_of(latest: date) -> str:
-    return f"Dados até {month_label(latest)}."

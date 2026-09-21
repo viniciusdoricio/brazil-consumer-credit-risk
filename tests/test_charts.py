@@ -4,30 +4,45 @@ import matplotlib
 
 matplotlib.use("Agg")
 
+from string import Formatter  # noqa: E402
+
 import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
 import pytest  # noqa: E402
 
 from brazil_consumer_credit_risk.charts import cli, headlines  # noqa: E402
-from brazil_consumer_credit_risk.charts.style import (  # noqa: E402
-    INCOME_BANDS,
-    in_words,
-    number,
-    pct,
-    pp,
-)
+from brazil_consumer_credit_risk.charts.language import EN, LANGUAGES, PT  # noqa: E402
+from brazil_consumer_credit_risk.charts.style import INCOME_BANDS  # noqa: E402
 
 BANDS = list(INCOME_BANDS)
 
 
-def test_numbers_use_the_brazilian_format():
-    assert number(1234.5, 1) == "1.234,5"
-    assert number(-0.314) == "−0,31"
-    assert number(0.004, sign=True) == "+0,00"
-    assert number(-0.004) == "0,00"
-    assert pp(0.0031, sign=True) == "+0,31 p.p."
-    assert pct(0.0928, sign=True) == "+9,3%"
-    assert in_words(3) == "três" and in_words(2, feminine=True) == "duas"
+def test_numbers_follow_each_language():
+    assert PT.number(1234.5, 1) == "1.234,5"
+    assert PT.number(-0.314) == "−0,31"
+    assert PT.number(0.004, sign=True) == "+0,00"
+    assert PT.number(-0.004) == "0,00"
+    assert PT.pp(0.0031, sign=True) == "+0,31 p.p."
+    assert PT.pct(0.0928, sign=True) == "+9,3%"
+    assert PT.count(3) == "três" and PT.count(2, feminine=True) == "duas"
+    assert EN.number(1234.5, 1) == "1,234.5"
+    assert EN.pp(0.0031, sign=True) == "+0.31 pp"
+    assert EN.count(2, feminine=True) == "two"
+    assert PT.month(date(2026, 7, 1)) == "jul/2026" and EN.month(date(2026, 7, 1)) == "Jul 2026"
+    assert EN.month_range(date(2019, 3, 1), date(2019, 12, 1)) == "Mar–Dec 2019"
+
+
+def fields(template: str) -> set[str]:
+    return {name for _, name, _, _ in Formatter().parse(template) if name}
+
+
+def test_the_translation_covers_every_string_with_the_same_slots():
+    assert PT.text.keys() == EN.text.keys()
+    assert PT.labels.keys() == EN.labels.keys()
+    for kind in PT.labels:
+        assert PT.labels[kind].keys() == EN.labels[kind].keys(), kind
+    for key in PT.text:
+        assert fields(PT.text[key]) == fields(EN.text[key]), key
 
 
 def monthly(d90_step=0.0031, d90_before=0.0003, d15_step=0.0003):
@@ -254,7 +269,21 @@ def test_subtitles_never_end_on_a_double_full_stop():
     assert "p.p.." not in headlines.current_read(current([0.005, 0.002, 0.001])).subtitle
 
 
-def test_every_chart_builds_with_its_headline_as_the_title():
+def test_english_headlines_take_the_same_branch():
+    assert "didn't jump" in headlines.the_trap(monthly(), EN).title
+    assert (
+        "income separates risk more"
+        in headlines.which_matters_more(
+            dispersion([0.6, 0.4, 0.5], RISING, [x / 10 for x in RISING]), EN
+        ).title
+    )
+    split = headlines.job_or_product(gaps(mix_share=0.1), "2024", lang=EN)
+    assert split.title.startswith("Little of the gap between retirees and the self-employed")
+    assert "p.p" not in split.subtitle
+
+
+@pytest.mark.parametrize("lang", list(LANGUAGES.values()), ids=list(LANGUAGES))
+def test_every_chart_builds_with_its_headline_as_the_title(lang):
     grid_rates = {
         occupation: [0.03 + 0.001 * i + 0.002 * j for j in range(7)]
         for i, occupation in enumerate(
@@ -276,7 +305,7 @@ def test_every_chart_builds_with_its_headline_as_the_title():
         "episodes": episodes([(-0.01, 0.001, 0.0), (0.008, 0.001, 0.0), (-0.004, 0.0, 0.0003)]),
         "current": current([0.005, 0.002, 0.001]),
     }
-    built = cli.build(frames)
+    built = cli.build(frames, lang)
     assert len(built) == 6
     for headline, fig in built.values():
         title = fig.texts[0].get_text()
