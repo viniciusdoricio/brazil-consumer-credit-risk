@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: bcb
+    description: >
+      Banco Central do Brasil public data, downloaded and staged as Parquet by `fetch-data`
+      (see data/README.md).
+    tables:
+      - name: scrdata
+        description: >
+          SCR.data V2, one Parquet file per month from July 2012. Columns, their meaning and their
+          history are in docs/data-dictionary.md, section 2.
+        meta:
+          external_location: "read_parquet('data/parquet/scrdata/scrdata_*.parquet')"
+      - name: sgs
+        description: The SGS series in long form, one row per series and date.
+        meta:
+          external_location: "read_parquet('data/parquet/sgs.parquet')"
