@@ -6,7 +6,7 @@
 
 An analysis of household credit risk in Brazil, built on Banco Central do Brasil public data. It rebuilds, at national scale and from open sources, the segment view a credit-risk team reviews every month: where delinquency concentrates, and whether that comes from the borrowers or from the products they hold.
 
-> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The dbt models, the analysis and the write-up are being built, so there are no findings on the question yet.
+> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The data pipeline and the dbt models are built and tested; the analysis and the write-up are in progress, so there are no findings on the question yet.
 
 ## Why this question
 
@@ -26,7 +26,7 @@ A series plotted straight through that date contains a discontinuity caused by a
 
 So this project uses the 90-day rate only through December 2024 and the 15–90-day rate for anything after. Segment comparisons start in January 2017. The reporting threshold fell from R$1,000 to R$200 in June 2016, and occupations were substantially reclassified in January 2017. The evidence is in `docs/data-landscape.md` and `docs/data-dictionary.md`.
 
-The dbt models will include a test asserting that the break exists: the 90-day rate steps up in January 2025 while the 15–90-day rate doesn't. The test documents the finding in code and fails if a future BCB revision changes it.
+A dbt test asserts that the break exists ([`assert_january_2025_break_exists.sql`](tests/dbt/assert_january_2025_break_exists.sql)): in January 2025 household problem assets and the 90-day rate step up far beyond the previous January's move, while the 15–90-day rate doesn't. The test documents the finding in code and fails if a future BCB revision changes it.
 
 ## What the research found
 
@@ -59,16 +59,18 @@ uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 
 `fetch-data` downloads every yearly SCR.data archive, checks each one against its CRC, records its size, date and SHA-256, converts each month to typed Parquet and fetches the SGS series. It skips whatever is already there. The first run takes about 15 minutes to download and 10 to convert; [`data/README.md`](data/README.md) has the details. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it.
 
-For development, `make setup` installs the environment and the git hooks, `make fetch` runs `fetch-data`, and `make lint` and `make test` run the same checks as CI.
+For development, `make setup` installs the environment and the git hooks, `make fetch` runs `fetch-data`, `make build` builds the dbt models and runs their data tests, and `make lint` and `make test` run the Python checks. CI runs all of them, with the dbt tests on the 2023 to 2025 data.
 
 ## Layout
 
 ```
 scripts/recon/   the research scripts behind every figure in docs/
 src/             the pipeline package; fetch-data downloads, verifies and stages the data
-models/          dbt: staging, intermediate, marts (being built)
+models/          dbt: staging, intermediate and marts
+seeds/           dbt lookup tables: product groups, classification events
+macros/          dbt macros
 analysis/        Quarto write-up (being built)
-tests/           pytest
+tests/           pytest, and the dbt data tests in tests/dbt/
 docs/            the research
 ```
 
