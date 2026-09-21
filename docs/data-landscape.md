@@ -6,6 +6,11 @@ Evidence tags are the ones defined in `docs/data-dictionary.md`: **[D]** data pr
 SCR.data V2 methodology, **[3040]** reporting layout, **[R]** regulation text, **[SGS]** BCB series
 API. Plus:*
 
+*Data release: the same as `docs/data-dictionary.md`, i.e. the SCR.data archives downloaded on
+15 September 2026 and SGS as fetched that month. BCB has since republished the 2024 and 2026
+archives, but only August 2024, June 2026 and July 2026 changed, so the December 2024 and January
+2025 figures here are unaffected. The July 2026 rates moved by at most 0.001 pp.*
+
 | Tag | Source |
 |---|---|
 | **[RPM]** | BCB, *Relatório de Política Monetária*, Sep 2025, box "Impacto na taxa de inadimplência decorrente das novas regras de contabilização de instrumentos financeiros" (`bcb.gov.br/content/ri/relatorioinflacao/202509/rpm202509b6p.pdf`) |

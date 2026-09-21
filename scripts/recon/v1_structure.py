@@ -7,11 +7,14 @@ docs/data-dictionary.md section 3 and the V1/V2 gap figures.
 """
 
 import os
+import sys
 
 import duckdb
 
 con = duckdb.connect(os.environ.get("RECON_DB", "data/recon.duckdb"), read_only=True)
 tables = {r[0] for r in con.execute("SHOW TABLES").fetchall()}
+if not any(t.startswith("planilha_") for t in tables):
+    sys.exit("no planilha_ tables loaded: see docs/data-dictionary.md, section 9")
 
 print(
     "table | rows | PF rows | PF carteira R$ bi | tcb values | sr values | modalidades | '<= 15' rows"

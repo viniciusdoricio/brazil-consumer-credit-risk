@@ -8,8 +8,11 @@ Run them from the repository root after `uv sync`. Downloads and derived data go
 gitignored. Scripts that read `data/recon.duckdb` take a different path from the `RECON_DB`
 environment variable. Usage is at the top of each file.
 
-The usual order is `fetch_years.py`, `to_parquet.py`, `panel.py`, then the script for the question at
-hand. The sampled-month scripts need `fetch_member.py` and `load_months.py` first.
+For the full history, run `uv run fetch-data` (which replaced `fetch_years.py` and `to_parquet.py`),
+then `panel.py`, then the script for the question at hand. The sampled-month scripts read
+`data/recon.duckdb`, so they need all 18 months in section 8 of the data dictionary fetched with
+`fetch_member.py` and loaded with `load_months.py` first; the exact commands are in its section 9.
+A script whose months aren't loaded stops with an error rather than printing an empty table.
 
 ## Find and fetch the files
 
