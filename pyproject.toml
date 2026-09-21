@@ -21,6 +21,7 @@ dependencies = [
 
 [project.scripts]
 fetch-data = "brazil_consumer_credit_risk.fetch:main"
+make-charts = "brazil_consumer_credit_risk.charts.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8.0", "ruff>=0.16", "pre-commit>=4.0"]
