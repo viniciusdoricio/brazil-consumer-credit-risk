@@ -6,7 +6,7 @@
 
 An analysis of household credit risk in Brazil, built on Banco Central do Brasil public data. It rebuilds, at national scale and from open sources, the segment view a credit-risk team reviews every month: where delinquency concentrates, and whether that comes from the borrowers or from the products they hold.
 
-> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The data pipeline and the dbt models are built and tested; the analysis and the write-up are in progress, so there are no findings on the question yet.
+> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The data pipeline and the dbt models, including the ones that compute the analysis, are built and tested. The charts and the write-up are in progress, so there are no findings on the question yet.
 
 ## Why this question
 
@@ -39,6 +39,19 @@ Before any modelling, every month of SCR.data was profiled: July 2012 to July 20
 
 Every figure traces to a script and a source in [`docs/data-dictionary.md`](docs/data-dictionary.md).
 
+## Assumptions
+
+The results depend on each of these. The ones marked *could be wrong* are tested, or shown both ways, rather than taken on trust.
+
+1. **The 90-day rate is comparable from January 2017 to December 2024, and only then.** Occupations were reclassified in January 2017, and write-offs changed in January 2025. dbt tests enforce both ends.
+2. **The 15–90-day rate is unaffected by the January 2025 change.** It rose 0.026 pp that January, against 0.010 pp a year earlier. *Could be wrong* if lenders changed how they report early arrears in ways one month can't show.
+3. **The recorded occupation describes the borrower.** It is a registry attribute, not necessarily the current job, and "Outros" (other) holds about a quarter of household credit. *Could be wrong:* a gap that changes sign when "Outros" is included is reported as fragile, not as a finding.
+4. **An income band means the same thing within a calendar year, not across years.** Bands are multiples of the minimum wage, which resets every January, so every income comparison stays inside one year.
+5. **Seven product groups are enough to separate product from occupation.** They come from a hand-built mapping of 68 modality and sub-modality pairs. *Could be wrong* for the ambiguous ones, such as the card sub-modalities and overdraft against guaranteed accounts, so the design re-runs the split with those moved between groups.
+6. **A segment's rate describes the portfolio lenders built for it, not the people in it.** Rates are weighted by balance, one borrower can appear in several cells, and lenders decide who gets credit. Public data can't separate that choice from borrower behaviour, so no claim here is about how a group behaves.
+7. **A cell needs R$1 bn of balance before its rate is ranked.** The threshold is a judgement. In 2024 it removes 16 of the 72 occupation-by-income cells, none of them in the headline comparisons.
+8. **The release used is final enough.** BCB republishes history. The analysis uses the release pinned in `data/raw/zips/MANIFEST.tsv`, and the September 2026 republication moved the household 90-day rate by at most 0.001 pp.
+
 ## What this data cannot do
 
 Stated up front so nothing downstream implies otherwise:
@@ -57,7 +70,7 @@ uv run fetch-data
 uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 ```
 
-`fetch-data` downloads every yearly SCR.data archive, checks each one against its CRC, records its size, date and SHA-256, converts each month to typed Parquet and fetches the SGS series. It skips whatever is already there. The first run takes about 15 minutes to download and 10 to convert; [`data/README.md`](data/README.md) has the details. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it.
+`fetch-data` downloads every yearly SCR.data archive, checks each one against its CRC, records its size, date and SHA-256, converts each month to typed Parquet and fetches the SGS series. It skips whatever is already there. The first run takes about 15 minutes to download and 10 to convert; [`data/README.md`](data/README.md) has the details. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it. The scripts that read single sampled months need those months fetched first; section 9 of the [data dictionary](docs/data-dictionary.md) has the commands.
 
 For development, `make setup` installs the environment and the git hooks, `make fetch` runs `fetch-data`, `make build` builds the dbt models and runs their data tests, and `make lint` and `make test` run the Python checks. CI runs all of them, with the dbt tests on the 2023 to 2025 data.
 
@@ -66,10 +79,10 @@ For development, `make setup` installs the environment and the git hooks, `make 
 ```
 scripts/recon/   the research scripts behind every figure in docs/
 src/             the pipeline package; fetch-data downloads, verifies and stages the data
-models/          dbt: staging, intermediate and marts
-seeds/           dbt lookup tables: product groups, classification events
+models/          dbt: staging, intermediate, marts, and the analysis models behind the charts
+seeds/           dbt lookup tables: product groups, classification events, windows, occupation pairs
 macros/          dbt macros
-analysis/        Quarto write-up (being built)
+analysis/        Quarto write-up (being written)
 tests/           pytest, and the dbt data tests in tests/dbt/
 docs/            the research
 ```
