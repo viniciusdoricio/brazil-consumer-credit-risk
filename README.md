@@ -1,16 +1,18 @@
 # brazil-consumer-credit-risk
 
-**Who falls behind in Brazil — and does it depend more on what you earn, or on how you're employed?**
+**At the same income, does the kind of work you do change how often your debts go bad, or is it the kind of credit your work lets you get?**
 
-A credit portfolio monitoring analysis built on Banco Central do Brasil public data. It rebuilds, at national scale and from open sources, the kind of monitoring pack a credit-risk analyst produces every month for a risk committee.
+*Com a mesma renda, o tipo de ocupação muda o risco de inadimplência, ou o que muda é o tipo de crédito a que cada ocupação tem acesso?*
 
-> **Status: reconnaissance.** No findings yet. The question above is provisional and may change once the data has been profiled — see `docs/v1-decision.md`, which is currently a stub.
+An analysis of household credit risk in Brazil, built on Banco Central do Brasil public data. It rebuilds, at national scale and from open sources, the segment view a credit-risk team reviews every month: where delinquency concentrates, and whether that comes from the borrowers or from the products they hold.
 
----
+> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The dbt models, the analysis and the write-up are being built, so there are no findings on the question yet.
 
 ## Why this question
 
-Delinquency is usually reported in aggregate, which hides the thing a lender actually needs to know: *where does risk concentrate, and who do you contact first?* Brazil's SCR.data publishes credit portfolio and arrears aggregates segmented by occupation type and income band, monthly, back to June 2012. That is enough to ask whether employment structure — a *aposentado* with payroll-deducted credit versus an *autônomo* at the same income — matters more than income itself.
+Delinquency is usually reported in aggregate, which hides what a lender needs to know: where risk concentrates, and who to contact first. Brazil's SCR.data publishes credit balances and arrears by occupation and income band, every month since 2012. That is enough to ask whether the kind of job matters once income is held fixed.
+
+The comparison needs care. A retiree with payroll-deducted credit and a self-employed borrower at the same income look very different on paper, but much of that gap may come from the loans each can get rather than from how each repays. So the analysis splits each occupation gap into a same-product part and a product-mix part before drawing conclusions.
 
 ## The trap this project is built around
 
@@ -24,55 +26,65 @@ A series plotted straight through that date contains a discontinuity caused by a
 
 So this project uses the 90-day rate only through December 2024 and the 15–90-day rate for anything after. Segment comparisons start in January 2017. The reporting threshold fell from R$1,000 to R$200 in June 2016, and occupations were substantially reclassified in January 2017. The evidence is in `docs/data-landscape.md` and `docs/data-dictionary.md`.
 
-The build will include a dbt test that asserts the break exists: the 90-day rate steps up in January 2025 while the 15–90-day rate doesn't. That documents the finding in code and fails loudly if a future BCB revision changes it. **The test is not written yet**, because the project is still in reconnaissance.
+The dbt models will include a test asserting that the break exists: the 90-day rate steps up in January 2025 while the 15–90-day rate doesn't. The test documents the finding in code and fails if a future BCB revision changes it.
+
+## What the research found
+
+Before any modelling, every month of SCR.data was profiled: July 2012 to July 2026, 43 million rows. The findings that shape the design:
+
+- **Occupation and income can be crossed.** They form a genuine joint table, and all 72 occupation-by-income cells for individuals are populated in every month from January 2016.
+- **Comparisons start in January 2017.** The reporting threshold fell from R$1,000 to R$200 in June 2016, and occupations were reclassified in January 2017, when the 90-day rate of every named occupation jumped while the national rate didn't move.
+- **Income bands are compared within calendar years only.** They move every January with the minimum wage, and at several reporting events, including a permanent step in July 2025.
+- **Rural credit has to be separated out.** It is 52% of the top income band's balances and 42% of the self-employed's, against 16% for all individuals (2024).
+
+Every figure traces to a script and a source in [`docs/data-dictionary.md`](docs/data-dictionary.md).
 
 ## What this data cannot do
 
 Stated up front so nothing downstream implies otherwise:
 
-- **It is aggregated.** There is no account-level public credit data in Brazil — bank secrecy and LGPD forbid it. Every conclusion is about segments, never individuals.
+- **It is aggregated.** There is no account-level public credit data in Brazil, because bank secrecy and the LGPD forbid it. Every conclusion is about segments, never individuals.
 - **No true vintage analysis.** There is no origination-cohort dimension, so vintage curves are not possible from this source.
 - **No observed roll rates.** The data is stock by arrears band, not tracked accounts. Month-to-month movement is *inferred* flow and is labelled as such wherever it appears.
 
-## Running it
+## Reproducing the research
+
+Requires [uv](https://docs.astral.sh/uv/) on macOS or Linux. DuckDB runs in process, so there is no database server to set up.
 
 ```bash
-make setup     # uv sync + install git hooks
-make fetch     # download the reconnaissance sample (3 months)
-make build     # dbt models + schema tests
-make test      # python tests
-make report    # render the Quarto write-up
+uv sync
+uv run python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
+uv run python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
+uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 ```
 
-Requires [uv](https://docs.astral.sh/uv/), [Quarto](https://quarto.org/), and a Mac or Linux box. No database server — DuckDB runs in process. Nothing here needs a cloud warehouse, and saying so is a judgement call rather than a gap.
+The download takes about 15 minutes and the conversion about 10. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it.
+
+For development, `make setup` installs the environment and the git hooks, and `make lint` and `make test` run the same checks as CI.
 
 ## Layout
 
 ```
-scripts/fetch_scr.py     discover + download monthly archives from the BCB portal
-models/                  dbt: staging → intermediate → marts
-analysis/                Quarto write-up
-tests/                   pytest (python layer); data assertions live in dbt
-docs/                    the research, committed as it was done
+scripts/recon/   the research scripts behind every figure in docs/
+scripts/         fetch_scr.py, the scaffold downloader, which the pipeline's fetch step replaces
+models/          dbt: staging, intermediate, marts (being built)
+analysis/        Quarto write-up (being built)
+tests/           pytest
+docs/            the research
 ```
 
-`docs/` is not scaffolding. A reviewer reading it should be able to see how the
-thinking was done, not only what it concluded:
-
-| | |
+| Document | What it covers |
 |---|---|
-| `project-brief.md` | the design, the deliverable it imitates, scope discipline |
-| `research-prompt.md` | the reconnaissance brief this repo started from |
-| `data-dictionary.md` | every column, its meaning, and when it changed |
-| `data-landscape.md` | what public Brazilian credit data exists and how it joins |
-| `analysis-design.md` | mix-vs-rate decomposition, supply-side confound, lag structure |
-| `v1-decision.md` | the locked question, and the alternatives that lost |
+| [`data-dictionary.md`](docs/data-dictionary.md) | every column, what it means, and every break in the series with its cause where one is documented |
+| [`data-landscape.md`](docs/data-landscape.md) | the January 2025 break measured in the data, and what other public credit data exists and how it joins |
+| [`analysis-design.md`](docs/analysis-design.md) | the decomposition, the confounds, the denominators, and what the data can't support |
+| [`v1-decision.md`](docs/v1-decision.md) | the question, measures, windows and charts, and the alternatives that lost |
 
 ## Sources
 
-- [BCB SCR.data](https://dadosabertos.bcb.gov.br/dataset/scr_data) — monthly aggregated credit operations, Jun 2012–
-- [BCB SGS](https://dadosabertos.bcb.gov.br/) — Selic, concessões, comprometimento de renda, endividamento das famílias
-- [Resolução CMN 4.966/2021](https://www.bcb.gov.br/) — the accounting change behind the January 2025 break
+- [BCB SCR.data](https://dadosabertos.bcb.gov.br/dataset/scr_data): monthly aggregated credit operations from July 2012
+- [BCB SGS](https://www3.bcb.gov.br/sgspub/): official credit, delinquency and macro series
+- [Resolução CMN 4.966/2021](https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20CMN&numero=4966): the accounting change behind the January 2025 break
 
 ## Licence
 
