@@ -11,10 +11,11 @@ format:
     number-sections: true
     embed-resources: true
     fig-align: left
+    lightbox: true
 jupyter: python3
 ---
 
-*[English version](en/index.qmd)*
+*[English version](en/index.html)*
 
 ```{python}
 #| include: false
