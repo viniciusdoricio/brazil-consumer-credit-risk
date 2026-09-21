@@ -202,10 +202,6 @@ def fetch_archive(
     )
 
 
-def _count(con: duckdb.DuckDBPyConnection, where: str) -> int:
-    return con.execute(f"SELECT count(*) FROM t WHERE {where}").fetchone()[0]
-
-
 def convert_month(
     con: duckdb.DuckDBPyConnection, csv_path: Path, out_dir: Path, month: str
 ) -> dict:
@@ -223,25 +219,39 @@ def convert_month(
     if columns != HEADER:
         raise ValueError(f"{month}: header differs from the V2 schema: {columns}")
 
-    stats: dict = {"month": month, "rows": con.execute("SELECT count(*) FROM t").fetchone()[0]}
-    stats["whitespace"] = {d: n for d in DIMS if (n := _count(con, f"{d} <> trim({d})"))}
-    stats["null_or_empty"] = {
-        c: n for c in HEADER if (n := _count(con, f"{c} IS NULL OR trim({c}) = ''"))
-    }
-    unparsed = {
-        m: n
-        for m in MEASURES
-        if (
-            n := _count(
-                con,
-                f"{m} IS NOT NULL AND TRY_CAST(replace({m}, ',', '.') AS DECIMAL(22,2)) IS NULL",
+    # Every check in one pass over the month: a query per check scans it 46 times.
+    checks = {
+        "rows": "count(*)",
+        **{f"whitespace:{d}": f"count_if({d} <> trim({d}))" for d in DIMS},
+        **{f"null_or_empty:{c}": f"count_if({c} IS NULL OR trim({c}) = '')" for c in HEADER},
+        **{
+            f"unparsed:{m}": (
+                f"count_if({m} IS NOT NULL "
+                f"AND TRY_CAST(replace({m}, ',', '.') AS DECIMAL(22,2)) IS NULL)"
             )
-        )
+            for m in MEASURES
+        },
+        "ops_unparsed": "count_if(TRY_CAST(numero_de_operacoes AS BIGINT) IS NULL)",
+        "dates": "list(DISTINCT data_base)",
     }
+    result = con.execute(f"SELECT {', '.join(checks.values())} FROM t").fetchone()
+    found = dict(zip(checks, result, strict=True))
+
+    def nonzero(kind: str) -> dict[str, int]:
+        prefix = f"{kind}:"
+        return {k.removeprefix(prefix): n for k, n in found.items() if k.startswith(prefix) and n}
+
+    stats: dict = {
+        "month": month,
+        "rows": found["rows"],
+        "whitespace": nonzero("whitespace"),
+        "null_or_empty": nonzero("null_or_empty"),
+    }
+    unparsed = nonzero("unparsed")
     if unparsed:
         raise ValueError(f"{month}: measures that don't parse: {unparsed}")
-    stats["ops_unparsed"] = _count(con, "TRY_CAST(numero_de_operacoes AS BIGINT) IS NULL")
-    dates = con.execute("SELECT list(DISTINCT data_base) FROM t").fetchone()[0]
+    stats["ops_unparsed"] = found["ops_unparsed"]
+    dates = found["dates"]
     stats["data_base"] = dates
     if len(dates) != 1 or dates[0][:7].replace("-", "") != month:
         raise ValueError(f"{month}: data_base values {dates} don't match the file name")

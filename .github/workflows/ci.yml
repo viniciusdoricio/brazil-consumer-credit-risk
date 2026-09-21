@@ -38,6 +38,13 @@ jobs:
         with:
           path: data/raw/zips
           key: scrdata-2023-2025-v1
+      - name: Restore the staged Parquet
+        # Converting a month takes about 30 seconds on a runner. The key changes with the
+        # conversion code, and fetch-data converts again any month whose archive changed.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/parquet/scrdata
+          key: scrdata-parquet-2023-2025-${{ hashFiles('src/brazil_consumer_credit_risk/scr.py') }}
       - name: Install
         run: uv sync --locked
       - name: Fetch 2023 to 2025 and the SGS series
