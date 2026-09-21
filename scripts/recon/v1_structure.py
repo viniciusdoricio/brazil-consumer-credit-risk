@@ -1,8 +1,8 @@
 """V1 (planilha) structure by month, and V1-vs-V2 portfolio totals for the same month.
 
-    RECON_DB=data/recon.duckdb uv run --no-project --with duckdb python scripts/recon/v1_structure.py
+    RECON_DB=data/recon.duckdb uv run python scripts/recon/v1_structure.py
 
-Requires the months to have been loaded with scripts/recon/load.py. Produces the V1 table in
+Requires the months to have been loaded with scripts/recon/load_months.py. Produces the V1 table in
 docs/data-dictionary.md section 3 and the V1/V2 gap figures.
 """
 

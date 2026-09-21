@@ -1,6 +1,6 @@
 """Load monthly SCR.data CSVs (V1 planilha_*, V2 scrdata_*) into a DuckDB file, typed.
 
-    python load.py recon.duckdb data/raw/months/scrdata_202607.csv ...
+    uv run python scripts/recon/load_months.py recon.duckdb data/raw/months/scrdata_202607.csv ...
 
 Each file lands as table <stem> (e.g. scrdata_202607). Text dimensions are kept exactly as
 published in raw_<col> AND trimmed in <col>, so whitespace traps stay visible. Measures are

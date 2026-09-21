@@ -1,6 +1,6 @@
 """What moved in 2025-07? Tests for the broad jump in PF "Acima de 20 salários mínimos".
 
-    uv run --no-project --with duckdb python scripts/recon/shift_2025_07.py data/parquet/scrdata data/recon/panel/pf_series.csv data/raw/months
+    uv run python scripts/recon/income_step_2025_07.py data/parquet/scrdata data/recon/panel/pf_series.csv data/raw/months
 
 Each block bears on one hypothesis:
 1. New money or reallocation: PF and PJ totals (balance, operations, rows, -1 sentinels).

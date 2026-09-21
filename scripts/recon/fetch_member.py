@@ -1,6 +1,6 @@
 """Fetch a single monthly CSV out of a yearly BCB archive using HTTP Range requests.
 
-    python fetch_member.py OUT_DIR scrdata_202607 planilha_201306 ...
+    uv run python scripts/recon/fetch_member.py OUT_DIR scrdata_202607 planilha_201306 ...
 
 Integrity: the member is inflated in memory and checked against the CRC32 and uncompressed
 size in the archive's central directory before anything is written; a SHA-256 of the

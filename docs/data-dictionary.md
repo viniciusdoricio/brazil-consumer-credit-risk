@@ -138,7 +138,7 @@ No dimension column has a null or empty value in any month profiled **[D]**.
 | `origem` | Earmarked or not, Anexo 4 first level **[M2]** | Sem destinação específica; Com destinação específica **[D]** | — | — |
 | `indexador` | Rate index, Anexo 5 first level **[M2]** | Prefixado, Pós-fixado, Flutuantes, Índices de preços, TCR/TRFC, Outros indexadores **[D]** | **TCR/TRFC first appears 2019-08 for PF, 2019-10 for PJ** (5 values before) **[D, full history]** | — |
 
-**Unstable PF categories, share of PF portfolio (%)** **[D]** — `scripts/recon/cells.py`
+**Unstable PF categories, share of PF portfolio (%)** **[D]** — `scripts/recon/crosstab_cells.py`
 
 | Category | 2013-06 | 2016-05 | 2016-06 | 2023-12 | 2024-06 | 2024-12 | **2025-01** | 2025-02 | 2025-06 | 2025-12 | 2026-07 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -154,7 +154,7 @@ not with borrowers gaining income. When this happened and why is **unknown**. Th
 haven't been profiled, and doc 3040's rule reserves "Indisponível" for reported income ≤ R$1
 **[3040]**. The January-2025 spike did not recur in February, June or December 2025. In December
 2024 → January 2025 the "Acima de 20 SM" share also fell from 20.28% to 17.50% and "Até 1 SM" rose
-from 8.51% to 9.28% **[D]** (`scripts/recon/control.py`).
+from 8.51% to 9.28% **[D]** (`scripts/recon/jan2025_control.py`).
 
 In January 2025, "Sem rendimento" went from R$5.4 bn to R$116.8 bn. That included R$56.1 bn of
 rural credit, up from R$0.4 bn, and spread across every occupation (Autônomo R$0.4 → 23.8 bn,
@@ -436,35 +436,34 @@ Plus the header line and first data row of all 344 monthly files, read by range 
 
 ```bash
 # index every archive and read every header (no bulk download)
-uv run --no-project python scripts/recon/remote_zip_index.py
-uv run --no-project python scripts/recon/header_scan.py
+uv run python scripts/recon/remote_zip_index.py
+uv run python scripts/recon/header_scan.py
 # fetch individual months (4 MB range requests, CRC-verified)
-uv run --no-project python scripts/recon/fetch_member.py data/raw/months scrdata_202607 scrdata_202412 scrdata_202501
+uv run python scripts/recon/fetch_member.py data/raw/months scrdata_202607 scrdata_202412 scrdata_202501
 # load typed into DuckDB and profile
-uv run --no-project --with duckdb python scripts/recon/load.py data/recon.duckdb data/raw/months/*.csv
-uv run --no-project --with duckdb python scripts/recon/checks.py data/recon.duckdb profile scrdata_202607
-uv run --no-project --with duckdb python scripts/recon/checks.py data/recon.duckdb recon planilha_202607 scrdata_202607
-uv run --no-project --with duckdb python scripts/recon/presence.py
-uv run --no-project --with duckdb python scripts/recon/control.py
-uv run --no-project --with duckdb python scripts/recon/v1_structure.py
-uv run --no-project --with duckdb python scripts/recon/threshold_2016.py
-uv run --no-project --with duckdb python scripts/recon/cells.py
-uv run --no-project python scripts/recon/sgs.py
+uv run python scripts/recon/load_months.py data/recon.duckdb data/raw/months/*.csv
+uv run python scripts/recon/structure_checks.py data/recon.duckdb profile scrdata_202607
+uv run python scripts/recon/structure_checks.py data/recon.duckdb recon planilha_202607 scrdata_202607
+uv run python scripts/recon/category_presence.py
+uv run python scripts/recon/jan2025_break.py
+uv run python scripts/recon/jan2025_control.py
+uv run python scripts/recon/v1_structure.py
+uv run python scripts/recon/threshold_2016.py
+uv run python scripts/recon/crosstab_cells.py
+uv run python scripts/recon/sgs.py
 ```
 
 Full history (section 10): about 15 minutes to download, 10 to convert, seconds to profile.
 
 ```bash
-uv run --no-project python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
-uv run --no-project --with duckdb python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
-uv run --no-project --with duckdb python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
-uv run --no-project --with duckdb python scripts/recon/breaks_context.py data/parquet/scrdata
+uv run python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
+uv run python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
+uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
+uv run python scripts/recon/breaks_context.py data/parquet/scrdata
 ```
 
-`uv sync` for the full project currently fails: `dbt-core` 1.12.4 depends on a pre-release parser
-whose build step downloads a wheel from GitHub, and that download failed certificate verification
-on this machine. The recon scripts avoid the project environment for that reason. Pinning
-`dbt-core` is a build-phase task.
+Run `uv sync` first. The scripts run in the project environment, which pins Python 3.13 and
+`dbt-core` 1.11 (1.12 pulls in a parser whose build downloads a binary at install time).
 
 ---
 
@@ -615,7 +614,7 @@ The diagnostic is the **within-segment share**. A lender event moves one segment
 the others flat, as in 2025-01 and 2026-05. A common cause moves them all the same way, as in 2025-07
 and the Januaries.
 
-**Minimum-wage test** (`scripts/recon/sm_midyear_test.py`). The minimum wage changed every January,
+**Minimum-wage test** (`scripts/recon/minimum_wage_test.py`). The minimum wage changed every January,
 and also in **2020-02 (+0.6%)** and **2023-05 (+1.4%)** **[SGS 1619]**. If bands respond to it,
 those two months should move the January way:
 
@@ -632,7 +631,7 @@ passes the 90th percentile in both reset months, but so does 2023-04, a control 
 20 SM" stays below its 90th percentile in both reset months. Across Januaries the size link is loose.
 The smallest reset, 2018 (+1.8%), has the smallest moves: "Acima de 20 SM" −0.16 pp and "Até 1 SM"
 −0.08 pp. The largest, 2022 (+10.2%), has the largest "1–2 SM" gain (+1.85 pp) but not the largest
-top-band fall (2023: −0.84 pp) **[SGS 1619; `sm_midyear_test.py`]**.
+top-band fall (2023: −0.84 pp) **[SGS 1619; `minimum_wage_test.py`]**.
 
 **Reading.** PF bands behave as if measured against the minimum wage in force at each data-base,
 and they shift in the month it changes, mid-year included. Whether lenders reclassify `PorteCli` or
@@ -646,7 +645,7 @@ isolates.
 
 ### 10.6 The July-2025 step
 
-**Data tests.** From `scripts/recon/shift_2025_07.py`, comparing 2025-06 with 2025-07 unless stated:
+**Data tests.** From `scripts/recon/income_step_2025_07.py`, comparing 2025-06 with 2025-07 unless stated:
 
 | Test | Result | Reading |
 |---|---|---|

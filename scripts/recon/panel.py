@@ -1,6 +1,6 @@
 """Month-by-month profile and break scan over the full V2 history (Parquet from to_parquet.py).
 
-    uv run --no-project --with duckdb python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
+    uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 
 Writes CSVs to the output directory and prints a summary:
 

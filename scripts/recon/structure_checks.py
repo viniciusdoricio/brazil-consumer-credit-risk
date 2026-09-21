@@ -1,7 +1,7 @@
 """Structural checks on loaded SCR.data months.
 
-    python checks.py recon.duckdb profile scrdata_202607
-    python checks.py recon.duckdb recon planilha_202406 scrdata_202406
+    uv run python scripts/recon/structure_checks.py recon.duckdb profile scrdata_202607
+    uv run python scripts/recon/structure_checks.py recon.duckdb recon planilha_202406 scrdata_202406
 
 profile: grain, per-dimension values (split PF/PJ), cross-tab completeness of occupation x
 income for PF, accounting identities, sentinels, national PF aggregates.

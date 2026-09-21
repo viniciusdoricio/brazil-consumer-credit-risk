@@ -1,7 +1,7 @@
 """Convert SCR.data V2 monthly CSVs to typed Parquet, once, with a conversion log.
 
-    uv run --no-project --with duckdb python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
-    uv run --no-project --with duckdb python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/months/scrdata_2024*.csv
+    uv run python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
+    uv run python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/months/scrdata_2024*.csv
 
 Inputs may be yearly ZIPs (each member is extracted to a temporary CSV, converted, and deleted) or
 monthly CSVs. Output: one file per month, <out>/scrdata_YYYYMM.parquet, and one JSON line per month

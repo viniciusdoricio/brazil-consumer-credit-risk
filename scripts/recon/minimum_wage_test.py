@@ -1,6 +1,6 @@
 """Test: do PF income-band shares respond to minimum-wage resets? Use the two mid-year resets.
 
-    uv run --no-project --with duckdb python scripts/recon/sm_midyear_test.py data/recon/panel/pf_series.csv
+    uv run python scripts/recon/minimum_wage_test.py data/recon/panel/pf_series.csv
 
 The minimum wage (SGS 1619) changed in January every year, and also in 2020-02 (+0.6%) and
 2023-05 (+1.4%). If lenders reclassify bands when it changes, those months should show a small

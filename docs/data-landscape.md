@@ -52,8 +52,8 @@ which raises every stock-based >90 measure **[RPM][REF25]**.
 
 ## A.2 The break, in the data
 
-PF, SCR.data V2, December→January against the prior year **[D]** (`scripts/recon/control.py`,
-`scripts/recon/break.py`):
+PF, SCR.data V2, December→January against the prior year **[D]** (`scripts/recon/jan2025_control.py`,
+`scripts/recon/jan2025_break.py`):
 
 | % of PF portfolio | Dec-23 | Jan-24 | Δ control | Nov-24 | Dec-24 | Jan-25 | **Δ break** | Feb-25 | Jul-26 |
 |---|---|---|---|---|---|---|---|---|---|

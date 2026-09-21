@@ -1,6 +1,6 @@
 """SGS reconciliation used in docs/: series names, coverage, and Dec->Jan seasonality.
 
-    uv run --no-project --with duckdb python scripts/recon/sgs.py
+    uv run python scripts/recon/sgs.py
 
 1. Prints the official English name, unit and source of each SGS series cited in docs/, read
    from the SGS web-service metadata (so no series code is quoted from memory).

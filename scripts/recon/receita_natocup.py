@@ -1,6 +1,6 @@
 """Receita Federal IRPF filers by *natureza da ocupação*, by calendar year (2008-2020).
 
-    uv run --no-project python scripts/recon/receita_natocup.py
+    uv run python scripts/recon/receita_natocup.py
 
 Source: Receita Federal open data, "Natureza de Ocupação.csv"
 (`gov.br/receitafederal/dados/natureza-de-ocupacao.csv`). Prints filers (thousands) per category

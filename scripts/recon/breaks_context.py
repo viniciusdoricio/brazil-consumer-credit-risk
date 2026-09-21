@@ -1,6 +1,6 @@
 """Context around the candidate breaks found by panel.py, full V2 history.
 
-    uv run --no-project --with duckdb python scripts/recon/breaks_context.py data/parquet/scrdata
+    uv run python scripts/recon/breaks_context.py data/parquet/scrdata
 
 Prints: December->January shifts by occupation and income band for every year (share and rates,
 against the PF total as the seasonal baseline); every month the "Outros" occupation moves >= 0.5 pp;

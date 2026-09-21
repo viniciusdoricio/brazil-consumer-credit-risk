@@ -1,4 +1,9 @@
-"""Quantify the Jan-2025 break in V2: Jun-2024, Dec-2024, Jan-2025, Jul-2026 side by side."""
+"""Quantify the Jan-2025 break in V2: Jun-2024, Dec-2024, Jan-2025, Jul-2026 side by side.
+
+    RECON_DB=data/recon.duckdb uv run python scripts/recon/jan2025_break.py
+
+Reads the monthly tables loaded by load_months.py.
+"""
 
 import os
 
