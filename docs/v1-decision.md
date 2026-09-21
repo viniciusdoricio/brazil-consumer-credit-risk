@@ -1,7 +1,7 @@
 # v1 — the locked decision
 
 *Phase 5 of the reconnaissance. This is a decision, not a menu. It rests on
-`docs/data_dictionary.md` (what the data is), `docs/data-landscape.md` (the break and the
+`docs/data-dictionary.md` (what the data is), `docs/data-landscape.md` (the break and the
 landscape) and `docs/analysis-design.md` (method).*
 
 > **Amended after profiling all 169 V2 months** (data dictionary §10). Occupation was reclassified

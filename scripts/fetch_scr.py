@@ -24,7 +24,7 @@ not been confirmed against dadosabertos.bcb.gov.br. On the first run:
   3. If there is genuinely no API, document the manual download procedure in
      data/README.md and make this script consume a local directory instead.
 
-Record whatever you find in docs/data_dictionary.md.
+Record whatever you find in docs/data-dictionary.md.
 """
 
 from __future__ import annotations

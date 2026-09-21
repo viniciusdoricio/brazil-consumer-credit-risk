@@ -7,7 +7,7 @@ Inputs may be yearly ZIPs (each member is extracted to a temporary CSV, converte
 monthly CSVs. Output: one file per month, <out>/scrdata_YYYYMM.parquet, and one JSON line per month
 in <out>/conversion_log.jsonl.
 
-Typing follows docs/data_dictionary.md section 2: data_base DATE; dimensions trimmed (the raw
+Typing follows docs/data-dictionary.md section 2: data_base DATE; dimensions trimmed (the raw
 whitespace is counted in the log, not kept); numero_de_operacoes BIGINT with the -1 sentinel left
 as published; measures DECIMAL(22,2) parsed from pt-BR decimals. The header must match the V2
 schema exactly, and any measure that fails to parse stops the conversion for that month.

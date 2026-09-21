@@ -2,7 +2,7 @@
 
 *Phases 2 and 3 of the reconnaissance (`docs/research-prompt.md`). Part A is the regulatory break,
 checked in the data. Part B is every other source worth knowing, bounded to what it joins to.
-Evidence tags are the ones defined in `docs/data_dictionary.md`: **[D]** data profiled, **[M2]**
+Evidence tags are the ones defined in `docs/data-dictionary.md`: **[D]** data profiled, **[M2]**
 SCR.data V2 methodology, **[3040]** reporting layout, **[R]** regulation text, **[SGS]** BCB series
 API. Plus:*
 
@@ -88,7 +88,7 @@ portfolio fell 3.1% in the month against −1.7% in the control **[D]**.
    breaks in cards and non-payroll personal credit **[REF25]**. **A problem-asset comparison across
    segments before and after January 2025 is biased by product mix, not just shifted.**
 5. **Income-band data broke in the same month for a different reason.** "Sem rendimento" rose from
-   0.13% to 2.86% of PF balances and fell back to 0.27% in February **[D]** (`docs/data_dictionary.md`
+   0.13% to 2.86% of PF balances and fell back to 0.27% in February **[D]** (`docs/data-dictionary.md`
    §2.1). That is a reporting artefact coinciding with the regulatory date, and it must not be read
    as part of the 4.966 effect.
 
@@ -157,7 +157,7 @@ Names are the official metadata strings from the SGS web service, not recalled c
 
 | # | Code | Official name (SGS metadata) | Unit | Coverage | Role in this project |
 |---|---|---|---|---|---|
-| 1 | **21084** | Percent of 90 days past due loans of credit operations outstanding – Households – Total | % | 2011-03 → 2026-07 | **Validation anchor.** Reconciles to SCR.data PF: median gap +0.02 pp over all 169 months, within 0.2 pp every month 2017–2024, widening to 0.23–0.33 pp in March–June 2026 (`docs/data_dictionary.md` §10). Longest consistent official read of the same concept |
+| 1 | **21084** | Percent of 90 days past due loans of credit operations outstanding – Households – Total | % | 2011-03 → 2026-07 | **Validation anchor.** Reconciles to SCR.data PF: median gap +0.02 pp over all 169 months, within 0.2 pp every month 2017–2024, widening to 0.23–0.33 pp in March–June 2026 (`docs/data-dictionary.md` §10). Longest consistent official read of the same concept |
 | 2 | **21112** | Percent of 90 days past due loans of nonearmarked credit operations outstanding – Households – Total | % | 2011-03 → 2026-07 | Free-market (non-earmarked) PF delinquency. Closest official analogue of SCR `origem = Sem destinação específica` |
 | 3 | **20541** | Credit operations outstanding – Households – Total | R$ mn | 2007-03 → 2026-07 | Denominator check. Built from doc 3050, not 3040, so it differs in scope **[RPM fn 6]** |
 | 4 | **20633** | New operations – Households – Total | R$ mn | 2011-03 → 2026-07 | **Only public flow of new lending** (concessões). National; no occupation or income split |

@@ -22,7 +22,7 @@ A series plotted straight through that date contains a discontinuity caused by a
 
 **The overdue bands don't fully escape it.** Their definition, days past due, is unchanged. But under 4.966 lenders write defaulted loans off later, so balances more than 90 days overdue stay in the portfolio longer and the 90-day rate rises on its own. The Banco Central estimates that about 70% of the rise in 90-day delinquency in the first half of 2025 came from this change ([Relatório de Política Monetária, Sep 2025](https://www.bcb.gov.br/content/ri/relatorioinflacao/202509/rpm202509b6p.pdf)). Only the 15–90-day bucket runs through January 2025 unaffected.
 
-So this project uses the 90-day rate only through December 2024 and the 15–90-day rate for anything after. Segment comparisons start in January 2017. The reporting threshold fell from R$1,000 to R$200 in June 2016, and occupations were substantially reclassified in January 2017. The evidence is in `docs/data-landscape.md` and `docs/data_dictionary.md`.
+So this project uses the 90-day rate only through December 2024 and the 15–90-day rate for anything after. Segment comparisons start in January 2017. The reporting threshold fell from R$1,000 to R$200 in June 2016, and occupations were substantially reclassified in January 2017. The evidence is in `docs/data-landscape.md` and `docs/data-dictionary.md`.
 
 The build will include a dbt test that asserts the break exists: the 90-day rate steps up in January 2025 while the 15–90-day rate doesn't. That documents the finding in code and fails loudly if a future BCB revision changes it. **The test is not written yet**, because the project is still in reconnaissance.
 
@@ -63,7 +63,7 @@ thinking was done, not only what it concluded:
 |---|---|
 | `project-brief.md` | the design, the deliverable it imitates, scope discipline |
 | `research-prompt.md` | the reconnaissance brief this repo started from |
-| `data_dictionary.md` | every column, its meaning, and when it changed |
+| `data-dictionary.md` | every column, its meaning, and when it changed |
 | `data-landscape.md` | what public Brazilian credit data exists and how it joins |
 | `analysis-design.md` | mix-vs-rate decomposition, supply-side confound, lag structure |
 | `v1-decision.md` | the locked question, and the alternatives that lost |

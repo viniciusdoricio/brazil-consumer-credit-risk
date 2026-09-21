@@ -3,7 +3,7 @@
     RECON_DB=data/recon.duckdb uv run --no-project --with duckdb python scripts/recon/v1_structure.py
 
 Requires the months to have been loaded with scripts/recon/load.py. Produces the V1 table in
-docs/data_dictionary.md section 3 and the V1/V2 gap figures.
+docs/data-dictionary.md section 3 and the V1/V2 gap figures.
 """
 
 import os

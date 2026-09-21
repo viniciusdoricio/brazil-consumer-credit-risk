@@ -5,7 +5,7 @@
 Source: Receita Federal open data, "Natureza de Ocupação.csv"
 (`gov.br/receitafederal/dados/natureza-de-ocupacao.csv`). Prints filers (thousands) per category
 per ano-calendário, which shows when categories such as "Não informado" and the "Adaptação: ..."
-codes disappear. Used in docs/data_dictionary.md section 10.4 as the lead on the January-2016 and
+codes disappear. Used in docs/data-dictionary.md section 10.4 as the lead on the January-2016 and
 January-2017 SCR.data occupation reclassifications.
 """
 
