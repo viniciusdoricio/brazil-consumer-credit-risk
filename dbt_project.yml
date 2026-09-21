@@ -8,6 +8,9 @@ test-paths: ["tests"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
+flags:
+  send_anonymous_usage_stats: false
+
 models:
   brazil_consumer_credit_risk:
     staging:
