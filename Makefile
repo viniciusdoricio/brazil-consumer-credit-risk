@@ -1,7 +1,7 @@
 .PHONY: setup fetch build test lint report all
 
 setup:          ## install deps and git hooks
-	uv sync --all-extras --dev
+	uv sync
 	uv run pre-commit install
 
 fetch:          ## download SCR.data monthly archives (see scripts/fetch_scr.py --help)
