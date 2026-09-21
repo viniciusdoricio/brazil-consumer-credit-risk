@@ -34,7 +34,10 @@ seeds:
     description: >
       Months in which SCR.data changed how borrowers or balances are classified, who is covered,
       or what a measure counts, each with the document that records it. Charts mark these months,
-      and time comparisons that span them are labelled as classification events.
+      and time comparisons that span them are labelled as classification events. It also holds
+      every month since 2017 in which an occupation or income band's share jumped by more than
+      var weight_jump_threshold, which the design treats as reclassification; those with no known
+      cause say so (analysis_weight_jumps).
     config:
       column_types:
         month: date
@@ -54,6 +57,41 @@ seeds:
           - accepted_values:
               arguments:
                 values: [occupation, income, product, scope, measure]
+
+  - name: product_group_alternatives
+    description: >
+      The alternative product mapping for chart 4's crosswalk sensitivity: the sub-modalities whose
+      group is a judgement call, each moved to the other group it could belong to, with card
+      purchases separated from card credit (docs/v1-decision.md, section 6). Sub-modalities not
+      listed keep their pf_product_groups group.
+    config:
+      column_types:
+        modalidade: varchar
+        submodalidade: varchar
+        alternative_group: varchar
+        reason: varchar
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [modalidade, submodalidade]
+    columns:
+      - name: alternative_group
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Imobiliário
+                  - Consignado
+                  - Pessoal não consignado
+                  - Cartão
+                  - Cartão à vista
+                  - Veículos
+                  - Rural
+                  - Cheque especial e outros
+      - name: reason
+        data_tests:
+          - not_null
 
   - name: analysis_windows
     description: >

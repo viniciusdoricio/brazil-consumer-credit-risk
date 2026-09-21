@@ -4,7 +4,8 @@ models:
   - name: analysis_grid
     description: >
       Chart 2, the grid. Household 90-day and 15-90-day rates by occupation and income band,
-      pooled over each cross-section window, with the lagged-denominator 90-day rate beside them.
+      pooled over each cross-section window, with the lagged-denominator rates and the cell's real
+      growth within the window beside them.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -34,6 +35,23 @@ models:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
+      - name: d15_rate_lagged
+        description: >
+          15-90-day balance over the balance 3 months earlier. A seasoning sensitivity, not a
+          measure: for the first three months of a calendar-year window the lag crosses a January.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: real_growth_within_window
+        description: >
+          The cell's balance in the window's last month over its first, in constant reais (IPCA),
+          minus one. Within the window only, because band membership shifts every January: 11
+          months of growth for a calendar year, 9 for March-December 2019.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1
       - name: in_primary_grid
         description: True for named occupations in named income bands, the cells v1 compares.
       - name: below_minimum_size
@@ -41,15 +59,21 @@ models:
 
   - name: analysis_dispersion
     description: >
-      Chart 3, which matters more. Per calendar year 2017-2024 and measure: the balance-weighted
-      spread of occupation rates within income bands against the spread of income-band rates
-      within occupations, next to unemployment. "primary" uses named occupations and bands only;
-      "all" adds the residual categories.
+      Chart 3, which matters more. Per period and measure: the balance-weighted spread of
+      occupation rates within income bands against the spread of income-band rates within
+      occupations, next to unemployment. Periods are the calendar years 2017-2024 and the three
+      cross-section windows. "primary" uses named occupations and bands only; "all" adds the
+      residual categories.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
-            combination_of_columns: [year, measure, variant]
+            combination_of_columns: [period_id, measure, variant]
     columns:
+      - name: period_kind
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [calendar_year, window]
       - name: spread_across_occupations_within_bands
         data_tests:
           - not_null
@@ -64,8 +88,10 @@ models:
                 min_value: 0
       - name: occupation_to_income_ratio
         description: Above 1 means occupation separates risk more than income does that year.
-      - name: year_has_mid_year_income_event
-        description: True when a non-January income reclassification falls inside the year (classification_events).
+      - name: reclassifications_inside
+        description: >
+          Occupation and income events in classification_events after the period's first month and
+          up to its last. Above zero, some cells changed membership inside the period.
 
   - name: analysis_gap_decomposition
     description: >
@@ -88,6 +114,28 @@ models:
           under 0.1 pp, where a share of it means nothing.
       - name: gap_sign_holds_with_lag
         description: False when lagged denominators reverse the order of the two occupations.
+      - name: product_mix_gap_alternative_mapping
+        description: The product-mix gap with the alternative product mapping (product_group_alternatives).
+      - name: split_holds_under_alternative_mapping
+        description: >
+          False when the alternative mapping moves the product-mix gap by more than
+          var max_crosswalk_shift of the gap, so the split depends on how products are grouped.
+          Null when the gap is under 0.1 pp.
+
+  - name: analysis_weight_jumps
+    description: >
+      Every month in which an occupation or income band's share of the household portfolio moved
+      by more than var weight_jump_threshold, with the classification event it matches, if any.
+      The design treats these moves as reclassification rather than lending.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [month, dimension, category]
+    columns:
+      - name: change
+        description: share_after minus share_before, as a fraction of the household portfolio.
+      - name: classification_event
+        description: The matching classification_events description; null when the jump isn't recorded.
 
   - name: analysis_shift_share
     description: >

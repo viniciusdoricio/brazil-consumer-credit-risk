@@ -522,7 +522,7 @@ its own identity (section 2.3), which the dbt test on the identity reports as a 
 | 2018-01 | Outros −2.33 (27.06 → 24.73%); Aposentado +2.06, MEI +0.39, Servidor −0.66 | Named occupations within ±0.2 pp of the PF total's +0.19 pp | Mix shift, rates not visibly affected |
 | 2021-01 | Outros −2.14 (25.91 → 23.76%); Empregado privado +0.85, Aposentado +0.70 | Within −0.11 to +0.16 pp of the PF total's +0.06 pp | Mix shift, rates not visibly affected |
 | 2023-01 | Outros −0.58; Aposentado +0.25 | In line with total | Minor |
-| other months | Outros ≥0.5 pp only in 2016-06 (+0.63, scope change), 2024-09 (+0.51), 2025-05 (+0.63) | — | Minor |
+| other months | Outros ≥0.5 pp only in 2016-06 (+0.63, scope change), 2024-09 (+0.51), 2025-05 (+0.63) | — | Minor. The last two are recorded as classification events, because the design treats any move over 0.5 pp as one |
 
 Every material reclassification happens in **January**. Whether that is an annual refresh of the
 tax-registry attribute is unknown (U10).
@@ -539,6 +539,7 @@ tax-registry attribute is unknown (U10).
 | 2025-01 | "Sem rendimento" +2.72, reverted in 2025-02 | Section 2.1 |
 | 2025-07 | "Acima de 20 SM" **+3.53** (18.97 → 22.50%); "1–2" −1.98, "Até 1" −1.69, "2–3" −0.94 | Post-window reclassification. Same month V1's structure changed (section 3) |
 | 2026-05 | "Até 1 SM" −2.52, "1–2" −1.82, "5–10" +2.17, "Indisponível" +0.84 | Post-window reclassification |
+| Other months, 2017–2024 | 2017-02 "Até 1 SM" +0.54; 2017-03 "Até 1 SM" −2.51, "3–5" +0.90, "5–10" +0.59, "Acima de 20" +0.52; 2017-06 "Acima de 20" −0.83; 2017-07 "Até 1 SM" −0.52; 2017-10 "1–2" −0.80, "3–5" +0.60; 2019-05 "Acima de 20" −0.69; 2022-08 "Acima de 20" +0.80 (`analysis_weight_jumps`) | Cause not established. March 2017 roughly reverses January and February's rise in "Até 1 SM". Recorded as classification events because the design treats any move over 0.5 pp as one |
 
 **Measures and products:**
 

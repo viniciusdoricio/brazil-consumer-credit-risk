@@ -10,7 +10,7 @@ comes from `docs/data-dictionary.md` or `docs/data-landscape.md`.*
 | Problem | Recommendation |
 |---|---|
 | **Mix vs rate** | Exact two-level midpoint (Kitagawa-style) decomposition. Aggregate change = **borrower mix** (occupation × income weights) + **product mix** within each cell + **pure rate** within cell × product. The same algebra, applied cross-sectionally, splits an occupation gap at a fixed income into "same-product gap" and "product-mix gap". **That split is the test v1 depends on.** |
-| **Supply-side confound** | Can't be controlled: no origination flow by segment exists publicly. Present it instead. (1) Report every segment rate next to that segment's real portfolio growth. (2) Show a **lagged-denominator** rate as a mandatory sensitivity, so fast-growing segments can't look safe just by being new. (3) National PTC credit standards as context. (4) Write every claim as "the portfolio lenders built for group X performed Y", never "group X behaves Y". |
+| **Supply-side confound** | Can't be controlled: no origination flow by segment exists publicly. Present it instead. (1) Report every segment rate next to that segment's real portfolio growth. (2) Show a **lagged-denominator** rate as a mandatory sensitivity, so fast-growing segments can't look safe just by being new. (3) National PTC credit standards as context, after v1 (§2.2). (4) Write every claim as "the portfolio lenders built for group X performed Y", never "group X behaves Y". |
 | **Lags / early warning** | Not in v1. At cell level the consistent window (2017-01 → 2024-12) contains **one** clean tightening episode (2021–22). Nationally, SGS 21084 adds a second (2013–15). Prewhitened cross-correlation at national level is the ceiling. Anything more is unjustifiable. The only segment-level leading signal is 15–90 → 90+ progression, and it is *inferred*, so label it that way. |
 | **Denominators** | Rates within cells, weights as shares of PF portfolio, volumes in real R$ (IPCA). Seasonality handled year-over-year. Minimum cell size before a rate is shown. Income bands treated as *multiples of the minimum wage*, comparable within a month, never "the same income" across years. |
 | **Measures** | **D90** = `carteira_inadimplencia / carteira_ativa` (BCB's 90-day concept; reconciles to SGS 21084) for **2017-01 → 2024-12** (start set by the January-2017 occupation reclassification, data dictionary §10); D15 from 2017-01. **D15** = `vencido_de_15_ate_90_dias / carteira_ativa` as the measure that runs through January 2025 to the present. Problem assets: **not used** as a time series. |
@@ -124,6 +124,14 @@ Cheque especial / outros. The crosswalk must include the 2013 labels that were s
 groups, which makes the result comparable with BCB's framing. **The whitespace trap in
 `submodalidade` must be trimmed before the join.**
 
+**Crosswalk sensitivity.** The seed `product_group_alternatives` gives a second mapping. It moves
+the sub-modalities whose group is a judgement call (card "não migrado", home equity, microcredit,
+unlabelled loans, goods other than vehicles, agro-industrial finance, card-bill advances), and it
+separates card purchases awaiting the bill from card credit. Overdraft and guaranteed accounts
+already share a group, so the 2014 split between them can't move a term. Chart 4 treats a split as
+unstable where the alternative moves its product-mix part by more than 25% of the gap (v1 decision
+§6).
+
 ### 1.5 Residual and unstable categories
 
 - "Outros", "Indisponível" and "Sem rendimento" stay in as **explicit cells**, so the decomposition
@@ -135,14 +143,23 @@ groups, which makes the result comparable with BCB's framing. **The whitespace t
   rendimento").
 - **Known classification events** (full history, data dictionary §10): occupation 2017-01 (breaks
   rates; before the window), 2018-01, 2021-01, 2023-01; income every January plus 2018-11, 2019-03,
-  2020-08, 2021-09, 2025-01, 2025-07, 2026-05. The 0.5 pp flag catches all of them. The rule is
-  kept to catch revisions in future releases.
+  2020-08, 2021-09, 2025-01, 2025-07, 2026-05. The 0.5 pp flag (`analysis_weight_jumps`) catches
+  all of them except three minimum-wage resets, January 2018 and the mid-year ones of February 2020
+  and May 2023, which move no band by 0.5 pp. It also flags months with no documented cause: from
+  2017, income in February, March, June, July and October 2017, May 2019 and August 2022, and
+  "Outros" in September 2024 and May 2025; before 2017, 24 further months, mostly in income bands.
+  The ones from 2017 are recorded as classification events with the cause marked unknown (data
+  dictionary §10.2), and a dbt test fails on any jump that isn't recorded, so a revision in a later
+  release can't pass as borrower mix.
 - MEI is reported from 2018-01, the first month after which its weight grows gradually rather than
   in January jumps (0.38% in 2016, 0.68% in 2017, 1.06% from 2018-01).
 
 ### 1.6 Tests (dbt)
 
 - `pure_rate + product_mix + borrower_mix = ΔR` within 1e-9 for every window.
+- Every occupation gap splits exactly under both product mappings (§1.4), and each occupation's
+  product shares sum to 1.
+- Every weight jump over 0.5 pp since 2017 is a recorded classification event (§1.5).
 - Weights sum to 1 per month (and per cell for `v`).
 - Cell-level numerator and denominator reconcile to the national PF totals, which reconcile to SGS
   21084 within 0.2 pp for every month 2017–2024 (observed on the full history; data dictionary §10).
@@ -168,7 +185,9 @@ portfolio's rate falls with no change in behaviour.
 
 1. **Growth next to rate.** Every chart of a segment rate carries that segment's real portfolio
    growth (`A_{c,t}/A_{c,t−12}` deflated by IPCA). A segment whose rate fell while its portfolio
-   shrank gets a "possible tightening" annotation, not a "borrowers improved" headline.
+   shrank gets a "possible tightening" annotation, not a "borrowers improved" headline. Income
+   bands shift every January, so the grid's cells carry growth within the window instead, from its
+   first month to its last (`analysis_grid.real_growth_within_window`).
 2. **Lagged-denominator rate (mandatory sensitivity).** New loans don't default in their first
    months, so a fast-growing portfolio looks healthier than a mature one with the same
    underwriting. Show
@@ -177,7 +196,10 @@ portfolio's rate falls with no change in behaviour.
    reported as a finding. This is a crude seasoning adjustment, **not** a vintage analysis, and
    the write-up must say so.
 3. **National supply context.** PTC PF-consumo credit-standards index and SGS 20785 PF spread,
-   quarterly, on one context chart. Stated as context, not as a control.
+   quarterly, on one context chart. Stated as context, not as a control. **Not in v1:** none of
+   the six charts has room for it, and it needs a download and a series v1 doesn't otherwise use.
+   It moves to the supply extension (v1 decision §5, item 3), which can show standards by product.
+   Until then, the growth-next-to-rate rule in item 1 carries the supply caveat.
 4. **Language rule.** "The portfolio lenders extended to *autônomos* earning 2–3 SM had a 90-day
    rate of X." Never "autônomos default at X".
 

@@ -2,7 +2,10 @@
 -- into the part that comes from different rates in the same products and the part that comes from
 -- holding different products (int_gap_terms). The gap is also recomputed with lagged denominators:
 -- if its sign flips, the ranking of the two occupations is not reported as a finding
--- (docs/analysis-design.md, section 2.2).
+-- (docs/analysis-design.md, section 2.2). The split is also run with the alternative product
+-- mapping: where its product-mix part moves by more than var('max_crosswalk_shift') of the gap,
+-- the split depends on how products are grouped and is reported as unstable (docs/v1-decision.md,
+-- section 6).
 
 with occupations as (
     select
@@ -23,8 +26,12 @@ terms as (
         window_id,
         product_scope,
         income_band,
-        sum(same_product_term) as same_product_gap,
-        sum(product_mix_term) as product_mix_gap
+        sum(same_product_term) filter (where product_mapping = 'primary') as same_product_gap,
+        sum(product_mix_term) filter (where product_mapping = 'primary') as product_mix_gap,
+        sum(same_product_term) filter (where product_mapping = 'alternative')
+            as same_product_gap_alternative_mapping,
+        sum(product_mix_term) filter (where product_mapping = 'alternative')
+            as product_mix_gap_alternative_mapping
     from {{ ref('int_gap_terms') }}
     group by all
 )
@@ -44,6 +51,13 @@ select
     case
         when abs(a.rate - b.rate) >= 0.001 then terms.product_mix_gap / (a.rate - b.rate)
     end as product_mix_share_of_gap,
+    terms.same_product_gap_alternative_mapping,
+    terms.product_mix_gap_alternative_mapping,
+    case
+        when abs(a.rate - b.rate) >= 0.001
+            then abs(terms.product_mix_gap_alternative_mapping - terms.product_mix_gap)
+            <= {{ var('max_crosswalk_shift') }} * abs(a.rate - b.rate)
+    end as split_holds_under_alternative_mapping,
     a.average_balance_bn as balance_a_bn,
     b.average_balance_bn as balance_b_bn,
     least(a.average_balance_bn, b.average_balance_bn) < {{ var('min_cell_balance_bn') }}
