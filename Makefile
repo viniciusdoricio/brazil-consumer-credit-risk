@@ -4,8 +4,8 @@ setup:          ## install deps and git hooks
 	uv sync
 	uv run pre-commit install
 
-fetch:          ## download SCR.data monthly archives (see scripts/fetch_scr.py --help)
-	uv run python scripts/fetch_scr.py --recon
+fetch:          ## download and stage SCR.data and the SGS series (see uv run fetch-data --help)
+	uv run fetch-data
 
 build:          ## run dbt models and tests
 	uv run dbt build --project-dir . --profiles-dir .

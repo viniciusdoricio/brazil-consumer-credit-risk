@@ -53,20 +53,19 @@ Requires [uv](https://docs.astral.sh/uv/) on macOS or Linux. DuckDB runs in proc
 
 ```bash
 uv sync
-uv run python scripts/recon/fetch_years.py data/raw/zips scrdata 2012 2026 --jobs 3
-uv run python scripts/recon/to_parquet.py data/parquet/scrdata data/raw/zips/scrdata_*.zip
+uv run fetch-data
 uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 ```
 
-The download takes about 15 minutes and the conversion about 10. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it.
+`fetch-data` downloads every yearly SCR.data archive, checks each one against its CRC, records its size, date and SHA-256, converts each month to typed Parquet and fetches the SGS series. It skips whatever is already there. The first run takes about 15 minutes to download and 10 to convert; [`data/README.md`](data/README.md) has the details. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it.
 
-For development, `make setup` installs the environment and the git hooks, and `make lint` and `make test` run the same checks as CI.
+For development, `make setup` installs the environment and the git hooks, `make fetch` runs `fetch-data`, and `make lint` and `make test` run the same checks as CI.
 
 ## Layout
 
 ```
 scripts/recon/   the research scripts behind every figure in docs/
-scripts/         fetch_scr.py, the scaffold downloader, which the pipeline's fetch step replaces
+src/             the pipeline package; fetch-data downloads, verifies and stages the data
 models/          dbt: staging, intermediate, marts (being built)
 analysis/        Quarto write-up (being built)
 tests/           pytest

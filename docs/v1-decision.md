@@ -136,7 +136,7 @@ is the metric that still works today. Regional drops because of cell thinness.
 
 | Work | Hours |
 |---|---|
-| Rewrite `scripts/fetch_scr.py` into the build, reusing `scripts/recon/fetch_years.py` (chunked ranges, CRC checks, manifest); the full download already works in ~15 minutes | 3–5 |
+| Replace the first-draft fetch script with a fetch step in the build, reusing `scripts/recon/fetch_years.py` (chunked ranges, CRC checks, manifest); the full download already works in ~15 minutes | 3–5 |
 | Fix the toolchain: pin `dbt-core` (current resolve pulls a pre-release that fails to build), commit a working `uv.lock`, CI green | 2–3 |
 | dbt staging (on the Parquet from `scripts/recon/to_parquet.py`)/intermediate/marts; product crosswalk seed; classification-event seed; tests (grain, shares 0–1, reconciliation to SGS 21084 within 0.2 pp, **break assertion on D90 vs D15**, decomposition sums) | 12–16 |
 | SGS ingestion (21084, 24369, 1619, 433) | 2–3 |

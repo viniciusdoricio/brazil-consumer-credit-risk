@@ -58,7 +58,7 @@ Every number here is reproducible with `scripts/recon/` (section 9).
 | Item | Finding |
 |---|---|
 | Portal | CKAN dataset `scr_data` on `dadosabertos.bcb.gov.br`; licence **ODbL** (`license_id: odc-odbl`) **[D: CKAN API]** |
-| **Trap: discovery** | The CKAN resources for the monthly data have **empty `url` fields**. The URL is a pattern written in the resource *description* **[D: CKAN API]**. `scripts/fetch_scr.py` assumes resources carry URLs, so as written it cannot find the data. The fetch script has to be rewritten before the build phase |
+| **Trap: discovery** | The CKAN resources for the monthly data have **empty `url` fields**. The URL is a pattern written in the resource *description* **[D: CKAN API]**. The first draft of the fetch script assumed resources carry URLs, so it couldn't find the data. The pipeline uses the URL pattern directly (`src/brazil_consumer_credit_risk/scr.py`) |
 | V2 files | `https://www.bcb.gov.br/pda/desig/scrdata_{YYYY}.zip`, one ZIP per **year** holding one CSV per month (`scrdata_YYYYMM.csv`) **[D][M2]** |
 | V1 files | `https://www.bcb.gov.br/pda/desig/planilha_{YYYY}.zip` holding `planilha_YYYYMM.csv` **[D]** |
 | Coverage, V2 | **2012-07 to 2026-07**, 169 months, no gaps, no duplicates **[D]**; the V1 methodology says the series starts June 2012 **[M1]**; V2 has no June 2012 file |

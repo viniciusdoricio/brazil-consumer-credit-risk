@@ -19,6 +19,9 @@ dependencies = [
     "dbt-duckdb>=1.11,<1.12",
 ]
 
+[project.scripts]
+fetch-data = "brazil_consumer_credit_risk.fetch:main"
+
 [dependency-groups]
 dev = ["pytest>=8.0", "ruff>=0.16", "pre-commit>=4.0"]
 

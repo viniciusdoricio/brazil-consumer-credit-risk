@@ -1,4 +1,4 @@
-# data — large, reproducible from scripts/fetch_scr.py
+# data: large, rebuilt by `make fetch`
 data/raw/*
 !data/raw/.gitkeep
 *.duckdb
