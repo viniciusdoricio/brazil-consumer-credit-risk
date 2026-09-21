@@ -1,0 +1,52 @@
+version: 2
+
+seeds:
+  - name: pf_product_groups
+    description: >
+      Maps every household (PF) modality and sub-modality published since July 2012 to one of the
+      seven product groups used in v1 (docs/analysis-design.md, section 1.4). Labels are the
+      cleaned ones from stg_bcb__scrdata.
+    config:
+      column_types:
+        modalidade: varchar
+        submodalidade: varchar
+        product_group: varchar
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [modalidade, submodalidade]
+    columns:
+      - name: product_group
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Imobiliário
+                  - Consignado
+                  - Pessoal não consignado
+                  - Cartão
+                  - Veículos
+                  - Rural
+                  - Cheque especial e outros
+
+  - name: classification_events
+    description: >
+      Months in which SCR.data changed how borrowers or balances are classified, who is covered,
+      or what a measure counts, each with the document that records it. Charts mark these months,
+      and time comparisons that span them are labelled as classification events.
+    config:
+      column_types:
+        month: date
+        dimension: varchar
+        description: varchar
+        reference: varchar
+    columns:
+      - name: month
+        data_tests:
+          - not_null
+      - name: dimension
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [occupation, income, product, scope, measure]
