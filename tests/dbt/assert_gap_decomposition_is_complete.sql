@@ -1,10 +1,12 @@
--- One row for every headline pair, cross-section window, product scope and named income band, so
--- no comparison is silently dropped by a join. Returns a row if the count is off.
+-- One row for every headline pair, cross-section window with data, product scope and named income
+-- band, so no comparison is silently dropped by a join. Windows are counted from the pooled data,
+-- not the seed: a build on part of the history (as in CI) has no rows for the earlier windows.
+-- Returns a row if the count is off.
 
 with expected as (
     select
         (select count(*) from {{ ref('occupation_pairs') }})
-        * (select count(*) from {{ ref('analysis_windows') }} where kind = 'cross_section')
+        * (select count(distinct window_id) from {{ ref('int_cross_section_pooled') }})
         * 2
         * (
             select count(distinct income_band)
