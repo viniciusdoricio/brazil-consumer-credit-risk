@@ -168,7 +168,9 @@ portfolio's rate falls with no change in behaviour.
 
 1. **Growth next to rate.** Every chart of a segment rate carries that segment's real portfolio
    growth (`A_{c,t}/A_{c,t−12}` deflated by IPCA). A segment whose rate fell while its portfolio
-   shrank gets a "possible tightening" annotation, not a "borrowers improved" headline.
+   shrank gets a "possible tightening" annotation, not a "borrowers improved" headline. Income
+   bands shift every January, so the grid's cells carry growth within the window instead, from its
+   first month to its last (`analysis_grid.real_growth_within_window`).
 2. **Lagged-denominator rate (mandatory sensitivity).** New loans don't default in their first
    months, so a fast-growing portfolio looks healthier than a mature one with the same
    underwriting. Show

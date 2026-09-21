@@ -4,7 +4,8 @@ models:
   - name: analysis_grid
     description: >
       Chart 2, the grid. Household 90-day and 15-90-day rates by occupation and income band,
-      pooled over each cross-section window, with the lagged-denominator 90-day rate beside them.
+      pooled over each cross-section window, with the lagged-denominator rates and the cell's real
+      growth within the window beside them.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -34,6 +35,23 @@ models:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
+      - name: d15_rate_lagged
+        description: >
+          15-90-day balance over the balance 3 months earlier. A seasoning sensitivity, not a
+          measure: for the first three months of a calendar-year window the lag crosses a January.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: real_growth_within_window
+        description: >
+          The cell's balance in the window's last month over its first, in constant reais (IPCA),
+          minus one. Within the window only, because band membership shifts every January: 11
+          months of growth for a calendar year, 9 for March-December 2019.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -1
       - name: in_primary_grid
         description: True for named occupations in named income bands, the cells v1 compares.
       - name: below_minimum_size

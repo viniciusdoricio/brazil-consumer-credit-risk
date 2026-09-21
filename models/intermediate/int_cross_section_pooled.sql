@@ -30,6 +30,7 @@ select
     sum(cells.carteira_ativa) as carteira_ativa,
     sum(cells.carteira_inadimplencia) as carteira_inadimplencia,
     sum(cells.vencido_de_15_ate_90_dias) as vencido_de_15_ate_90_dias,
+    sum(cells.carteira_ativa_3_months_before) as carteira_ativa_3_months_before,
     sum(cells.carteira_ativa_12_months_before) as carteira_ativa_12_months_before
 from {{ ref('int_pf_cells_lagged') }} as cells
 inner join windows
