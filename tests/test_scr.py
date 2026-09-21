@@ -80,6 +80,18 @@ def test_convert_month_types_and_values(tmp_path):
     assert got[4] == Decimal("633904.03")
 
 
+def test_convert_month_counts_empty_values_and_unreadable_operation_counts(tmp_path):
+    stats = convert(
+        tmp_path,
+        [row(), row(origem="", numero_de_operacoes="n/d"), row(origem="  ")],
+    )
+    assert stats["rows"] == 3
+    assert stats["null_or_empty"] == {"origem": 2}
+    assert stats["whitespace"] == {"origem": 1}
+    assert stats["ops_unparsed"] == 1
+    assert stats["data_base"] == ["2024-01-31"]
+
+
 def test_convert_month_rejects_a_changed_header(tmp_path):
     header = [*scr.HEADER[:-1], "ativo_problematico_novo"]
     rows = [{**row(), "ativo_problematico_novo": "0,00"}]
