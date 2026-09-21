@@ -14,20 +14,18 @@ from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 from . import headlines as h
 from .headlines import Headline
+from .language import PT, Language
 from .style import (
     BLUE,
     FAINT,
     INCOME_BANDS,
     INK,
     MUTED,
-    OCCUPATIONS,
     ORANGE,
-    PAIR_TITLES,
     PAIRS,
     SKY,
     VERMILLION,
     canvas,
-    number,
 )
 
 # BCB's estimate of how much of the first half of 2025's rise in 90-day delinquency came from the
@@ -41,17 +39,17 @@ ACCOUNTING_CHANGE = pd.Timestamp("2025-01-01")
 LAST_COMPARABLE = pd.Timestamp("2024-12-01")
 
 
-def _percent_axis(ax, axis: str = "y", decimals: int = 0) -> None:
-    formatter = FuncFormatter(lambda v, _: f"{number(v, decimals)}%")
+def _percent_axis(ax, lang: Language, axis: str = "y", decimals: int = 0) -> None:
+    formatter = FuncFormatter(lambda v, _: f"{lang.number(v, decimals)}%")
     (ax.yaxis if axis == "y" else ax.xaxis).set_major_formatter(formatter)
 
 
-def _pp_axis(ax, axis: str = "x", decimals: int = 1) -> None:
-    formatter = FuncFormatter(lambda v, _: number(v, decimals, sign=v > 0))
+def _pp_axis(ax, lang: Language, axis: str = "x", decimals: int = 1) -> None:
+    formatter = FuncFormatter(lambda v, _: lang.number(v, decimals, sign=v > 0))
     (ax.yaxis if axis == "y" else ax.xaxis).set_major_formatter(formatter)
 
 
-def the_trap(monthly: pd.DataFrame, headline: Headline, footer: str) -> Figure:
+def the_trap(monthly: pd.DataFrame, headline: Headline, footer: str, lang: Language = PT) -> Figure:
     fig, spec = canvas(headline.title, headline.subtitle, footer, body_height=3.3, right=0.86)
     ax = fig.add_subplot(spec[0])
     month = pd.to_datetime(monthly["month"])
@@ -59,16 +57,16 @@ def the_trap(monthly: pd.DataFrame, headline: Headline, footer: str) -> Figure:
     d15 = 100 * monthly["d15_rate"]
     sgs = 100 * monthly["sgs_21084_rate"]
 
-    ax.plot(month, sgs, color=MUTED, lw=1, ls=":", label="Série oficial do BCB (SGS 21084)")
+    ax.plot(month, sgs, color=MUTED, lw=1, ls=":", label=lang.t("trap.official"))
     comparable = month <= LAST_COMPARABLE
-    ax.plot(month[comparable], d90[comparable], color=BLUE, lw=2, label="90 dias, SCR.data")
+    ax.plot(month[comparable], d90[comparable], color=BLUE, lw=2, label=lang.t("trap.d90"))
     ax.plot(
         month[month >= LAST_COMPARABLE],
         d90[month >= LAST_COMPARABLE],
         color=BLUE,
         lw=2,
         ls=(0, (3, 1.5)),
-        label="90 dias, não comparável após dez/2024",
+        label=lang.t("trap.d90_after"),
     )
     ax.plot(month, d15, color=VERMILLION, lw=2)
 
@@ -78,7 +76,7 @@ def the_trap(monthly: pd.DataFrame, headline: Headline, footer: str) -> Figure:
     ax.text(
         ACCOUNTING_CHANGE - pd.Timedelta(days=20),
         top * 0.98,
-        "Res. CMN 4.966\njan/2025",
+        lang.t("trap.rule"),
         ha="right",
         va="top",
         fontsize=8,
@@ -87,14 +85,17 @@ def the_trap(monthly: pd.DataFrame, headline: Headline, footer: str) -> Figure:
     ax.text(
         pd.Timestamp("2024-10-01"),
         top * 0.36,
-        f"O BCB estima que {number(BCB_REGULATORY_PP)} dos {number(BCB_TOTAL_PP)} p.p. de alta\n"
-        "da inadimplência de 90 dias do sistema\nfinanceiro em jan–jun/2025 vieram da nova regra",
+        lang.t(
+            "trap.bcb",
+            regulatory=lang.number(BCB_REGULATORY_PP),
+            total=lang.number(BCB_TOTAL_PP),
+        ),
         ha="right",
         va="center",
         fontsize=7.5,
         color=MUTED,
     )
-    for series, label, color in ((d90, "90 dias", BLUE), (d15, "15 a 90 dias", VERMILLION)):
+    for series, label, color in ((d90, lang.t("d90"), BLUE), (d15, lang.t("d15"), VERMILLION)):
         ax.text(
             month.iloc[-1] + pd.Timedelta(days=45),
             series.iloc[-1],
@@ -108,14 +109,14 @@ def the_trap(monthly: pd.DataFrame, headline: Headline, footer: str) -> Figure:
     ax.set_xlim(month.min() - pd.Timedelta(days=45), month.max() + pd.Timedelta(days=30))
     ax.xaxis.set_major_locator(mdates.YearLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
-    _percent_axis(ax, "y")
-    ax.set_ylabel("% da carteira")
+    _percent_axis(ax, lang, "y")
+    ax.set_ylabel(lang.t("trap.ylabel"))
     ax.grid(axis="y")
     ax.legend(loc="upper left", fontsize=8, handlelength=2.5)
     return fig
 
 
-def the_grid(grid: pd.DataFrame, headline: Headline, footer: str) -> Figure:
+def the_grid(grid: pd.DataFrame, headline: Headline, footer: str, lang: Language = PT) -> Figure:
     bands = [b for b in INCOME_BANDS if b in set(grid["income_band"])]
     eligible = grid[~grid["below_minimum_size"]]
     # Rows by the plain average of their bands: weighting by balance would sort occupations by
@@ -154,7 +155,7 @@ def the_grid(grid: pd.DataFrame, headline: Headline, footer: str) -> Figure:
             ax.text(
                 j + 0.5,
                 i + 0.42,
-                f"{number(rate, 1)}%",
+                f"{lang.number(rate, 1)}%",
                 ha="center",
                 va="center",
                 fontsize=9,
@@ -164,7 +165,7 @@ def the_grid(grid: pd.DataFrame, headline: Headline, footer: str) -> Figure:
             ax.text(
                 j + 0.5,
                 i + 0.72,
-                f"R$ {number(cell['average_balance_bn'], 0)} bi",
+                lang.t("grid.balance", bn=lang.number(cell["average_balance_bn"], 0)),
                 ha="center",
                 va="center",
                 fontsize=6.5,
@@ -182,16 +183,18 @@ def the_grid(grid: pd.DataFrame, headline: Headline, footer: str) -> Figure:
 
     ax.set_xlim(0, len(bands))
     ax.set_ylim(len(order), 0)
-    ax.set_xticks(np.arange(len(bands)) + 0.5, [INCOME_BANDS[b] for b in bands])
-    ax.set_yticks(np.arange(len(order)) + 0.5, [OCCUPATIONS[o] for o in order])
+    ax.set_xticks(np.arange(len(bands)) + 0.5, [lang.label("band", b) for b in bands])
+    ax.set_yticks(np.arange(len(order)) + 0.5, [lang.label("occupation", o) for o in order])
     ax.tick_params(length=0)
-    ax.set_xlabel("Renda mensal, em salários mínimos")
+    ax.set_xlabel(lang.t("income_axis"))
     for side in ("left", "bottom"):
         ax.spines[side].set_visible(False)
     return fig
 
 
-def which_matters_more(dispersion: pd.DataFrame, headline: Headline, footer: str) -> Figure:
+def which_matters_more(
+    dispersion: pd.DataFrame, headline: Headline, footer: str, lang: Language = PT
+) -> Figure:
     fig, spec = canvas(
         headline.title,
         headline.subtitle,
@@ -208,8 +211,8 @@ def which_matters_more(dispersion: pd.DataFrame, headline: Headline, footer: str
     years["year"] = years["period_id"].astype(int)
 
     for measure, color, style, label in (
-        ("d90", BLUE, "-", "90 dias"),
-        ("d15", VERMILLION, "--", "15 a 90 dias"),
+        ("d90", BLUE, "-", lang.t("d90")),
+        ("d15", VERMILLION, "--", lang.t("d15")),
     ):
         rows = years[years["measure"] == measure].sort_values("year")
         top.plot(
@@ -240,7 +243,7 @@ def which_matters_more(dispersion: pd.DataFrame, headline: Headline, footer: str
         edgecolors=INK,
         lw=1,
         zorder=3,
-        label="Recortes do teste (90 dias)",
+        label=lang.t("dispersion.windows"),
     )
     top.axhline(1, color=INK, lw=0.8)
     # Mid-period, where both lines sit well below 1, so the labels never touch a point.
@@ -248,7 +251,7 @@ def which_matters_more(dispersion: pd.DataFrame, headline: Headline, footer: str
     top.text(
         label_x,
         1.02,
-        "Acima de 1: a ocupação separa mais",
+        lang.t("dispersion.above"),
         fontsize=7.5,
         color=MUTED,
         va="bottom",
@@ -256,14 +259,14 @@ def which_matters_more(dispersion: pd.DataFrame, headline: Headline, footer: str
     top.text(
         label_x,
         0.98,
-        "Abaixo de 1: a renda separa mais",
+        lang.t("dispersion.below"),
         fontsize=7.5,
         color=MUTED,
         va="top",
     )
     top.set_ylim(0, max(1.4, years["occupation_to_income_ratio"].max() * 1.1))
-    top.yaxis.set_major_formatter(FuncFormatter(lambda v, _: number(v, 1)))
-    top.set_ylabel("Ocupação ÷ renda")
+    top.yaxis.set_major_formatter(FuncFormatter(lambda v, _: lang.number(v, 1)))
+    top.set_ylabel(lang.t("dispersion.ylabel"))
     top.legend(loc="lower left", fontsize=8)
     top.grid(axis="y")
     top.tick_params(labelbottom=False)
@@ -279,8 +282,8 @@ def which_matters_more(dispersion: pd.DataFrame, headline: Headline, footer: str
     )
     bottom.set_ylim(0, 100 * unemployment["unemployment_rate"].max() * 1.25)
     bottom.yaxis.set_major_locator(MultipleLocator(5))
-    _percent_axis(bottom, "y")
-    bottom.set_ylabel("Desemprego")
+    _percent_axis(bottom, lang, "y")
+    bottom.set_ylabel(lang.t("dispersion.unemployment"))
     bottom.set_xticks(unemployment["year"])
     bottom.grid(axis="y")
     return fig
@@ -299,7 +302,9 @@ def _stacked_barh(ax, y, parts, **kwargs) -> None:
         negative += np.where(values < 0, values, 0)
 
 
-def job_or_product(gaps: pd.DataFrame, headline: Headline, footer: str) -> Figure:
+def job_or_product(
+    gaps: pd.DataFrame, headline: Headline, footer: str, lang: Language = PT
+) -> Figure:
     fig, spec = canvas(
         headline.title,
         headline.subtitle,
@@ -308,6 +313,7 @@ def job_or_product(gaps: pd.DataFrame, headline: Headline, footer: str) -> Figur
         left=0.15,
         right=0.98,
         bottom_space=1.2,
+        panel_titles=True,
         ncols=len(PAIRS),
         wspace=0.12,
     )
@@ -337,7 +343,7 @@ def job_or_product(gaps: pd.DataFrame, headline: Headline, footer: str) -> Figur
                 ax.text(
                     0,
                     i,
-                    "abaixo do tamanho mínimo",
+                    lang.t("split.small"),
                     ha="center",
                     va="center",
                     fontsize=7,
@@ -370,24 +376,24 @@ def job_or_product(gaps: pd.DataFrame, headline: Headline, footer: str) -> Figur
                     mew=1.5,
                 )
 
-        ax.set_title(PAIR_TITLES[pair], fontsize=9, loc="left")
+        ax.set_title(lang.label("pair_title", pair), fontsize=9, loc="left")
         ax.axvline(0, color=INK, lw=0.8)
         ax.set_xlim(-limit, limit)
         ax.set_ylim(len(bands) - 0.5, -0.5)
-        ax.set_yticks(y, [INCOME_BANDS[b] for b in bands] if k == 0 else [])
+        ax.set_yticks(y, [lang.label("band", b) for b in bands] if k == 0 else [])
         ax.tick_params(axis="y", length=0)
-        _pp_axis(ax, "x")
+        _pp_axis(ax, lang, "x")
         ax.grid(axis="x")
         ax.spines["left"].set_visible(False)
         if k == 0:
-            ax.set_ylabel("Renda mensal, em salários mínimos")
+            ax.set_ylabel(lang.t("income_axis"))
         if k == 1:
-            ax.set_xlabel("Diferença na inadimplência de 90 dias, p.p.")
+            ax.set_xlabel(lang.t("split.xlabel"))
 
     handles = [
-        Patch(color=BLUE, label="Dentro dos mesmos produtos"),
-        Patch(color=SKY, label="Mix de produtos"),
-        Line2D([], [], marker="|", ms=12, mew=2, color=INK, ls="none", label="Diferença total"),
+        Patch(color=BLUE, label=lang.t("split.within")),
+        Patch(color=SKY, label=lang.t("split.mix")),
+        Line2D([], [], marker="|", ms=12, mew=2, color=INK, ls="none", label=lang.t("split.total")),
         Line2D(
             [],
             [],
@@ -397,19 +403,19 @@ def job_or_product(gaps: pd.DataFrame, headline: Headline, footer: str) -> Figur
             mec=ORANGE,
             mew=1.5,
             ls="none",
-            label="Diferença sem crédito rural",
+            label=lang.t("split.without_rural"),
         ),
         Patch(
             facecolor=BLUE,
             alpha=0.55,
             hatch="////",
             edgecolor="white",
-            label="Divisão instável com outro agrupamento de produtos",
+            label=lang.t("split.unstable"),
         ),
         Patch(
             facecolor=BLUE,
             alpha=0.25,
-            label="Diferença abaixo de 0,1 p.p. ou ordem que muda com a defasagem",
+            label=lang.t("split.unreadable", material=lang.pp(h.MATERIAL, 1)),
         ),
     ]
     # Between the x-axis label and the footer.
@@ -427,7 +433,9 @@ def job_or_product(gaps: pd.DataFrame, headline: Headline, footer: str) -> Figur
     return fig
 
 
-def mix_versus_rate(episodes: pd.DataFrame, headline: Headline, footer: str) -> Figure:
+def mix_versus_rate(
+    episodes: pd.DataFrame, headline: Headline, footer: str, lang: Language = PT
+) -> Figure:
     fig, spec = canvas(
         headline.title, headline.subtitle, footer, body_height=3.0, right=0.97, bottom_space=0.8
     )
@@ -435,9 +443,9 @@ def mix_versus_rate(episodes: pd.DataFrame, headline: Headline, footer: str) -> 
     episodes = episodes.sort_values("month_0").reset_index(drop=True)
     x = np.arange(len(episodes))
     parts = [
-        ("pure_rate", BLUE, "Taxa dentro de cada ocupação e produto"),
-        ("product_mix", SKY, "Mix de produtos"),
-        ("borrower_mix", ORANGE, "Mix de ocupações"),
+        ("pure_rate", BLUE, lang.t("mix.pure_rate")),
+        ("product_mix", SKY, lang.t("mix.product_mix")),
+        ("borrower_mix", ORANGE, lang.t("mix.borrower_mix")),
     ]
     positive = np.zeros(len(x))
     negative = np.zeros(len(x))
@@ -457,12 +465,12 @@ def mix_versus_rate(episodes: pd.DataFrame, headline: Headline, footer: str) -> 
         positive += np.where(values >= 0, values, 0)
         negative += np.where(values < 0, values, 0)
     change = 100 * episodes["change"].to_numpy(dtype=float)
-    ax.hlines(change, x - 0.36, x + 0.36, color=INK, lw=2.5, zorder=3, label="Variação total")
+    ax.hlines(change, x - 0.36, x + 0.36, color=INK, lw=2.5, zorder=3, label=lang.t("mix.total"))
     for i, value in enumerate(change):
         ax.text(
             i + 0.4,
             value,
-            f"{number(value, 2, sign=True)} p.p.",
+            lang.pp(value / 100, sign=True),
             fontsize=8.5,
             fontweight="bold",
             va="center",
@@ -471,13 +479,13 @@ def mix_versus_rate(episodes: pd.DataFrame, headline: Headline, footer: str) -> 
 
     labels = []
     for _, row in episodes.iterrows():
-        name = h._episode_name(row)
+        name = h.episode_name(row)
         labels.append(name + ("*" if row["spans_occupation_reclassification"] else ""))
     ax.set_xticks(x, labels)
     ax.set_xlim(-0.6, len(x) - 0.4 + 0.35)  # room for the last total's label
     ax.axhline(0, color=INK, lw=0.8)
-    _pp_axis(ax, "y")
-    ax.set_ylabel("p.p.")
+    _pp_axis(ax, lang, "y")
+    ax.set_ylabel(lang.pp_unit)
     ax.grid(axis="y")
     below_axes = spec.get_subplot_params(fig).bottom - 0.3 / fig.get_figheight()
     ax.legend(
@@ -492,7 +500,9 @@ def mix_versus_rate(episodes: pd.DataFrame, headline: Headline, footer: str) -> 
     return fig
 
 
-def current_read(current: pd.DataFrame, headline: Headline, footer: str) -> Figure:
+def current_read(
+    current: pd.DataFrame, headline: Headline, footer: str, lang: Language = PT
+) -> Figure:
     fig, spec = canvas(
         headline.title,
         headline.subtitle,
@@ -501,6 +511,7 @@ def current_read(current: pd.DataFrame, headline: Headline, footer: str) -> Figu
         left=0.30,
         right=0.97,
         bottom_space=0.7,
+        panel_titles=True,
         ncols=2,
         width_ratios=[1.3, 1],
         wspace=0.08,
@@ -520,18 +531,18 @@ def current_read(current: pd.DataFrame, headline: Headline, footer: str) -> Figu
         lw=1.8,
         color=INK,
         zorder=3,
-        label="Com denominador defasado (3 meses)",
+        label=lang.t("current.lagged"),
     )
     # Past the bar or the lagged marker, whichever reaches further.
     ends = 100 * np.maximum(rows["d15_change"], rows["d15_change_lagged"])
     for i, (value, end) in enumerate(zip(100 * rows["d15_change"], ends, strict=True)):
-        left.text(end + 0.015, i, number(value, 2, sign=True), va="center", fontsize=8)
-    left.set_yticks(y, [OCCUPATIONS[o] for o in rows["occupation"]])
-    left.set_title("Inadimplência de 15 a 90 dias, variação em p.p.", fontsize=9)
+        left.text(end + 0.015, i, lang.number(value, 2, sign=True), va="center", fontsize=8)
+    left.set_yticks(y, [lang.label("occupation", o) for o in rows["occupation"]])
+    left.set_title(lang.t("current.rate_title"), fontsize=9)
     left.set_xlim(
         min(0, 100 * rows["d15_change"].min() * 1.2), 100 * rows["d15_change"].max() * 1.3
     )
-    _pp_axis(left, "x", 1)
+    _pp_axis(left, lang, "x", 1)
     left.legend(loc="upper left", bbox_to_anchor=(-0.02, -0.12), fontsize=7.5)
     left.tick_params(axis="y", length=0)
     left.spines["left"].set_visible(False)
@@ -544,16 +555,16 @@ def current_read(current: pd.DataFrame, headline: Headline, footer: str) -> Figu
         right.text(
             value + (0.6 if value >= 0 else -0.6),
             i,
-            f"{number(value, 1, sign=True)}%",
+            f"{lang.number(value, 1, sign=True)}%",
             va="center",
             ha="left" if value >= 0 else "right",
             fontsize=8,
         )
-    right.set_title("Saldo real, variação em %", fontsize=9)
+    right.set_title(lang.t("current.balance_title"), fontsize=9)
     right.axvline(0, color=INK, lw=0.8)
     span = max(growth.abs().max() * 1.35, 5)
     right.set_xlim(min(0, growth.min() * 1.35), span)
-    right.xaxis.set_major_formatter(FuncFormatter(lambda v, _: number(v, 0, sign=v > 0)))
+    right.xaxis.set_major_formatter(FuncFormatter(lambda v, _: lang.number(v, 0, sign=v > 0)))
     right.tick_params(axis="y", length=0, labelleft=False)
     right.spines["left"].set_visible(False)
     return fig

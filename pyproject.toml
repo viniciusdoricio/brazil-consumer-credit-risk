@@ -13,6 +13,7 @@ dependencies = [
     "pandas>=2.2",
     "matplotlib>=3.9",
     "requests>=2.32",
+    "pyyaml>=6.0",
     # 1.12 depends on dbt-core-experimental-parser, whose build downloads a binary
     # at install time; stay on 1.11 until that is a normal wheel
     "dbt-core>=1.11,<1.12",
@@ -28,11 +29,10 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.16",
     "pre-commit>=4.0",
-    # what Quarto needs to run the write-up's Python cells in this environment
+    # what Quarto needs to run the write-up's Python cells in this environment (with pyyaml)
     "ipykernel>=6.29",
     "nbclient>=0.10",
     "nbformat>=5.10",
-    "pyyaml>=6.0",
 ]
 
 [tool.ruff]

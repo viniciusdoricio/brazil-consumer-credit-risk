@@ -83,6 +83,7 @@ dependencies = [
     { name = "duckdb" },
     { name = "matplotlib" },
     { name = "pandas" },
+    { name = "pyyaml" },
     { name = "requests" },
 ]
 
@@ -93,7 +94,6 @@ dev = [
     { name = "nbformat" },
     { name = "pre-commit" },
     { name = "pytest" },
-    { name = "pyyaml" },
     { name = "ruff" },
 ]
 
@@ -104,6 +104,7 @@ requires-dist = [
     { name = "duckdb", specifier = ">=1.0" },
     { name = "matplotlib", specifier = ">=3.9" },
     { name = "pandas", specifier = ">=2.2" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "requests", specifier = ">=2.32" },
 ]
 
@@ -114,7 +115,6 @@ dev = [
     { name = "nbformat", specifier = ">=5.10" },
     { name = "pre-commit", specifier = ">=4.0" },
     { name = "pytest", specifier = ">=8.0" },
-    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.16" },
 ]
 
