@@ -1,0 +1,135 @@
+{
+  "chart1_trap": {
+    "title": "Part of the rise in household delinquency since January 2025 is an accounting change, not borrowers; 15–90-day delinquency didn't jump",
+    "subtitle": "Household delinquency, % of the portfolio. From December 2024 to January 2025, the 90-day rate moved +0.31 pp (the January before, +0.03 pp) and the 15–90-day rate +0.03 pp (+0.01 pp).",
+    "facts": {
+      "d90_step_january_2025": 0.0030922787003346067,
+      "d90_step_january_2024": 0.00028432708256288103,
+      "d15_step_january_2025": 0.0002564967270506126,
+      "d15_step_january_2024": 0.00010264377605573305,
+      "break_visible": true,
+      "d15_flat": true
+    }
+  },
+  "chart2_grid": {
+    "title": "At the same income, 90-day delinquency varies by up to 2.5 pp with occupation",
+    "subtitle": "90-day delinquency in 2024, by occupation and income band, % of the portfolio. The largest gap is between micro-entrepreneurs (MEI) and private-sector employees earning above 20 minimum wages. Even in the band where occupations sit closest, the gap is 1.86 pp.",
+    "facts": {
+      "largest_spread": {
+        "income_band": "Acima de 20 salários mínimos",
+        "highest": "MEI",
+        "lowest": "Empregado de empresa privada",
+        "spread": 0.02543134266895633,
+        "holds_with_lag": true
+      },
+      "smallest_spread": 0.018647373027205386,
+      "spreads": [
+        {
+          "income_band": "Acima de 20 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Empregado de empresa privada",
+          "spread": 0.02543134266895633,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Até 1 salário mínimo",
+          "highest": "MEI",
+          "lowest": "Empresário",
+          "spread": 0.023990798150385375,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 1 a 2 salários mínimos",
+          "highest": "Autônomo",
+          "lowest": "Aposentado/pensionista",
+          "spread": 0.018647373027205386,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 10 a 20 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Servidor ou empregado público",
+          "spread": 0.02515062098185302,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 2 a 3 salários mínimos",
+          "highest": "Autônomo",
+          "lowest": "Aposentado/pensionista",
+          "spread": 0.023559854551841578,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 3 a 5 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Aposentado/pensionista",
+          "spread": 0.024922115338303987,
+          "holds_with_lag": true
+        },
+        {
+          "income_band": "Mais de 5 a 10 salários mínimos",
+          "highest": "MEI",
+          "lowest": "Servidor ou empregado público",
+          "spread": 0.022223732656608756,
+          "holds_with_lag": true
+        }
+      ]
+    }
+  },
+  "chart3_dispersion": {
+    "title": "On 90-day delinquency, income separates risk more than occupation does, and the gap between occupations didn't track unemployment",
+    "subtitle": "Spread of 90-day delinquency across occupations within each income band, divided by the spread across bands within each occupation: below 1, income separates more. In the test windows (Mar–Dec 2019, 2022, 2024), the ratio was 0.62, 0.43 and 0.48. Correlation of the occupation spread with unemployment, 2017 to 2024: 0.46 (eight years). On 15–90-day delinquency, the ratio exceeds 1 in 2024.",
+    "facts": {
+      "verdict": "income",
+      "window_ratios": {
+        "cs_2019": 0.6223136360668913,
+        "cs_2022": 0.4305502404516369,
+        "cs_2024": 0.484165973803205
+      },
+      "unemployment_correlation": 0.4591357057856049,
+      "d15_years_above_one": [
+        "2024"
+      ]
+    }
+  },
+  "chart4_job_or_product": {
+    "title": "Little of the gap between retirees and the self-employed comes from the credit products each group holds: it shows up within the same products",
+    "subtitle": "Gap in 90-day delinquency in 2024 between retirees and the self-employed, by income band, split into the part within the same products and the part from the product mix. In the four bands where the split is stable, retirees have the lower rate, and the product mix accounts for 14% of the gap; without rural credit, 30%.",
+    "facts": {
+      "pair": "retiree_vs_self_employed",
+      "stable_bands": [
+        "Mais de 1 a 2 salários mínimos",
+        "Mais de 2 a 3 salários mínimos",
+        "Mais de 3 a 5 salários mínimos",
+        "Mais de 5 a 10 salários mínimos"
+      ],
+      "product_mix_share": 0.13865890861334254,
+      "product_mix_share_excluding_rural": 0.3009896509024574
+    }
+  },
+  "chart5_mix_vs_rate": {
+    "title": "In each of the three episodes from 2018 to 2024, household 90-day delinquency moved mostly within each occupation and product",
+    "subtitle": "Change in household 90-day delinquency in each episode, split into three parts that add up exactly to the change: the rate within each occupation and product, the product mix and the occupation mix. Total change: 2018–2020, −1.01 pp; 2021–2022, +1.02 pp; 2023–2024, −0.41 pp. 2023–2024*: an occupation reclassification falls inside the episode and enters the occupation mix.",
+    "facts": {
+      "dominant_component": {
+        "ep_2018_2020": "pure_rate",
+        "ep_2021_2022": "pure_rate",
+        "ep_2023_2024": "pure_rate"
+      },
+      "episodes_with_reclassification": [
+        "2023–2024"
+      ]
+    }
+  },
+  "chart6_current_read": {
+    "title": "Since the accounting change, 15–90-day delinquency has risen most among the self-employed, and lending to them has kept growing in real terms",
+    "subtitle": "Change in 15–90-day delinquency between 2024 and the 12 months to Jul 2026, by occupation, next to the real change in balances (IPCA). Among the self-employed: +0.53 pp in the rate and +9.3% in balances; across occupations, the rise runs from 0.15 pp to 0.53 pp.",
+    "facts": {
+      "latest_month": "2026-07-01",
+      "fastest": "Autônomo",
+      "fastest_with_lagged_denominator": "Autônomo",
+      "spread": 0.0037951749919244056,
+      "possible_tightening": []
+    }
+  }
+}
