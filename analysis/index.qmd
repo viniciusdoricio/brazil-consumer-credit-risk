@@ -17,7 +17,7 @@ crossref:
 jupyter: python3
 ---
 
-*[English version](en/index.html)*
+*[English version](en/index.html) · [Código no GitHub](https://github.com/viniciusdoricio/brazil-consumer-credit-risk)*
 
 ```{python}
 #| include: false
@@ -86,7 +86,8 @@ Para uma área de risco de crédito, a resposta muda três decisões:
 # Os dados {#sec-dados}
 
 O **SCR.data** do Banco Central publica, todo mês, o saldo de crédito do sistema financeiro e os
-valores em atraso, agregados por ocupação, faixa de renda, modalidade, tipo de instituição e estado.
+valores em atraso, agregados por ocupação, faixa de renda, modalidade, tipo de instituição e estado,
+sob a licença aberta ODbL.
 São `{python} N.months` meses, de `{python} N.first_month` a `{python} N.latest_month`; em
 `{python} N.latest_month`, a carteira das pessoas físicas somava `{python} N.portfolio`.
 
@@ -327,29 +328,16 @@ física:
   sem que o comportamento dos devedores mude. A @sec-resultados aponta onde eles coincidem com os
   resultados, mas o SCR.data não permite separar o efeito de cada um.
 - **O Banco Central republica o histórico.** A análise usa as versões dos arquivos listadas, com
-  data e hash, no dicionário de dados do repositório. Uma versão posterior pode mover levemente os
-  números; a de setembro de 2026 moveu a inadimplência de 90 dias das famílias em no máximo
-  `{python} N.republication_shift`
+  data e hash, no [dicionário de dados][dicionario] do repositório. Uma versão posterior pode mover
+  levemente os números; a de setembro de 2026 moveu a inadimplência de 90 dias das famílias em no
+  máximo `{python} N.republication_shift`
 
-# Como reproduzir
-
-Todo o código está no repositório
-[viniciusdoricio/brazil-consumer-credit-risk](https://github.com/viniciusdoricio/brazil-consumer-credit-risk).
-Em um Mac ou Linux com [uv](https://docs.astral.sh/uv/) e [Quarto](https://quarto.org):
-
-```bash
-uv sync
-make fetch     # baixa e verifica os arquivos do Banco Central (cerca de 25 minutos)
-make build     # modelos dbt e testes de dados
-make report    # desenha os gráficos e gera este relatório
-```
-
-Os dados são do Banco Central do Brasil, publicados sob a licença Open Database License (ODbL).
-
-[^ocupacao]: Banco Central, [Estudo Especial 80/2020](https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE080_Indicadores_de_endividamento_de_risco_e_perfil_do_tomador_de_credito.pdf) (tomadores no SCR em dezembro de 2019); Receita Federal, via [Poder360](https://www.poder360.com.br/poder-economia/receita-federal-recebe-445-milhoes-de-declaracoes-do-ir/) (declarações de 2026). A origem da ocupação está no dicionário de dados do repositório, seção 10.4.
+[^ocupacao]: Banco Central, [Estudo Especial 80/2020](https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE080_Indicadores_de_endividamento_de_risco_e_perfil_do_tomador_de_credito.pdf) (tomadores no SCR em dezembro de 2019); Receita Federal, via [Poder360](https://www.poder360.com.br/poder-economia/receita-federal-recebe-445-milhoes-de-declaracoes-do-ir/) (declarações de 2026). A origem da ocupação está no [dicionário de dados][dicionario] do repositório, seção 10.4.
 
 [^pnad]: IBGE, [PNAD Contínua 2025](https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/45759-pnad-continua-em-2025-taxa-anual-de-desocupacao-foi-de-5-6-enquanto-taxa-de-subutilizacao-foi-14-5); [Agência Brasil](https://agenciabrasil.ebc.com.br/economia/noticia/2025-11/apenas-um-em-cada-quatro-trabalhadores-por-conta-propria-tem-cnpj) sobre o CNPJ.
 
 [^desenrola]: Ministério da Fazenda, via [Agência Gov](https://agenciagov.ebc.com.br/noticias/202405/desenrola-brasil-encerra-com-beneficio-a-mais-de-15-milhoes-de-pessoas-e-reducao-da-inadimplencia-entre-a-populacao-mais-vulneravel-do-pais); Lei 14.690/2023, art. 28, e Resolução CMN 5.112/2023, via [Rádio Senado](https://www12.senado.leg.br/radio/1/noticia/2024/01/03/novo-limite-para-juros-do-cartao-de-credito-foi-fruto-de-lei-aprovada-no-congresso).
 
 [^contexto]: Crédito do Trabalhador: [Exame](https://exame.com/brasil/consignado-privado-cresce-mas-valor-medio-dos-emprestimos-cai-73/). Teto do consignado do INSS: [Ministério da Previdência](https://www.gov.br/previdencia/pt-br/noticias/2025/janeiro/taxa-maxima-de-juros-do-consignado-sobe-para-1-80-ao-mes) e [Mix Vale](https://www.mixvale.com.br/2025/02/02/credito-consignado-do-inss-cresce-30-em-2024-e-atinge-r-103-bilhoes-com-novas-taxas/). Rio Grande do Sul: Resoluções CMN 5.132/2024 e 5.164/2024, via [Ministério da Fazenda](https://www.gov.br/fazenda/pt-br/canais_atendimento/imprensa/notas-a-imprensa/2024/maio/cmn-autoriza-prorrogacao-de-credito-rural-em-municipios-do-rio-grande-do-sul). MP 1.314/2025: [CNN Brasil](https://www.cnnbrasil.com.br/economia/governo-publica-mp-que-libera-r-12-bi-para-renegociacao-de-dividas-rurais/). Isenção do imposto de renda, Lei 15.270/2025: [Senado Notícias](https://www12.senado.leg.br/noticias/materias/2025/11/27/sancionada-isencao-do-imposto-de-renda-para-quem-ganha-ate-r-5-mil-por-mes). Novo Desenrola: [Forbes Brasil](https://forbes.com.br/forbes-money/2026/05/governo-lanca-novo-desenrola-com-ate-r-15-bi-em-garantias-da-uniao-para-renegociacao-de-dividas/).
+
+[dicionario]: https://github.com/viniciusdoricio/brazil-consumer-credit-risk/blob/main/docs/data-dictionary.md
