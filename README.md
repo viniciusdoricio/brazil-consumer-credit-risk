@@ -8,7 +8,7 @@
 
 An analysis of household credit risk in Brazil, built on Banco Central do Brasil public data. It rebuilds, at national scale and from open sources, the segment view a credit-risk team reviews every month: where delinquency concentrates, and whether that comes from the borrowers or from the products they hold.
 
-**Read the report:** [Português](analysis/index.qmd) (the reference version) · [English](analysis/en/index.qmd)
+**Read the report:** [Português](https://viniciusdoricio.github.io/brazil-consumer-credit-risk/) (the reference version) · [English](https://viniciusdoricio.github.io/brazil-consumer-credit-risk/en/)
 
 ## Findings
 
@@ -74,6 +74,8 @@ make build     # build the dbt models and run their data tests
 make report    # draw the charts and render the report in both languages to analysis/_output/
 make audit     # recompute the headline numbers from the raw files and compare
 ```
+
+The published report is the output of `make report`, deployed to the `gh-pages` branch.
 
 `make fetch` skips whatever is already downloaded, and keeps the local copy of an archive BCB has republished until `uv run fetch-data --refresh` replaces it; [`data/README.md`](data/README.md) has the details. `make test` and `make lint` run the Python checks; CI runs them and the dbt tests on every push, with the dbt tests on the 2023 to 2025 data.
 
