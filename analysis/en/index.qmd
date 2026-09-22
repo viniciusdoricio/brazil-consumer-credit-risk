@@ -55,6 +55,9 @@ N = SimpleNamespace(
 - **What I would do:** segment by income and product first and use occupation as a second cut,
   starting with collections on `{python} N.top_product`, and validate it on account-level data before
   it goes into a scoring model.
+- **About whom:** occupation in this data is the one declared on the income-tax return, so the
+  occupation findings describe people who file, a more formal and better-off slice of borrowers
+  (section 3).
 :::
 
 ::: {.callout-tip appearance="simple" collapse="true"}
@@ -62,8 +65,11 @@ N = SimpleNamespace(
 
 - **SCR.data** is the Banco Central do Brasil's public, monthly, aggregated view of its credit
   registry (SCR), which every regulated lender reports to.
-- **Payroll-deducted loans (*consignado*)** are repaid straight from a salary or pension, so they
-  rarely go bad. They are mainly available to retirees, pensioners and public-sector employees.
+- **Payroll-deducted loans (*consignado*)** are repaid straight from a salary or pension. Until 2025
+  they went mainly to retirees, pensioners and public-sector employees and rarely went bad. Since
+  March 2025 they have opened up to private-sector workers, a much riskier book (section 5.5).
+- **Occupation** in SCR.data is the one declared on the income-tax return, which most borrowers
+  don't file (section 3).
 - **MEI** (*microempreendedor individual*) is a simplified tax registration for sole traders with a
   small turnover.
 - **Income bands** are reported by lenders in multiples of the national minimum wage, which is
@@ -123,6 +129,17 @@ and `{python} N.product_groups` product groups. Three choices make them comparab
   `{python} N.outros_low` to `{python} N.outros_high` of the portfolio, and the income codes
   "Unavailable" and "No income". They stay in the totals. Cells with less than
   `{python} N.min_cell` of average balance don't have their rates compared either.
+
+**Occupation is the one declared on the income-tax return.** The Banco Central receives it from the
+federal tax registry, and only people who file a return have one: `{python} N.tax_returns_2026`
+returns were filed in 2026, against `{python} N.borrowers_2019` borrowers in the SCR as early as
+2019.[^occupation] Non-filers appear, on all the evidence, as "Other": in 2024 it held
+`{python} N.outros_balance_2024` of the balance but `{python} N.outros_loans_2024` of all loans, and
+`{python} N.outros_lowest_band` of the credit in the band up to 1 minimum wage. So the occupation
+findings describe people who file income tax. "The self-employed" are those who declare themselves
+so to the tax authority, not Brazil's `{python} N.self_employed_2025` self-employed workers, of whom
+only `{python} N.self_employed_with_cnpj` have a business registration.[^pnad] And
+`{python} N.retiree_above_one_wage` of "retirees'" credit is in bands above 1 minimum wage.
 
 SCR.data is aggregated: there is no public account-level credit data in Brazil. So nothing here is
 about people; it is about portfolios: "the portfolio lenders built with the self-employed had a
@@ -229,7 +246,11 @@ product explained `{python} N.pure_low` to `{python} N.pure_high` of the movemen
 part exceeds 100%, the portfolio mix moved the other way. The two mix effects together never
 exceeded `{python} N.mix_max` of it. The `{python} N.flagged_episode` episode contains an
 occupation reclassification, which enters the occupation mix; there, that mix came to
-`{python} N.flagged_borrower_mix`.
+`{python} N.flagged_borrower_mix`. Two things outside the data overlap that episode: Desenrola
+Brasil, which renegotiated `{python} N.desenrola_amount` of debt for `{python} N.desenrola_people`
+people between July 2023 and May 2024, and the cap on revolving card interest, in force since
+January 2024.[^desenrola] Part of the fall within segments may be renegotiation rather than better
+repayment.
 
 ## Since 2025, early arrears have risen most among the self-employed
 
@@ -241,6 +262,29 @@ credit to them grew `{python} N.fastest_growth`. The smallest was among `{python
 (`{python} N.slowest_change`, with a real balance change of `{python} N.slowest_growth`). The order doesn't
 change with the lagged denominator. A rate that rises while credit keeps growing can't be put down
 to a shrinking portfolio: it is the kind of signal worth watching month by month.
+
+Four changes from outside the data run through this comparison:[^context]
+
+- **Payroll loans opened up to the private sector.** Private-sector employees could already take
+  payroll-deducted loans, but only where their employer had an agreement with a bank. Since March
+  2025, under the Crédito do Trabalhador, they can take them through eSocial, the government's
+  payroll system, with no agreement needed. Their payroll-loan balance went from
+  `{python} N.private_payroll_before` in January 2025 to `{python} N.private_payroll_latest` in
+  `{python} N.latest_month`, and its 15–90-day delinquency, in three-month averages, from
+  `{python} N.private_payroll_d15_before` to `{python} N.private_payroll_d15_latest`. It is a new,
+  riskier part of the "payroll loans" group.
+- **Credit to retirees shrank on the supply side.** The interest cap on pensioners' payroll loans
+  stayed frozen while the Selic rose, and major banks suspended the product at the end of 2024. The
+  smaller real balance of retirees coincides with that pullback, so it says nothing about how they
+  repay.
+- **Rural credit was postponed and refinanced.** Instalments in Rio Grande do Sul were postponed
+  after the 2024 floods, and MP 1.314/2025 set aside `{python} N.rural_refinancing` of Treasury
+  funds to refinance rural debt from September 2025. Refinanced debt leaves arrears, so the rural
+  figures tend to understate the strain, which falls on the self-employed and the top income band,
+  where rural credit is concentrated.
+- **2026 has reliefs of its own.** Income up to `{python} N.tax_exemption` a month has been exempt
+  from income tax since January 2026, and the Novo Desenrola, launched in May 2026 with up to
+  `{python} N.novo_desenrola` in guarantees, renegotiates debt within this chart's window.
 
 # What I would do
 
@@ -256,9 +300,11 @@ credit risk team:
    between the self-employed and retirees on the same income is widest. In the collections
    strategy, that suggests reaching the self-employed first among customers in the same income
    band, and measuring the gain against the current strategy.
-3. **Track 15–90-day delinquency for `{python} N.fastest` every month.** It is rising faster than
-   for other occupations while their portfolio is still growing, and it is the measure that doesn't
-   depend on the accounting rule.
+3. **Track 15–90-day delinquency every month for `{python} N.fastest`, and for private-sector
+   payroll loans.** The first is rising faster than for other occupations while their portfolio is
+   still growing; the second has grown fast since the 2025 opening and is already falling behind
+   more.
+   15–90-day delinquency is the measure that doesn't depend on the accounting rule.
 4. **Don't compare 90-day delinquency before and after January 2025.** Reports that do mix an
    accounting rule with borrower behaviour. Until the effect settles, 15–90-day delinquency is the
    honest comparison.
@@ -280,9 +326,10 @@ credit risk team:
   adjustment, not a vintage analysis.
 - **Correlation, not causation.** Nothing here says that changing occupation would change anyone's
   risk.
-- **Occupation is a registry attribute.** It comes from the federal tax registry, not from the
-  current job. "Other" holds about a quarter of the portfolio, and occupations were reclassified in
-  several Januaries. Since 2017, `{python} N.unexplained_jumps` months saw a jump of more than
+- **Occupation is the one declared on the income-tax return.** Only filers have one; the rest, on
+  all the evidence, are in "Other", which holds about a quarter of the balance and half of all
+  loans. The occupation findings hold for filers, and a declared occupation isn't always the
+  current job. Occupations were also reclassified in several Januaries. Since 2017, `{python} N.unexplained_jumps` months saw a jump of more than
   `{python} N.weight_jump` in the share of an occupation or income band with no known cause; they
   are flagged as reclassifications, and a test fails if a new one appears.
 - **Income is reported by the lender, in bands of the minimum wage.** The bands move every January,
@@ -294,6 +341,10 @@ credit risk team:
 - **15–90-day delinquency carries a small caveat since 2025.** Overdue amounts now include
   contractual interest until an asset becomes a problem asset, which may slightly raise balances
   60 to 90 days overdue.
+- **Part of what moves the numbers isn't in the data.** Renegotiation programmes, interest caps,
+  rural postponements and the opening of payroll loans to the private sector can change the rates
+  without any change in how borrowers behave. Section 5 points out where they overlap with the
+  results, but SCR.data can't separate their effects.
 - **The Banco Central republishes its history.** The analysis uses the file versions recorded, with
   dates and hashes, in the repository. A later version can move the numbers slightly; the September
   2026 one moved household 90-day delinquency by at most 0.001 pp.
@@ -313,3 +364,11 @@ make report    # draws the charts and renders this report, in both languages
 ```
 
 The data is published by the Banco Central do Brasil under the Open Database License (ODbL).
+
+[^occupation]: Banco Central, [Estudo Especial 80/2020](https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE080_Indicadores_de_endividamento_de_risco_e_perfil_do_tomador_de_credito.pdf) (SCR borrowers, December 2019); Receita Federal, via [Poder360](https://www.poder360.com.br/poder-economia/receita-federal-recebe-445-milhoes-de-declaracoes-do-ir/) (returns filed in 2026). Where occupation comes from is documented in the repository's data dictionary, section 10.4.
+
+[^pnad]: IBGE, [PNAD Contínua 2025](https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/45759-pnad-continua-em-2025-taxa-anual-de-desocupacao-foi-de-5-6-enquanto-taxa-de-subutilizacao-foi-14-5); [Agência Brasil](https://agenciabrasil.ebc.com.br/economia/noticia/2025-11/apenas-um-em-cada-quatro-trabalhadores-por-conta-propria-tem-cnpj) on business registration.
+
+[^desenrola]: Ministério da Fazenda, via [Agência Gov](https://agenciagov.ebc.com.br/noticias/202405/desenrola-brasil-encerra-com-beneficio-a-mais-de-15-milhoes-de-pessoas-e-reducao-da-inadimplencia-entre-a-populacao-mais-vulneravel-do-pais); Lei 14.690/2023, art. 28, and Resolution CMN 5.112/2023, via [Rádio Senado](https://www12.senado.leg.br/radio/1/noticia/2024/01/03/novo-limite-para-juros-do-cartao-de-credito-foi-fruto-de-lei-aprovada-no-congresso).
+
+[^context]: Crédito do Trabalhador: [Exame](https://exame.com/brasil/consignado-privado-cresce-mas-valor-medio-dos-emprestimos-cai-73/). Pensioners' payroll-loan cap: [Ministério da Previdência](https://www.gov.br/previdencia/pt-br/noticias/2025/janeiro/taxa-maxima-de-juros-do-consignado-sobe-para-1-80-ao-mes) and [Mix Vale](https://www.mixvale.com.br/2025/02/02/credito-consignado-do-inss-cresce-30-em-2024-e-atinge-r-103-bilhoes-com-novas-taxas/). Rio Grande do Sul: Resolutions CMN 5.132/2024 and 5.164/2024, via [Ministério da Fazenda](https://www.gov.br/fazenda/pt-br/canais_atendimento/imprensa/notas-a-imprensa/2024/maio/cmn-autoriza-prorrogacao-de-credito-rural-em-municipios-do-rio-grande-do-sul). MP 1.314/2025: [CNN Brasil](https://www.cnnbrasil.com.br/economia/governo-publica-mp-que-libera-r-12-bi-para-renegociacao-de-dividas-rurais/). Income-tax exemption, Lei 15.270/2025: [Senado Notícias](https://www12.senado.leg.br/noticias/materias/2025/11/27/sancionada-isencao-do-imposto-de-renda-para-quem-ganha-ate-r-5-mil-por-mes). Novo Desenrola: [Forbes Brasil](https://forbes.com.br/forbes-money/2026/05/governo-lanca-novo-desenrola-com-ate-r-15-bi-em-garantias-da-uniao-para-renegociacao-de-dividas/).
