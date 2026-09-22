@@ -3,10 +3,10 @@
     "title": "Parte da alta da inadimplência das famílias desde janeiro de 2025 vem de uma mudança contábil, não dos devedores; a de 15 a 90 dias não saltou",
     "subtitle": "Inadimplência das pessoas físicas, % da carteira. De dezembro de 2024 para janeiro de 2025, a de 90 dias variou +0,31 p.p. (no janeiro anterior, +0,03 p.p.) e a de 15 a 90 dias, +0,03 p.p. (+0,01 p.p.).",
     "facts": {
-      "d90_step_january_2025": 0.0030922787003346067,
-      "d90_step_january_2024": 0.00028432708256288103,
-      "d15_step_january_2025": 0.0002564967270506126,
-      "d15_step_january_2024": 0.00010264377605573305,
+      "d90_step_january_2025": 0.0030922787,
+      "d90_step_january_2024": 0.000284327083,
+      "d15_step_january_2025": 0.000256496727,
+      "d15_step_january_2024": 0.000102643776,
       "break_visible": true,
       "d15_flat": true
     }
@@ -19,58 +19,58 @@
         "income_band": "Acima de 20 salários mínimos",
         "highest": "MEI",
         "lowest": "Empregado de empresa privada",
-        "spread": 0.02543134266895633,
+        "spread": 0.025431342669,
         "holds_with_lag": true
       },
-      "smallest_spread": 0.018647373027205386,
+      "smallest_spread": 0.018647373027,
       "spreads": [
         {
           "income_band": "Acima de 20 salários mínimos",
           "highest": "MEI",
           "lowest": "Empregado de empresa privada",
-          "spread": 0.02543134266895633,
+          "spread": 0.025431342669,
           "holds_with_lag": true
         },
         {
           "income_band": "Até 1 salário mínimo",
           "highest": "MEI",
           "lowest": "Empresário",
-          "spread": 0.023990798150385375,
+          "spread": 0.02399079815,
           "holds_with_lag": true
         },
         {
           "income_band": "Mais de 1 a 2 salários mínimos",
           "highest": "Autônomo",
           "lowest": "Aposentado/pensionista",
-          "spread": 0.018647373027205386,
+          "spread": 0.018647373027,
           "holds_with_lag": true
         },
         {
           "income_band": "Mais de 10 a 20 salários mínimos",
           "highest": "MEI",
           "lowest": "Servidor ou empregado público",
-          "spread": 0.02515062098185302,
+          "spread": 0.025150620982,
           "holds_with_lag": true
         },
         {
           "income_band": "Mais de 2 a 3 salários mínimos",
           "highest": "Autônomo",
           "lowest": "Aposentado/pensionista",
-          "spread": 0.023559854551841578,
+          "spread": 0.023559854552,
           "holds_with_lag": true
         },
         {
           "income_band": "Mais de 3 a 5 salários mínimos",
           "highest": "MEI",
           "lowest": "Aposentado/pensionista",
-          "spread": 0.024922115338303987,
+          "spread": 0.024922115338,
           "holds_with_lag": true
         },
         {
           "income_band": "Mais de 5 a 10 salários mínimos",
           "highest": "MEI",
           "lowest": "Servidor ou empregado público",
-          "spread": 0.022223732656608756,
+          "spread": 0.022223732657,
           "holds_with_lag": true
         }
       ]
@@ -82,11 +82,11 @@
     "facts": {
       "verdict": "income",
       "window_ratios": {
-        "cs_2019": 0.6223136360668913,
-        "cs_2022": 0.4305502404516369,
-        "cs_2024": 0.484165973803205
+        "cs_2019": 0.622313636067,
+        "cs_2022": 0.430550240452,
+        "cs_2024": 0.484165973803
       },
-      "unemployment_correlation": 0.4591357057856049,
+      "unemployment_correlation": 0.459135705786,
       "d15_years_above_one": [
         "2024"
       ]
@@ -103,8 +103,8 @@
         "Mais de 3 a 5 salários mínimos",
         "Mais de 5 a 10 salários mínimos"
       ],
-      "product_mix_share": 0.13865890861334254,
-      "product_mix_share_excluding_rural": 0.3009896509024574
+      "product_mix_share": 0.138658908613,
+      "product_mix_share_excluding_rural": 0.300989650902
     }
   },
   "chart5_mix_vs_rate": {
@@ -128,7 +128,7 @@
       "latest_month": "2026-07-01",
       "fastest": "Autônomo",
       "fastest_with_lagged_denominator": "Autônomo",
-      "spread": 0.0037951749919244056,
+      "spread": 0.003795174992,
       "possible_tightening": []
     }
   }

@@ -4,40 +4,50 @@
 
 *Com a mesma renda, o tipo de ocupação muda o risco de inadimplência, ou o que muda é o tipo de crédito a que cada ocupação tem acesso?*
 
+**Short answer:** income separates credit risk more than occupation does. But at the same income, occupation still matters, and between retirees and the self-employed the gap sits within the same products, not in who can get payroll-deducted loans.
+
 An analysis of household credit risk in Brazil, built on Banco Central do Brasil public data. It rebuilds, at national scale and from open sources, the segment view a credit-risk team reviews every month: where delinquency concentrates, and whether that comes from the borrowers or from the products they hold.
 
-> **Status:** the data has been profiled and the design is fixed ([`docs/v1-decision.md`](docs/v1-decision.md)). The data pipeline and the dbt models, including the ones that compute the analysis, are built and tested, and the six charts are drawn from them. The write-up is drafted in Portuguese, the reference version ([`analysis/index.qmd`](analysis/index.qmd)), with an English translation ([`analysis/en/index.qmd`](analysis/en/index.qmd)); until it is reviewed, this README states no findings on the question.
+**Read the report:** [Português](analysis/index.qmd) (the reference version) · [English](analysis/en/index.qmd)
 
-## Why this question
+## Findings
 
-Delinquency is usually reported in aggregate, which hides what a lender needs to know: where risk concentrates, and who to contact first. Brazil's SCR.data publishes credit balances and arrears by occupation and income band, every month since 2012. That is enough to ask whether the kind of job matters once income is held fixed.
+Each finding is a chart headline, chosen from the data by a rule fixed before the results were known, with the headline that would have replaced it if the data had said the opposite ([`docs/v1-decision.md`](docs/v1-decision.md), section 4).
 
-The comparison needs care. A retiree with payroll-deducted credit and a self-employed borrower at the same income look very different on paper, but much of that gap may come from the loans each can get rather than from how each repays. So the analysis splits each occupation gap into a same-product part and a product-mix part before drawing conclusions.
+1. **Little of the gap between retirees and the self-employed comes from the credit products each group holds: it shows up within the same products**
+2. **On 90-day delinquency, income separates risk more than occupation does, and the gap between occupations didn't track unemployment**
+3. **At the same income, 90-day delinquency varies by up to 2.5 pp with occupation**
+4. **Since the accounting change, 15–90-day delinquency has risen most among the self-employed, and lending to them has kept growing in real terms**
+5. **In each of the three episodes from 2018 to 2024, household 90-day delinquency moved mostly within each occupation and product**
+6. **Part of the rise in household delinquency since January 2025 is an accounting change, not borrowers; 15–90-day delinquency didn't jump**
+
+![The gap in 90-day delinquency between three pairs of occupations, by income band, split into the part within the same products and the part from the product mix](analysis/figures/en/chart4_job_or_product.png)
+
+The second finding rejects the hypothesis this project started from, that occupation matters more than income, by the rule written for it in advance. The report says so, and so does this README.
+
+## What I would do
+
+For a consumer credit-risk team, the results point to five actions (the report gives the reasoning):
+
+1. **Segment by income and product first.** Income separates risk the most, and portfolio delinquency moves with the rate inside each segment, not with the mix.
+2. **Use occupation as a second cut, within product and income band,** starting with credit-card collections, where the gap between the self-employed and retirees on the same income is widest. Test it against the current collections strategy rather than assume the gain.
+3. **Track early arrears (15–90 days) for the self-employed every month.** They are rising fastest while lending to them keeps growing.
+4. **Don't compare the 90-day rate across January 2025.** Use the 15–90-day rate until the accounting effect settles.
+5. **Validate occupation on account-level data before it goes into a scoring model.** These are portfolio rates, which mix lenders' choices with borrowers' repayment.
 
 ## The trap this project is built around
 
-**SCR.data has a definitional break at January 2025, and it is not economic.**
+**SCR.data has a definitional break at January 2025, and it is not economic.** From that month, **Resolução CMN 4.966/2021**, Brazil's IFRS 9 equivalent, changed how lenders provision and write off loans. Lenders now keep defaulted loans on the books longer, so balances more than 90 days overdue grow even if nobody pays worse. The Banco Central estimates that about 70% of the rise in 90-day delinquency in the first half of 2025 came from the new rule ([Relatório de Política Monetária, Sep 2025](https://www.bcb.gov.br/content/ri/relatorioinflacao/202509/rpm202509b6p.pdf)). A series plotted straight through that date mixes accounting with behaviour.
 
-Until December 2024, SCR.data's *ativo problemático* was loans more than 90 days overdue plus loans that were restructured *and* rated **E–H** under Resolução CMN 2.682/1999. It was not every E–H loan. From January 2025, **Resolução CMN 4.966/2021**, Brazil's IFRS 9 equivalent, replaced the rating ladder with an expected-loss model. The restructured-and-E–H component was replaced by each institution's own problem-asset flag.
+So the 90-day rate is used only up to December 2024, and the 15–90-day rate, which write-offs don't reach, for anything after. A dbt test asserts that the break exists ([`assert_january_2025_break_exists.sql`](tests/dbt/assert_january_2025_break_exists.sql)) and fails if a future BCB revision removes it. The evidence is in [`docs/data-landscape.md`](docs/data-landscape.md).
 
-A series plotted straight through that date contains a discontinuity caused by accounting rules, not by borrower behaviour.
+## How the numbers are checked
 
-**The overdue bands don't fully escape it.** Their definition, days past due, is unchanged. But under 4.966 lenders write defaulted loans off later, so balances more than 90 days overdue stay in the portfolio longer and the 90-day rate rises on its own. The Banco Central estimates that about 70% of the rise in 90-day delinquency in the first half of 2025 came from this change ([Relatório de Política Monetária, Sep 2025](https://www.bcb.gov.br/content/ri/relatorioinflacao/202509/rpm202509b6p.pdf)). Only the 15–90-day bucket runs through January 2025 unaffected.
-
-So this project uses the 90-day rate only through December 2024 and the 15–90-day rate for anything after. Segment comparisons start in January 2017. The reporting threshold fell from R$1,000 to R$200 in June 2016, and occupations were substantially reclassified in January 2017. The evidence is in `docs/data-landscape.md` and `docs/data-dictionary.md`.
-
-A dbt test asserts that the break exists ([`assert_january_2025_break_exists.sql`](tests/dbt/assert_january_2025_break_exists.sql)): in January 2025 household problem assets and the 90-day rate step up far beyond the previous January's move, while the 15–90-day rate doesn't. The test documents the finding in code and fails if a future BCB revision changes it.
-
-## What the research found
-
-Before any modelling, every month of SCR.data was profiled: July 2012 to July 2026, 43 million rows. The findings that shape the design:
-
-- **Occupation and income can be crossed.** They form a genuine joint table, and all 72 occupation-by-income cells for individuals are populated in every month from January 2016.
-- **Comparisons start in January 2017.** The reporting threshold fell from R$1,000 to R$200 in June 2016, and occupations were reclassified in January 2017, when the 90-day rate of every named occupation jumped while the national rate didn't move.
-- **Income bands are compared within calendar years only.** They move every January with the minimum wage, and at several reporting events, including a permanent step in July 2025.
-- **Rural credit has to be separated out.** It is 52% of the top income band's balances and 42% of the self-employed's, against 16% for all individuals (2024).
-
-Every figure traces to a script and a source in [`docs/data-dictionary.md`](docs/data-dictionary.md).
+- **The files.** Every archive is checked against its CRC before use, and its size, publication date and SHA-256 are recorded, because BCB republishes its history. The one republication since the download moved the household 90-day rate by at most 0.001 pp.
+- **The data.** All 169 months, 43 million rows, were profiled before any modelling ([`docs/data-dictionary.md`](docs/data-dictionary.md)). 96 dbt data tests run on every build: grain, ranges, accounting identities, and reconciliation of the national 90-day rate to the Banco Central's official series within 0.2 pp in every month from 2017 to 2024.
+- **The method.** Every decomposition is tested to add up exactly, and the product grouping is re-run with ambiguous products moved; splits that depend on it are marked unstable.
+- **The claims.** The report asserts every qualitative claim its text makes before it renders, so a data release that reverses one stops the render instead of publishing a false sentence. A test checks that this README's findings are the charts' headlines word for word.
+- **An independent recomputation.** [`scripts/audit.py`](scripts/audit.py) recomputes the headline numbers straight from the raw monthly files, without dbt or the chart code, and checks that they match the report to 1e-9.
 
 ## Assumptions
 
@@ -53,38 +63,31 @@ The results depend on each of these. The ones marked *could be wrong* are tested
 8. **A share that moves more than 0.5 pp of household credit in one month is a reclassification, not lending.** Every documented reclassification since 2017 moves that much, except three minimum-wage resets. *Could be wrong* the other way: in nine months since 2017 a share moved that much with no documented cause, which may be real lending. Those months are flagged rather than read either way.
 9. **The release used is final enough.** BCB republishes history. The analysis uses the release pinned in `data/raw/zips/MANIFEST.tsv`, and the September 2026 republication moved the household 90-day rate by at most 0.001 pp.
 
-## What this data cannot do
+## Reproducing it
 
-Stated up front so nothing downstream implies otherwise:
-
-- **It is aggregated.** There is no account-level public credit data in Brazil, because bank secrecy and the LGPD forbid it. Every conclusion is about segments, never individuals.
-- **No true vintage analysis.** There is no origination-cohort dimension, so vintage curves are not possible from this source.
-- **No observed roll rates.** The data is stock by arrears band, not tracked accounts. Month-to-month movement is *inferred* flow and is labelled as such wherever it appears.
-
-## Reproducing the research
-
-Requires [uv](https://docs.astral.sh/uv/) on macOS or Linux. DuckDB runs in process, so there is no database server to set up.
+Requires [uv](https://docs.astral.sh/uv/) and, for the report, [Quarto](https://quarto.org), on macOS or Linux. DuckDB runs in process, so there is no database server to set up.
 
 ```bash
 uv sync
-uv run fetch-data
-uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
+make fetch     # download, verify and stage SCR.data and the SGS series (about 25 minutes)
+make build     # build the dbt models and run their data tests
+make report    # draw the charts and render the report in both languages to analysis/_output/
+make audit     # recompute the headline numbers from the raw files and compare
 ```
 
-`fetch-data` downloads every yearly SCR.data archive, checks each one against its CRC, records its size, date and SHA-256, converts each month to typed Parquet and fetches the SGS series. It skips whatever is already there. The first run takes about 15 minutes to download and 10 to convert; [`data/README.md`](data/README.md) has the details. Each script in `scripts/recon/` answers one research question, and [the index](scripts/recon/README.md) says which document uses it. The scripts that read single sampled months need those months fetched first; section 9 of the [data dictionary](docs/data-dictionary.md) has the commands.
+`make fetch` skips whatever is already downloaded, and keeps the local copy of an archive BCB has republished until `uv run fetch-data --refresh` replaces it; [`data/README.md`](data/README.md) has the details. `make test` and `make lint` run the Python checks; CI runs them and the dbt tests on every push, with the dbt tests on the 2023 to 2025 data.
 
-For development, `make setup` installs the environment and the git hooks, `make fetch` runs `fetch-data`, `make build` builds the dbt models and runs their data tests, `make charts` draws the six charts in both languages into `analysis/figures/`, `make report` renders both versions of the write-up with [Quarto](https://quarto.org), and `make lint` and `make test` run the Python checks. CI runs all of them, with the dbt tests on the 2023 to 2025 data.
+The research behind the design is reproducible too: each script in `scripts/recon/` answers one research question, and [its index](scripts/recon/README.md) says which document uses it.
 
 ## Layout
 
 ```
-scripts/recon/   the research scripts behind every figure in docs/
-src/             the pipeline package; fetch-data downloads, verifies and stages the data
+src/             the pipeline package: fetch-data, the chart and report code
 models/          dbt: staging, intermediate, marts, and the analysis models behind the charts
 seeds/           dbt lookup tables: product groups, classification events, windows, occupation pairs
-macros/          dbt macros
-analysis/        the write-up in Portuguese (index.qmd) and English (en/), and the charts
 tests/           pytest, and the dbt data tests in tests/dbt/
+analysis/        the report in Portuguese (index.qmd) and English (en/), and the charts
+scripts/         audit.py, and the research scripts behind every figure in docs/ (recon/)
 docs/            the research
 ```
 
@@ -94,6 +97,15 @@ docs/            the research
 | [`data-landscape.md`](docs/data-landscape.md) | the January 2025 break measured in the data, and what other public credit data exists and how it joins |
 | [`analysis-design.md`](docs/analysis-design.md) | the decomposition, the confounds, the denominators, and what the data can't support |
 | [`v1-decision.md`](docs/v1-decision.md) | the question, measures, windows and charts, and the alternatives that lost |
+
+## Limitations
+
+- **The data is aggregated.** There is no account-level public credit data in Brazil, because bank secrecy and the LGPD forbid it. Every conclusion is about portfolios, never individuals.
+- **Lender selection can't be observed.** A segment's rate mixes whom lenders chose with how those borrowers repaid. Real growth next to each rate and a lagged denominator help read the effect, but don't remove it.
+- **No vintages and no observed roll rates.** There is no origination-cohort dimension, and the data is stock by arrears band, not tracked accounts. The lagged denominator is a rough seasoning adjustment, not a vintage analysis.
+- **Correlation, not causation.** Nothing here says that changing occupation would change anyone's risk, or explains why the self-employed's loans go bad more often.
+- **Two of the three occupation comparisons are weak.** Public against private-sector employees and micro-entrepreneurs against business owners have few income bands where the split is stable, so the findings rest on retirees against the self-employed.
+- **The 15–90-day rate carries a small caveat since 2025.** Overdue amounts now include contractual interest until an asset becomes a problem asset, which may slightly raise balances 60 to 90 days overdue.
 
 ## Sources
 

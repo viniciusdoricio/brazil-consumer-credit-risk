@@ -116,6 +116,18 @@ def build(
     }
 
 
+def _rounded(value):
+    """Floats to 12 decimals: DuckDB sums in parallel, so the last digits of a float vary between
+    runs, and unrounded they would show up as changes every time the charts are drawn."""
+    if isinstance(value, float | np.floating):
+        return round(float(value), 12)
+    if isinstance(value, dict):
+        return {k: _rounded(v) for k, v in value.items()}
+    if isinstance(value, list | tuple):
+        return [_rounded(v) for v in value]
+    return value
+
+
 def _plain(value):
     """JSON for numpy scalars and dates in the facts."""
     if isinstance(value, np.generic):
@@ -154,6 +166,6 @@ def main(argv: list[str] | None = None) -> int:
             }
             log.info("%s: %s", path, headline.title)
         (out / "headlines.json").write_text(
-            json.dumps(record, ensure_ascii=False, indent=2, default=_plain) + "\n"
+            json.dumps(_rounded(record), ensure_ascii=False, indent=2, default=_plain) + "\n"
         )
     return 0
