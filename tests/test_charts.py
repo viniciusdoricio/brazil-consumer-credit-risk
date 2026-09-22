@@ -1,10 +1,9 @@
 from datetime import date
+from string import Formatter
 
 import matplotlib
 
 matplotlib.use("Agg")
-
-from string import Formatter  # noqa: E402
 
 import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
@@ -29,6 +28,8 @@ def test_numbers_follow_each_language():
     assert EN.pp(0.0031, sign=True) == "+0.31 pp"
     assert EN.count(2, feminine=True) == "two"
     assert PT.month(date(2026, 7, 1)) == "jul/2026" and EN.month(date(2026, 7, 1)) == "Jul 2026"
+    assert PT.month(date(2026, 7, 1), long=True) == "julho de 2026"
+    assert EN.month(date(2026, 7, 1), long=True) == "July 2026"
     assert EN.month_range(date(2019, 3, 1), date(2019, 12, 1)) == "Mar–Dec 2019"
 
 
@@ -94,10 +95,10 @@ def grid(rates: dict[str, list[float]], lagged_offset=0.0, flip_band=None, small
 def test_the_grid_reports_the_largest_gap_whose_order_survives_the_lag():
     rates = {"MEI": [0.06] * 6 + [0.08], "Autônomo": [0.03] * 7}
     result = headlines.the_grid(grid(rates), "2024")
-    assert "até 5,0 p.p." in result.title
+    assert "até 5,00 p.p." in result.title
 
     flipped = headlines.the_grid(grid(rates, flip_band=BANDS[-1]), "2024")
-    assert "até 3,0 p.p." in flipped.title
+    assert "até 3,00 p.p." in flipped.title
 
 
 def test_the_grid_says_so_when_occupation_barely_matters():

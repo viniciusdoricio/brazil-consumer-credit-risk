@@ -103,6 +103,7 @@ def sample() -> dict:
         "private_payroll_latest_bn": 94.0,
         "private_payroll_d15_before": 0.0051,
         "private_payroll_d15_latest": 0.0079,
+        "republication_shift": report.REPUBLICATION_SHIFT,
         **report.EXTERNAL,
     }
 
@@ -118,8 +119,11 @@ def test_every_cited_figure_exists_and_every_figure_is_cited(code):
 
 def test_the_two_languages_format_the_same_facts():
     pt, en = report.values(sample(), PT), report.values(sample(), EN)
-    assert pt["grid_spread"] == "2,5 p.p." and en["grid_spread"] == "2.5 pp"
+    assert pt["grid_spread"] == "2,54 p.p." and en["grid_spread"] == "2.54 pp"
     assert pt["portfolio"] == "R$ 4,7 trilhões" and en["portfolio"] == "R$4.7 trillion"
+    assert pt["min_cell"] == "R$ 1 bilhão" and pt["desenrola_amount"] == "R$ 53 bilhões"
+    assert pt["latest_month"] == "julho de 2026" and en["latest_month"] == "July 2026"
+    assert pt["republication_shift"] == "0,001 p.p."
     assert pt["fastest"] == "autônomos" and en["fastest"] == "the self-employed"
     assert pt["split_band_names"] == "1 a 2 e 2 a 3 salários mínimos"
     assert en["split_band_names"] == "1 to 2 and 2 to 3 minimum wages"
@@ -135,6 +139,7 @@ def test_check_passes_when_the_results_match_the_text():
         ({"verdict": "occupation"}, "income separates risk more in all three windows"),
         ({"product_mix_share": 0.6}, "little of the retiree-self-employed gap"),
         ({"fastest_with_lagged_denominator": "MEI"}, "the fastest riser is the same"),
+        ({"fastest": "MEI", "fastest_with_lagged_denominator": "MEI"}, "self-employed are the"),
         ({"d15_years_above_one": []}, "disagrees in exactly one year"),
         ({"dominant_components": ["product_mix"]}, "within occupation and product"),
         ({"outros_loan_share": 0.2}, "Outros holds a larger share of loans"),

@@ -155,7 +155,7 @@ def the_grid(grid: pd.DataFrame, headline: Headline, footer: str, lang: Language
             ax.text(
                 j + 0.5,
                 i + 0.42,
-                f"{lang.number(rate, 1)}%",
+                f"{lang.number(rate, 2)}%",
                 ha="center",
                 va="center",
                 fontsize=9,

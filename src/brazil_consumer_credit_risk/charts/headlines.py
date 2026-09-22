@@ -27,6 +27,8 @@ BREAK_D15_TOLERANCE = 0.001
 # The v1 decision's falsification rule: a product-mix part above half the gap means the gap is
 # mostly about which products each group holds (docs/v1-decision.md, section 6).
 PRODUCT_MIX_MAJORITY = 0.5
+# At most a quarter of the gap counts as "little" of it; between a quarter and a half, as "less than
+# half".
 PRODUCT_MIX_LITTLE = 0.25
 # A correlation at least this strong, either way, across the calendar years counts as the
 # occupation spread moving with unemployment. Eight points can't support a finer reading.
@@ -119,7 +121,7 @@ def the_grid(grid: pd.DataFrame, period: str, lang: Language = PT) -> Headline:
         smallest=lang.pp(smallest),
     )
     return Headline(
-        lang.t("grid.title", spread=lang.pp(largest["spread"], 1)),
+        lang.t("grid.title", spread=lang.pp(largest["spread"])),
         subtitle,
         {"largest_spread": largest, "smallest_spread": smallest, "spreads": spreads},
     )

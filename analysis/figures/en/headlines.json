@@ -12,7 +12,7 @@
     }
   },
   "chart2_grid": {
-    "title": "At the same income, 90-day delinquency varies by up to 2.5 pp with occupation",
+    "title": "At the same income, 90-day delinquency varies by up to 2.54 pp with occupation",
     "subtitle": "90-day delinquency in 2024, by occupation and income band, % of the portfolio. The largest gap is between micro-entrepreneurs (MEI) and private-sector employees earning above 20 minimum wages. Even in the band where occupations sit closest, the gap is 1.86 pp.",
     "facts": {
       "largest_spread": {

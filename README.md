@@ -16,7 +16,7 @@ Each finding is a chart headline, chosen from the data by a rule fixed before th
 
 1. **Little of the gap between retirees and the self-employed comes from the credit products each group holds: it shows up within the same products**
 2. **On 90-day delinquency, income separates risk more than occupation does, and the gap between occupations didn't track unemployment**
-3. **At the same income, 90-day delinquency varies by up to 2.5 pp with occupation**
+3. **At the same income, 90-day delinquency varies by up to 2.54 pp with occupation**
 4. **Since the accounting change, 15–90-day delinquency has risen most among the self-employed, and lending to them has kept growing in real terms**
 5. **In each of the three episodes from 2018 to 2024, household 90-day delinquency moved mostly within each occupation and product**
 6. **Part of the rise in household delinquency since January 2025 is an accounting change, not borrowers; 15–90-day delinquency didn't jump**

@@ -21,6 +21,7 @@ class Language:
     pp_unit: str
     and_word: str
     months: tuple[str, ...]
+    long_months: tuple[str, ...]
     counts: dict[int, str]
     feminine_counts: dict[int, str]
     labels: dict[str, dict[str, str]]
@@ -42,7 +43,11 @@ class Language:
         """A rate or growth, stored as a fraction, as a percentage."""
         return f"{self.number(100 * rate, decimals, sign)}%"
 
-    def month(self, month: date) -> str:
+    def month(self, month: date, long: bool = False) -> str:
+        """jul/2026 and Jul 2026 for charts; julho de 2026 and July 2026 for prose."""
+        if long:
+            name = self.long_months[month.month - 1]
+            return f"{name} de {month.year}" if self.code == "pt" else f"{name} {month.year}"
         name = self.months[month.month - 1]
         return f"{name}/{month.year}" if self.code == "pt" else f"{name} {month.year}"
 
@@ -76,6 +81,20 @@ PT = Language(
     pp_unit="p.p.",
     and_word="e",
     months=("jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"),
+    long_months=(
+        "janeiro",
+        "fevereiro",
+        "março",
+        "abril",
+        "maio",
+        "junho",
+        "julho",
+        "agosto",
+        "setembro",
+        "outubro",
+        "novembro",
+        "dezembro",
+    ),
     counts={
         1: "um",
         2: "dois",
@@ -172,7 +191,8 @@ PT = Language(
         "as_of": "Dados até {month}.",
         # the write-up (report.py)
         "report.trillion": "R$ {value} trilhões",
-        "report.billion": "R$ {value} bi",
+        "report.billion": "R$ {value} bilhões",
+        "report.billion_one": "R$ {value} bilhão",
         "report.bands": "{bands} salários mínimos",
         "report.million": "{value} milhões",
         "report.reais": "R$ {value}",
@@ -311,6 +331,20 @@ EN = Language(
     pp_unit="pp",
     and_word="and",
     months=("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+    long_months=(
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ),
     counts={
         1: "one",
         2: "two",
@@ -404,6 +438,7 @@ EN = Language(
         # the write-up (report.py)
         "report.trillion": "R${value} trillion",
         "report.billion": "R${value} billion",
+        "report.billion_one": "R${value} billion",
         "report.bands": "{bands} minimum wages",
         "report.million": "{value} million",
         "report.reais": "R${value}",

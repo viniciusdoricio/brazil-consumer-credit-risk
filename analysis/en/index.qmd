@@ -13,6 +13,8 @@ format:
     embed-resources: true
     fig-align: left
     lightbox: true
+crossref:
+  sec-prefix: section
 jupyter: python3
 ---
 
@@ -57,7 +59,7 @@ N = SimpleNamespace(
   it goes into a scoring model.
 - **About whom:** occupation in this data is the one declared on the income-tax return, so the
   occupation findings describe people who file, a more formal and better-off slice of borrowers
-  (section 3).
+  (@sec-data).
 :::
 
 ::: {.callout-tip appearance="simple" collapse="true"}
@@ -67,9 +69,10 @@ N = SimpleNamespace(
   registry (SCR), which every regulated lender reports to.
 - **Payroll-deducted loans (*consignado*)** are repaid straight from a salary or pension. Until 2025
   they went mainly to retirees, pensioners and public-sector employees and rarely went bad. Since
-  March 2025 they have opened up to private-sector workers, a much riskier book (section 5.5).
+  March 2025 they have opened up to private-sector workers, a much riskier book
+  (@sec-early-arrears).
 - **Occupation** in SCR.data is the one declared on the income-tax return, which most borrowers
-  don't file (section 3).
+  don't file (@sec-data).
 - **MEI** (*microempreendedor individual*) is a simplified tax registration for sole traders with a
   small turnover.
 - **Income bands** are reported by lenders in multiples of the national minimum wage, which is
@@ -102,7 +105,7 @@ For a credit risk team, the answer changes three decisions:
 - **Monitoring.** Knowing whether delinquency moves with the make-up of the portfolio or with
   behaviour within each segment tells you where to look when it rises.
 
-# The data
+# The data {#sec-data}
 
 The Banco Central's **SCR.data** publishes, every month, the credit balances of the financial
 system and the amounts in arrears, aggregated by occupation, income band, credit type, type of
@@ -116,7 +119,7 @@ The analysis uses two measures, both as a share of the portfolio balance:
   the Banco Central's official concept; between 2017 and 2024, the series computed here stays
   between `{python} N.sgs_gap_low` and `{python} N.sgs_gap_high` of the official series (SGS 21084).
 - **15–90-day delinquency:** the amounts overdue within that range. It is the only measure that
-  runs through the 2025 accounting change (section 4).
+  runs through the 2025 accounting change (@sec-trap).
 
 The comparisons cross `{python} N.occupations` occupations, `{python} N.income_bands` income bands
 and `{python} N.product_groups` product groups. Three choices make them comparable:
@@ -136,17 +139,17 @@ returns were filed in 2026, against `{python} N.borrowers_2019` borrowers in the
 2019.[^occupation] Non-filers appear, on all the evidence, as "Other": in 2024 it held
 `{python} N.outros_balance_2024` of the balance but `{python} N.outros_loans_2024` of all loans, and
 `{python} N.outros_lowest_band` of the credit in the band up to 1 minimum wage. So the occupation
-findings describe people who file income tax. "The self-employed" are those who declare themselves
-so to the tax authority, not Brazil's `{python} N.self_employed_2025` self-employed workers, of whom
-only `{python} N.self_employed_with_cnpj` have a business registration.[^pnad] And
-`{python} N.retiree_above_one_wage` of "retirees'" credit is in bands above 1 minimum wage.
+findings describe people who file income tax. "The self-employed" are those who give that
+occupation on their return, not Brazil's `{python} N.self_employed_2025` self-employed workers, of
+whom only `{python} N.self_employed_with_cnpj` have a business registration.[^pnad] And
+`{python} N.retiree_above_one_wage` of the credit to "retirees" sits in bands above 1 minimum wage.
 
 SCR.data is aggregated: there is no public account-level credit data in Brazil. So nothing here is
 about people; it is about portfolios: "the portfolio lenders built with the self-employed had a
 delinquency rate of X", never "the self-employed pay X". Nor does the data allow vintage analysis
-or observed roll rates between arrears buckets (section 7).
+or observed roll rates between arrears buckets (@sec-limitations).
 
-# The trap: the January 2025 accounting change
+# The trap: the January 2025 accounting change {#sec-trap}
 
 ![](../figures/en/chart1_trap.png){fig-alt="Household 90-day and 15–90-day delinquency, June 2016 to July 2026, with the January 2025 change marked."}
 
@@ -167,7 +170,7 @@ than 90 days overdue.
 15–90-day delinquency. A data test in the pipeline confirms the break exists and fails if a future
 revision by the Banco Central removes it.
 
-# Findings
+# Findings {#sec-findings}
 
 ## At the same income, occupation still changes delinquency
 
@@ -252,15 +255,15 @@ people between July 2023 and May 2024, and the cap on revolving card interest, i
 January 2024.[^desenrola] Part of the fall within segments may be renegotiation rather than better
 repayment.
 
-## Since 2025, early arrears have risen most among the self-employed
+## Since 2025, early arrears have risen most among the self-employed {#sec-early-arrears}
 
 ![](../figures/en/chart6_current_read.png){fig-alt="Change in 15–90-day delinquency by occupation between 2024 and the 12 months to July 2026, next to the real change in balances."}
 
 15–90-day delinquency over the last 12 months, compared with 2024, rose for every occupation. The
 rise was largest among `{python} N.fastest` (`{python} N.fastest_change`), while the real balance of
 credit to them grew `{python} N.fastest_growth`. The smallest was among `{python} N.slowest`
-(`{python} N.slowest_change`, with a real balance change of `{python} N.slowest_growth`). The order doesn't
-change with the lagged denominator. A rate that rises while credit keeps growing can't be put down
+(`{python} N.slowest_change`, with a real balance change of `{python} N.slowest_growth`). The
+order doesn't change with the lagged denominator. A rate that rises while credit keeps growing can't be put down
 to a shrinking portfolio: it is the kind of signal worth watching month by month.
 
 Four changes from outside the data run through this comparison:[^context]
@@ -301,19 +304,19 @@ credit risk team:
    strategy, that suggests reaching the self-employed first among customers in the same income
    band, and measuring the gain against the current strategy.
 3. **Track 15–90-day delinquency every month for `{python} N.fastest`, and for private-sector
-   payroll loans.** The first is rising faster than for other occupations while their portfolio is
-   still growing; the second has grown fast since the 2025 opening and is already falling behind
-   more.
-   15–90-day delinquency is the measure that doesn't depend on the accounting rule.
-4. **Don't compare 90-day delinquency before and after January 2025.** Reports that do mix an
-   accounting rule with borrower behaviour. Until the effect settles, 15–90-day delinquency is the
+   payroll loans.** Among `{python} N.fastest`, it is rising faster than in any other occupation
+   while their portfolio still grows; private-sector payroll lending has grown fast since the 2025
+   opening, and its early arrears have already risen. 15–90-day delinquency is the measure that
+   doesn't depend on the accounting rule.
+4. **Don't compare 90-day delinquency before and after January 2025.** A comparison across that
+   month mixes an accounting rule with borrower behaviour. Until the effect settles, 15–90-day delinquency is the
    honest comparison.
 5. **Validate on account-level data before occupation goes into a scoring model.** The rates here
    are portfolio rates: they mix whom lenders chose with how those borrowers repaid. Occupation
    comes from a registry, and "Other" holds `{python} N.outros_low` to `{python} N.outros_high` of
    the balance. A test on internal, account-level data is the natural next step.
 
-# Limitations
+# Limitations {#sec-limitations}
 
 - **The data is aggregated.** Each rate belongs to a portfolio, weighted by balance, and is not the
   share of people who fell behind. The same person can appear in different income bands at
@@ -329,9 +332,10 @@ credit risk team:
 - **Occupation is the one declared on the income-tax return.** Only filers have one; the rest, on
   all the evidence, are in "Other", which holds about a quarter of the balance and half of all
   loans. The occupation findings hold for filers, and a declared occupation isn't always the
-  current job. Occupations were also reclassified in several Januaries. Since 2017, `{python} N.unexplained_jumps` months saw a jump of more than
-  `{python} N.weight_jump` in the share of an occupation or income band with no known cause; they
-  are flagged as reclassifications, and a test fails if a new one appears.
+  current job. Occupations were also reclassified in several Januaries. Since 2017,
+  `{python} N.unexplained_jumps` months saw a jump of more than `{python} N.weight_jump` in the
+  share of an occupation or income band with no known cause; they are flagged as
+  reclassifications, and a test fails if a new one appears.
 - **Income is reported by the lender, in bands of the minimum wage.** The bands move every January,
   so income is only compared within a single year, never as "the same income" across years.
 - **The product grouping is a judgement.** Some of the splits between occupation and product change
@@ -343,11 +347,12 @@ credit risk team:
   60 to 90 days overdue.
 - **Part of what moves the numbers isn't in the data.** Renegotiation programmes, interest caps,
   rural postponements and the opening of payroll loans to the private sector can change the rates
-  without any change in how borrowers behave. Section 5 points out where they overlap with the
+  without any change in how borrowers behave. @Sec-findings points out where they overlap with the
   results, but SCR.data can't separate their effects.
-- **The Banco Central republishes its history.** The analysis uses the file versions recorded, with
-  dates and hashes, in the repository. A later version can move the numbers slightly; the September
-  2026 one moved household 90-day delinquency by at most 0.001 pp.
+- **The Banco Central republishes its history.** The analysis uses the file versions listed, with
+  dates and hashes, in the repository's data dictionary. A later version can move the numbers
+  slightly; the September 2026 one moved household 90-day delinquency by at most
+  `{python} N.republication_shift`.
 
 # How to reproduce
 
