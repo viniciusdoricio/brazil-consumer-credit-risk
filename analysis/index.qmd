@@ -54,6 +54,9 @@ N = SimpleNamespace(
 - **O que eu faria:** segmentar primeiro por renda e produto e usar a ocupação como segundo corte,
   começando pela cobrança de `{python} N.top_product`, e validá-la em dados de conta antes de levá-la a um modelo de
   escore.
+- **Sobre quem:** a ocupação nos dados é a declarada no imposto de renda, então os resultados por
+  ocupação valem para quem declara, uma parcela mais formal e de renda mais alta dos tomadores
+  (seção 3).
 :::
 
 # A pergunta
@@ -104,6 +107,17 @@ As comparações cruzam `{python} N.occupations` ocupações, `{python} N.income
   `{python} N.outros_low` a `{python} N.outros_high` da carteira, e as rendas "Indisponível" e "Sem
   rendimento". Elas continuam nos totais. Células com menos de `{python} N.min_cell` de saldo médio
   também não têm a taxa comparada.
+
+**A ocupação é a declarada no imposto de renda.** O Banco Central a recebe do cadastro da Receita
+Federal, e ela só existe para quem entrega a declaração: foram `{python} N.tax_returns_2026` de
+declarações em 2026, para `{python} N.borrowers_2019` de tomadores de crédito no SCR já em
+2019.[^ocupacao] Quem não declara aparece, ao que tudo indica, como "Outros": em 2024, essa categoria
+tinha `{python} N.outros_balance_2024` do saldo, mas `{python} N.outros_loans_2024` das operações, e
+`{python} N.outros_lowest_band` do crédito da faixa de até 1 salário mínimo. Os resultados por
+ocupação descrevem, portanto, quem declara imposto de renda. "Autônomos" são os que se declaram
+assim à Receita, não os `{python} N.self_employed_2025` de trabalhadores por conta própria do país,
+dos quais só `{python} N.self_employed_with_cnpj` têm CNPJ.[^pnad] E `{python} N.retiree_above_one_wage`
+do crédito dos "aposentados" está em faixas acima de 1 salário mínimo.
 
 O SCR.data é agregado: não existe dado público de crédito por conta no Brasil. Por isso, nada aqui
 é sobre pessoas, e sim sobre carteiras: "a carteira que os credores formaram com autônomos teve
@@ -209,7 +223,11 @@ dentro de cada segmento. Nos `{python} N.episodes` episódios de 2018 a 2024, **
 cada ocupação e produto explicou de `{python} N.pure_low` a `{python} N.pure_high` da variação**;
 quando a parte passa de 100%, é porque a composição andou no sentido contrário. Os dois efeitos de composição, somados, nunca passaram de `{python} N.mix_max` dela. O episódio de
 `{python} N.flagged_episode` contém uma reclassificação de ocupações, que entra no mix de
-ocupações; nele, esse mix somou `{python} N.flagged_borrower_mix`
+ocupações; nele, esse mix somou `{python} N.flagged_borrower_mix` Dois fatos de fora dos dados
+coincidem com esse episódio: o Desenrola Brasil, que renegociou `{python} N.desenrola_amount` em
+dívidas de `{python} N.desenrola_people` de pessoas entre julho de 2023 e maio de 2024, e o teto de
+juros do rotativo do cartão, em vigor desde janeiro de 2024.[^desenrola] Parte da queda dentro dos
+segmentos pode ser renegociação, e não pagamento melhor.
 
 ## Desde 2025, o atraso inicial subiu mais entre autônomos
 
@@ -221,6 +239,30 @@ saldo real do crédito a eles cresceu `{python} N.fastest_growth`. A menor foi e
 `{python} N.slowest` (`{python} N.slowest_change`, com saldo de `{python} N.slowest_growth`). A
 ordem não muda com o denominador defasado. Uma taxa que sobe enquanto o crédito cresce não se
 explica por uma carteira que encolheu: é o tipo de sinal que vale acompanhar mês a mês.
+
+Quatro mudanças de fora dos dados atravessam essa comparação:[^contexto]
+
+- **O consignado se abriu ao setor privado.** O consignado de empregados do setor privado já
+  existia, mas dependia de convênio entre empresa e banco. Desde março de 2025, com o Crédito do
+  Trabalhador, esses empregados podem contratá-lo pelo eSocial, sem convênio. O saldo de consignado
+  deles passou de `{python} N.private_payroll_before` em jan/2025 para
+  `{python} N.private_payroll_latest` em `{python} N.latest_month`, e a inadimplência de 15 a 90
+  dias dele, em médias de três meses, de `{python} N.private_payroll_d15_before` para
+  `{python} N.private_payroll_d15_latest`. É uma parte nova, e mais arriscada, do grupo
+  "consignado".
+- **O crédito aos aposentados encolheu pela oferta.** O teto de juros do consignado do INSS ficou
+  congelado enquanto a Selic subia, e grandes bancos suspenderam essa linha no fim de 2024. O saldo
+  real menor dos aposentados coincide com essa retração da oferta e, por isso, não diz nada sobre
+  como eles pagam.
+- **O crédito rural foi prorrogado e refinanciado.** Parcelas no Rio Grande do Sul foram adiadas
+  depois das enchentes de 2024, e a MP 1.314/2025 destinou `{python} N.rural_refinancing` do
+  Tesouro para refinanciar dívidas rurais a partir de setembro de 2025. Dívida refinanciada sai do
+  atraso, então os números rurais tendem a subestimar o aperto, que pesa sobre autônomos e a faixa
+  de renda mais alta, onde o crédito rural se concentra.
+- **2026 tem alívios próprios.** A isenção de imposto de renda para quem ganha até
+  `{python} N.tax_exemption` por mês vale desde janeiro de 2026, e o Novo Desenrola, lançado em
+  maio de 2026 com até `{python} N.novo_desenrola` em garantias, renegocia dívidas dentro da janela
+  deste gráfico.
 
 # O que eu faria
 
@@ -236,9 +278,10 @@ física:
    `{python} N.top_product`, onde a diferença entre autônomos e aposentados da mesma renda é a
    maior. Na régua de cobrança, isso sugere começar pelos autônomos entre clientes da mesma faixa
    de renda e medir o ganho contra a régua atual.
-3. **Acompanhar todo mês a inadimplência de 15 a 90 dias de `{python} N.fastest`.** Ela sobe mais
-   rápido do que a das outras ocupações, com a carteira ainda crescendo, e é a medida que não
-   depende da regra contábil.
+3. **Acompanhar todo mês a inadimplência de 15 a 90 dias de `{python} N.fastest`, e a do
+   consignado do setor privado.** A primeira sobe mais rápido do que a das outras ocupações, com a
+   carteira ainda crescendo; a segunda cresce rápido desde a abertura de 2025 e já atrasa mais.
+   A inadimplência de 15 a 90 dias é a medida que não depende da regra contábil.
 4. **Não comparar a inadimplência de 90 dias antes e depois de janeiro de 2025.** Relatórios que
    fazem isso misturam regra contábil com comportamento. Até que o efeito se estabilize, a medida
    de 15 a 90 dias é a comparação honesta.
@@ -260,9 +303,10 @@ física:
   grosseiro de maturação, não uma análise de safras.
 - **Correlação, não causalidade.** Nenhum resultado diz que mudar de ocupação mudaria o risco de
   alguém.
-- **A ocupação é um atributo de cadastro.** Vem do registro da Receita Federal, não do emprego
-  atual. "Outros" tem cerca de um quarto da carteira, e as ocupações foram reclassificadas em
-  vários janeiros. Desde 2017, `{python} N.unexplained_jumps` meses tiveram saltos de mais de
+- **A ocupação é a declarada no imposto de renda.** Só quem declara tem uma; os demais, ao que
+  tudo indica, ficam em "Outros", que reúne cerca de um quarto do saldo e metade das operações. As
+  conclusões por ocupação valem para quem declara, e a ocupação declarada nem sempre é o emprego
+  atual. As ocupações também foram reclassificadas em vários janeiros. Desde 2017, `{python} N.unexplained_jumps` meses tiveram saltos de mais de
   `{python} N.weight_jump` na participação de uma ocupação ou faixa de renda sem causa conhecida; eles estão marcados
   como reclassificações, e um teste falha se aparecer um novo.
 - **A renda é informada pelo credor, em faixas de salário mínimo.** As faixas mudam todo janeiro,
@@ -274,6 +318,10 @@ física:
 - **A inadimplência de 15 a 90 dias tem uma pequena ressalva desde 2025.** Os valores vencidos
   passaram a incluir juros contratuais até o ativo virar problemático, o que pode elevar um pouco
   os saldos com 60 a 90 dias de atraso.
+- **Parte do que move os números não está nos dados.** Programas de renegociação, tetos de juros,
+  prorrogações do crédito rural e a abertura do consignado ao setor privado podem mudar as taxas
+  sem que o comportamento dos devedores mude. A seção 5 aponta onde eles coincidem com os resultados, mas o
+  SCR.data não permite separar o efeito de cada um.
 - **O Banco Central republica o histórico.** A análise usa as versões dos arquivos registradas com
   data e hash no repositório. Uma versão posterior pode mover levemente os números; a de setembro
   de 2026 moveu a inadimplência de 90 dias das famílias em no máximo 0,001 p.p.
@@ -292,3 +340,11 @@ make report    # desenha os gráficos e gera este relatório
 ```
 
 Os dados são do Banco Central do Brasil, publicados sob a licença Open Database License (ODbL).
+
+[^ocupacao]: Banco Central, [Estudo Especial 80/2020](https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE080_Indicadores_de_endividamento_de_risco_e_perfil_do_tomador_de_credito.pdf) (tomadores no SCR em dezembro de 2019); Receita Federal, via [Poder360](https://www.poder360.com.br/poder-economia/receita-federal-recebe-445-milhoes-de-declaracoes-do-ir/) (declarações de 2026). A origem da ocupação está no dicionário de dados do repositório, seção 10.4.
+
+[^pnad]: IBGE, [PNAD Contínua 2025](https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/45759-pnad-continua-em-2025-taxa-anual-de-desocupacao-foi-de-5-6-enquanto-taxa-de-subutilizacao-foi-14-5); [Agência Brasil](https://agenciabrasil.ebc.com.br/economia/noticia/2025-11/apenas-um-em-cada-quatro-trabalhadores-por-conta-propria-tem-cnpj) sobre o CNPJ.
+
+[^desenrola]: Ministério da Fazenda, via [Agência Gov](https://agenciagov.ebc.com.br/noticias/202405/desenrola-brasil-encerra-com-beneficio-a-mais-de-15-milhoes-de-pessoas-e-reducao-da-inadimplencia-entre-a-populacao-mais-vulneravel-do-pais); Lei 14.690/2023, art. 28, e Resolução CMN 5.112/2023, via [Rádio Senado](https://www12.senado.leg.br/radio/1/noticia/2024/01/03/novo-limite-para-juros-do-cartao-de-credito-foi-fruto-de-lei-aprovada-no-congresso).
+
+[^contexto]: Crédito do Trabalhador: [Exame](https://exame.com/brasil/consignado-privado-cresce-mas-valor-medio-dos-emprestimos-cai-73/). Teto do consignado do INSS: [Ministério da Previdência](https://www.gov.br/previdencia/pt-br/noticias/2025/janeiro/taxa-maxima-de-juros-do-consignado-sobe-para-1-80-ao-mes) e [Mix Vale](https://www.mixvale.com.br/2025/02/02/credito-consignado-do-inss-cresce-30-em-2024-e-atinge-r-103-bilhoes-com-novas-taxas/). Rio Grande do Sul: Resoluções CMN 5.132/2024 e 5.164/2024, via [Ministério da Fazenda](https://www.gov.br/fazenda/pt-br/canais_atendimento/imprensa/notas-a-imprensa/2024/maio/cmn-autoriza-prorrogacao-de-credito-rural-em-municipios-do-rio-grande-do-sul). MP 1.314/2025: [CNN Brasil](https://www.cnnbrasil.com.br/economia/governo-publica-mp-que-libera-r-12-bi-para-renegociacao-de-dividas-rurais/). Isenção do imposto de renda, Lei 15.270/2025: [Senado Notícias](https://www12.senado.leg.br/noticias/materias/2025/11/27/sancionada-isencao-do-imposto-de-renda-para-quem-ganha-ate-r-5-mil-por-mes). Novo Desenrola: [Forbes Brasil](https://forbes.com.br/forbes-money/2026/05/governo-lanca-novo-desenrola-com-ate-r-15-bi-em-garantias-da-uniao-para-renegociacao-de-dividas/).

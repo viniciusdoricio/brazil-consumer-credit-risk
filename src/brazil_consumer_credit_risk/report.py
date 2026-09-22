@@ -25,6 +25,27 @@ from .charts.style import INCOME_BANDS, PAIRS
 ROOT = Path(__file__).resolve().parents[2]
 DATABASE = ROOT / "data" / "brazil_consumer_credit_risk.duckdb"
 
+# Figures from outside SCR.data that the text quotes as context, each with its source, kept here so
+# that no number in the text is typed by hand. They are context for the results, not results.
+EXTERNAL = {
+    # BCB, Estudo Especial 80/2020: borrowers in the SCR, December 2019
+    "borrowers_2019_m": 85.0,
+    # Receita Federal: income-tax returns filed in 2026
+    "tax_returns_2026_m": 44.5,
+    # IBGE, PNAD Contínua 2025: self-employed workers, and the share with a business registration
+    "self_employed_2025_m": 26.1,
+    "self_employed_with_cnpj": 0.25,
+    # Ministério da Fazenda: Desenrola Brasil, July 2023 to May 2024, debt renegotiated and people
+    "desenrola_bn": 53.07,
+    "desenrola_people_m": 15.06,
+    # MP 1.314/2025: Treasury funds to refinance climate-hit rural debt, from September 2025
+    "rural_refinancing_bn": 12.0,
+    # Novo Desenrola, May 2026: federal guarantees, up to
+    "novo_desenrola_bn": 15.0,
+    # Lei 15.270/2025: monthly income exempt from income tax from January 2026
+    "tax_exemption_reais": 5000,
+}
+
 RETIREES = "Aposentado/pensionista"
 SELF_EMPLOYED = "Autônomo"
 NON_PROFIT = "Empregado de entidades sem fins lucrativos"
@@ -205,6 +226,51 @@ def _facts(con: duckdb.DuckDBPyConnection) -> dict:
         f[f"{who}_change"] = float(cur.loc[f[who], "d15_change"])
         f[f"{who}_growth"] = float(cur.loc[f[who], "real_balance_growth"])
     f["all_rising"] = bool((cur["d15_change"] > 0).all())
+
+    # Who has a declared occupation: only income-tax filers do (docs/data-dictionary.md, 10.4)
+    f["outros_balance_share"], f["outros_loan_share"], f["outros_lowest_band_share"] = one(
+        """select
+            sum(carteira_ativa) filter (where occupation = 'Outros') / sum(carteira_ativa),
+            sum(operations_reported) filter (where occupation = 'Outros')
+                / sum(operations_reported),
+            sum(carteira_ativa) filter (
+                where occupation = 'Outros' and income_band = 'Até 1 salário mínimo')
+                / sum(carteira_ativa) filter (where income_band = 'Até 1 salário mínimo')
+        from int_pf_cells where year(month) = 2024"""
+    )
+    (f["retiree_above_one_wage_share"],) = one(
+        """select sum(carteira_ativa) filter (where income_band in ?) / sum(carteira_ativa)
+        from int_pf_cells where year(month) = 2024 and occupation = ?""",
+        [b for b in INCOME_BANDS if b != "Até 1 salário mínimo"],
+        RETIREES,
+    )
+
+    # Payroll loans to private-sector employees: before the Crédito do Trabalhador opened them to
+    # private payrolls in March 2025 (January 2025, and November 2024 to January 2025 for the
+    # rate), and in the latest month (and the latest three months for the rate).
+    (
+        f["private_payroll_before_bn"],
+        f["private_payroll_latest_bn"],
+        f["private_payroll_d15_before"],
+        f["private_payroll_d15_latest"],
+    ) = con.execute(
+        """with cells as (
+            select month, sum(carteira_ativa) as balance,
+                sum(vencido_de_15_ate_90_dias) as overdue
+            from int_pf_cells
+            where occupation = 'Empregado de empresa privada' and product_group = 'Consignado'
+            group by 1)
+        select
+            sum(balance) filter (where month = date '2025-01-01') / 1e9,
+            sum(balance) filter (where month = $latest) / 1e9,
+            sum(overdue) filter (where month between date '2024-11-01' and date '2025-01-01')
+                / sum(balance) filter (where month between date '2024-11-01' and date '2025-01-01'),
+            sum(overdue) filter (where month > $latest - interval 3 month)
+                / sum(balance) filter (where month > $latest - interval 3 month)
+        from cells""",
+        {"latest": f["latest_month"]},
+    ).fetchone()
+    f.update(EXTERNAL)
     return f
 
 
@@ -257,6 +323,13 @@ def check(f: dict) -> None:
             f["fastest"] == f["fastest_with_lagged_denominator"]
         ),
         "lending to the fastest riser kept growing": f["fastest_growth"] > 0,
+        "Outros holds a larger share of loans than of balances": (
+            f["outros_loan_share"] > f["outros_balance_share"]
+        ),
+        "private-sector payroll loans grew and their early arrears rose": (
+            f["private_payroll_latest_bn"] > f["private_payroll_before_bn"]
+            and f["private_payroll_d15_latest"] > f["private_payroll_d15_before"]
+        ),
     }
     broken = [claim for claim, holds in claims.items() if not holds]
     if broken:
@@ -336,4 +409,25 @@ def values(f: dict, lang: Language = PT) -> dict[str, str]:
         "slowest": occupation(f["slowest"]),
         "slowest_change": L.pp(f["slowest_change"], sign=True),
         "slowest_growth": L.pct(f["slowest_growth"], sign=True),
+        "outros_balance_2024": L.pct(f["outros_balance_share"], 0),
+        "outros_loans_2024": L.pct(f["outros_loan_share"], 0),
+        "outros_lowest_band": L.pct(f["outros_lowest_band_share"], 0),
+        "retiree_above_one_wage": L.pct(f["retiree_above_one_wage_share"], 0),
+        "private_payroll_before": L.t(
+            "report.billion", value=L.number(f["private_payroll_before_bn"], 0)
+        ),
+        "private_payroll_latest": L.t(
+            "report.billion", value=L.number(f["private_payroll_latest_bn"], 0)
+        ),
+        "private_payroll_d15_before": L.pct(f["private_payroll_d15_before"], 2),
+        "private_payroll_d15_latest": L.pct(f["private_payroll_d15_latest"], 2),
+        "borrowers_2019": L.t("report.million", value=L.number(f["borrowers_2019_m"], 0)),
+        "tax_returns_2026": L.t("report.million", value=L.number(f["tax_returns_2026_m"], 1)),
+        "self_employed_2025": L.t("report.million", value=L.number(f["self_employed_2025_m"], 1)),
+        "self_employed_with_cnpj": L.pct(f["self_employed_with_cnpj"], 0),
+        "desenrola_amount": L.t("report.billion", value=L.number(f["desenrola_bn"], 0)),
+        "desenrola_people": L.t("report.million", value=L.number(f["desenrola_people_m"], 0)),
+        "rural_refinancing": L.t("report.billion", value=L.number(f["rural_refinancing_bn"], 0)),
+        "novo_desenrola": L.t("report.billion", value=L.number(f["novo_desenrola_bn"], 0)),
+        "tax_exemption": L.t("report.reais", value=L.number(f["tax_exemption_reais"], 0)),
     }

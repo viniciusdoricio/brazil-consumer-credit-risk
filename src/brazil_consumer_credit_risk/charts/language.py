@@ -174,6 +174,8 @@ PT = Language(
         "report.trillion": "R$ {value} trilhões",
         "report.billion": "R$ {value} bi",
         "report.bands": "{bands} salários mínimos",
+        "report.million": "{value} milhões",
+        "report.reais": "R$ {value}",
         # chart 1
         "trap.title.hidden": "A mudança contábil de janeiro de 2025 não aparece como salto na "
         "inadimplência de 90 dias das famílias",
@@ -403,6 +405,8 @@ EN = Language(
         "report.trillion": "R${value} trillion",
         "report.billion": "R${value} billion",
         "report.bands": "{bands} minimum wages",
+        "report.million": "{value} million",
+        "report.reais": "R${value}",
         # chart 1
         "trap.title.hidden": "The January 2025 accounting change doesn't show as a jump in "
         "household 90-day delinquency",

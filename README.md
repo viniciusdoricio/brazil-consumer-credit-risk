@@ -12,7 +12,7 @@ An analysis of household credit risk in Brazil, built on Banco Central do Brasil
 
 ## Findings
 
-Each finding is a chart headline, chosen from the data by a rule fixed before the results were known, with the headline that would have replaced it if the data had said the opposite ([`docs/v1-decision.md`](docs/v1-decision.md), section 4).
+Each finding is a chart headline, chosen from the data by a rule fixed before the results were known, with the headline that would have replaced it if the data had said the opposite ([`docs/v1-decision.md`](docs/v1-decision.md), section 4). Occupation here is the one declared on the income-tax return, so the occupation findings describe borrowers who file income tax (assumption 3).
 
 1. **Little of the gap between retirees and the self-employed comes from the credit products each group holds: it shows up within the same products**
 2. **On 90-day delinquency, income separates risk more than occupation does, and the gap between occupations didn't track unemployment**
@@ -55,7 +55,7 @@ The results depend on each of these. The ones marked *could be wrong* are tested
 
 1. **The 90-day rate is comparable from January 2017 to December 2024, and only then.** Occupations were reclassified in January 2017, and write-offs changed in January 2025. dbt tests enforce both ends.
 2. **The 15–90-day rate is unaffected by the January 2025 change.** It rose 0.026 pp that January, against 0.010 pp a year earlier. *Could be wrong* if lenders changed how they report early arrears in ways one month can't show.
-3. **The recorded occupation describes the borrower.** It is a registry attribute, not necessarily the current job, and "Outros" (other) holds about a quarter of household credit. *Could be wrong:* a gap that changes sign when "Outros" is included is reported as fragile, not as a finding.
+3. **The recorded occupation describes the borrower.** It is the occupation declared on the income-tax return, which BCB takes from the tax registry, so only people who file have one, and it isn't necessarily the current job. Non-filers appear, on all the evidence, as "Outros" (other), which holds about a quarter of household credit but about half of all loans, so the occupation findings describe tax filers, a more formal and better-off slice of borrowers. *Could be wrong:* a gap that changes sign when "Outros" is included is reported as fragile, not as a finding.
 4. **An income band means the same thing within a calendar year, not across years.** Bands are multiples of the minimum wage, which resets every January, so every income comparison stays inside one year.
 5. **Seven product groups are enough to separate product from occupation.** They come from a hand-built mapping of 68 modality and sub-modality pairs. *Could be wrong* for the ones whose group is a judgement call, such as card balances and unlabelled loans. So every split is re-run with those moved to their other plausible group and card purchases separated from card credit, and a split that shifts by more than a quarter of the gap is reported as unstable.
 6. **A segment's rate describes the portfolio lenders built for it, not the people in it.** Rates are weighted by balance, one borrower can appear in several cells, and lenders decide who gets credit. Public data can't separate that choice from borrower behaviour, so no claim here is about how a group behaves.
@@ -103,6 +103,8 @@ docs/            the research
 - **The data is aggregated.** There is no account-level public credit data in Brazil, because bank secrecy and the LGPD forbid it. Every conclusion is about portfolios, never individuals.
 - **Lender selection can't be observed.** A segment's rate mixes whom lenders chose with how those borrowers repaid. Real growth next to each rate and a lagged denominator help read the effect, but don't remove it.
 - **No vintages and no observed roll rates.** There is no origination-cohort dimension, and the data is stock by arrears band, not tracked accounts. The lagged denominator is a rough seasoning adjustment, not a vintage analysis.
+- **Occupation findings describe income-tax filers.** Brazil's self-employed are mostly informal and don't file, so "self-employed" here means those who declare that occupation on a tax return.
+- **Part of what moves the numbers isn't in the data.** Debt-renegotiation programmes (Desenrola), interest caps, rural postponements and refinancing, and the opening of payroll loans to private-sector workers in 2025 can change rates without any change in borrower behaviour. The report points out where they overlap with the results, with sources.
 - **Correlation, not causation.** Nothing here says that changing occupation would change anyone's risk, or explains why the self-employed's loans go bad more often.
 - **Two of the three occupation comparisons are weak.** Public against private-sector employees and micro-entrepreneurs against business owners have few income bands where the split is stable, so the findings rest on retirees against the self-employed.
 - **The 15–90-day rate carries a small caveat since 2025.** Overdue amounts now include contractual interest until an asset becomes a problem asset, which may slightly raise balances 60 to 90 days overdue.
