@@ -20,7 +20,6 @@ logs/
 # quarto
 .quarto/
 *_files/
-/_site/
 analysis/_output/
 
 # os

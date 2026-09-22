@@ -42,10 +42,10 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]
-
 [tool.ruff.lint.per-file-ignores]
 # Recon scripts embed long SQL strings; wrapping them hurts readability more than it helps.
 "scripts/recon/*" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

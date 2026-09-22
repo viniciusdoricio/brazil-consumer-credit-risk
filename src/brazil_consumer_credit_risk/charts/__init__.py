@@ -2,6 +2,6 @@
 
 Each chart's headline is chosen from the data by a function in `headlines`, between the claim the
 v1 decision wrote in advance and the one that replaces it if the data says the opposite, so no
-headline or number is written by hand. Text is in Portuguese, the write-up's language, and all of
-it lives in `style` and `headlines`.
+headline or number is written by hand. Every chart is drawn in Portuguese, the reference version,
+and in English, and all of the text lives in `language`.
 """

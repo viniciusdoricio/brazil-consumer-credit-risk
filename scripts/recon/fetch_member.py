@@ -48,7 +48,7 @@ def curl(args: list[str]) -> bytes:
     raise last
 
 
-def central_directory(url: str) -> dict[str, dict]:
+def central_directory(url: str) -> tuple[dict[str, dict], int]:
     head = curl(["-I", url]).decode()
     total = int(
         [

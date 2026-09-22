@@ -1,7 +1,7 @@
 """Read the central directory of every yearly SCR.data archive via HTTP Range requests.
 
 Gives member names and compressed/uncompressed sizes for the full history without
-downloading ~6 GB. Uses curl for transport (system Python lacks a CA bundle here).
+downloading ~6 GB. Uses curl for transport, which checks certificates against the system store.
 """
 
 import json

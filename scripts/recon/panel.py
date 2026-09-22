@@ -1,4 +1,4 @@
-"""Month-by-month profile and break scan over the full V2 history (Parquet from to_parquet.py).
+"""Month-by-month profile and break scan over the full V2 history, from the Parquet fetch-data writes.
 
     uv run python scripts/recon/panel.py data/parquet/scrdata data/recon/panel
 
