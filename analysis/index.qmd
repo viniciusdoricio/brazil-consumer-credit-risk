@@ -12,6 +12,8 @@ format:
     embed-resources: true
     fig-align: left
     lightbox: true
+crossref:
+  sec-prefix: seção
 jupyter: python3
 ---
 
@@ -52,11 +54,11 @@ N = SimpleNamespace(
   mudança, a de 15 a 90 dias, a alta foi maior entre `{python} N.fastest`, cujo crédito continuou
   crescendo.
 - **O que eu faria:** segmentar primeiro por renda e produto e usar a ocupação como segundo corte,
-  começando pela cobrança de `{python} N.top_product`, e validá-la em dados de conta antes de levá-la a um modelo de
-  escore.
+  começando pela cobrança de `{python} N.top_product`, e validá-la em dados de conta antes de
+  levá-la a um modelo de escore.
 - **Sobre quem:** a ocupação nos dados é a declarada no imposto de renda, então os resultados por
   ocupação valem para quem declara, uma parcela mais formal e de renda mais alta dos tomadores
-  (seção 3).
+  (@sec-dados).
 :::
 
 # A pergunta
@@ -81,7 +83,7 @@ Para uma área de risco de crédito, a resposta muda três decisões:
 - **Monitoramento.** Saber se a inadimplência se move pela composição da carteira ou pelo
   comportamento dentro de cada segmento diz onde olhar quando ela sobe.
 
-# Os dados
+# Os dados {#sec-dados}
 
 O **SCR.data** do Banco Central publica, todo mês, o saldo de crédito do sistema financeiro e os
 valores em atraso, agregados por ocupação, faixa de renda, modalidade, tipo de instituição e estado.
@@ -94,7 +96,7 @@ A análise usa duas medidas, ambas como fração do saldo da carteira:
   conceito oficial do Banco Central; entre 2017 e 2024, a série calculada aqui fica entre
   `{python} N.sgs_gap_low` e `{python} N.sgs_gap_high` da série oficial (SGS 21084).
 - **Inadimplência de 15 a 90 dias:** os valores vencidos nesse intervalo. É a única medida que
-  atravessa a mudança contábil de 2025 (seção 4).
+  atravessa a mudança contábil de 2025 (@sec-armadilha).
 
 As comparações cruzam `{python} N.occupations` ocupações, `{python} N.income_bands` faixas de renda e
 `{python} N.product_groups` grupos de produto. Três escolhas as tornam comparáveis:
@@ -122,9 +124,9 @@ do crédito dos "aposentados" está em faixas acima de 1 salário mínimo.
 O SCR.data é agregado: não existe dado público de crédito por conta no Brasil. Por isso, nada aqui
 é sobre pessoas, e sim sobre carteiras: "a carteira que os credores formaram com autônomos teve
 inadimplência de X", nunca "autônomos pagam X". Os dados também não permitem análise de safras nem
-de rolagem observada entre faixas de atraso (seção 7).
+de rolagem observada entre faixas de atraso (@sec-limitacoes).
 
-# A armadilha: a mudança contábil de janeiro de 2025
+# A armadilha: a mudança contábil de janeiro de 2025 {#sec-armadilha}
 
 ![](figures/pt/chart1_trap.png){fig-alt="Inadimplência de 90 dias e de 15 a 90 dias das pessoas físicas, de junho de 2016 a julho de 2026, com a mudança de janeiro de 2025 marcada."}
 
@@ -132,9 +134,8 @@ Em janeiro de 2025, a **Resolução CMN 4.966** trouxe para o Brasil o modelo de
 IFRS 9. O efeito que mais mexe nos números não é a nova definição de ativo problemático, e sim a
 baixa a prejuízo: os credores passaram a manter por mais tempo na carteira os empréstimos
 inadimplentes, e o saldo com mais de 90 dias de atraso cresce mesmo que ninguém passe a pagar
-pior. O Banco
-Central estima que `{python} N.bcb_regulatory` da alta de `{python} N.bcb_total` na inadimplência
-de 90 dias do sistema financeiro no primeiro semestre de 2025 vieram da nova regra.
+pior. O Banco Central estima que `{python} N.bcb_regulatory` da alta de `{python} N.bcb_total` na
+inadimplência de 90 dias do sistema financeiro no primeiro semestre de 2025 vieram da nova regra.
 
 **Como a quebra apareceu.** Ao comparar dezembro com janeiro, a inadimplência de 90 dias das
 famílias subiu `{python} N.d90_step` em janeiro de 2025, contra `{python} N.d90_step_before` no
@@ -146,7 +147,7 @@ prejuízo não alcança operações com menos de 90 dias.
 só a de 15 a 90 dias. Um teste de dados no pipeline confirma que a quebra existe e falha se uma
 revisão futura do Banco Central a apagar.
 
-# Resultados
+# Resultados {#sec-resultados}
 
 ## Na mesma renda, a ocupação ainda muda a inadimplência
 
@@ -178,9 +179,9 @@ derrubaria: a renda separar mais nos três recortes. Foi o que aconteceu. Duas r
   separou mais o atraso inicial do que a renda. Com um ano só, é um sinal a acompanhar, não uma
   conclusão.
 - **A distância entre ocupações não acompanhou o desemprego** (correlação de
-  `{python} N.correlation` em `{python} N.years` anos). A hipótese de que o tipo de trabalho pesa mais quando o
-  emprego piora não encontra apoio aqui, mas tão poucos pontos anuais também não bastariam para
-  confirmá-la.
+  `{python} N.correlation` em `{python} N.years` anos). A hipótese de que o tipo de trabalho pesa
+  mais quando o emprego piora não encontra apoio aqui, mas tão poucos pontos anuais também não
+  bastariam para confirmá-la.
 
 ## Entre aposentados e autônomos, a diferença está dentro dos mesmos produtos
 
@@ -194,8 +195,8 @@ consignado, a segunda parte dominaria.
 **Não domina.** Nas `{python} N.split_bands` faixas em que a divisão é estável
 (`{python} N.split_band_names`), o mix de produtos explica `{python} N.mix_share` da diferença.
 Sem o crédito rural, que é `{python} N.rural_self_employed` da carteira dos autônomos, a parte do
-mix sobe para `{python} N.mix_share_no_rural`, ainda longe da metade. A carteira dos autônomos tem inadimplência maior em todos os
-produtos. No cartão de crédito, com a mesma renda, foram `{python} N.card_self_employed` contra
+mix sobe para `{python} N.mix_share_no_rural`, ainda longe da metade. A carteira dos autônomos tem
+inadimplência maior em todos os produtos. No cartão de crédito, com a mesma renda, foram `{python} N.card_self_employed` contra
 `{python} N.card_retirees`; no próprio consignado, `{python} N.payroll_self_employed` contra
 `{python} N.payroll_retirees`. O `{python} N.top_product` é o produto que mais contribui para a
 diferença dentro dos mesmos produtos: `{python} N.top_product_share` dela.
@@ -221,7 +222,8 @@ A mesma divisão, aplicada ao longo do tempo, pergunta se a inadimplência nacio
 porque o crédito migrou para produtos ou ocupações mais arriscados, ou porque as taxas mudaram
 dentro de cada segmento. Nos `{python} N.episodes` episódios de 2018 a 2024, **a mudança dentro de
 cada ocupação e produto explicou de `{python} N.pure_low` a `{python} N.pure_high` da variação**;
-quando a parte passa de 100%, é porque a composição andou no sentido contrário. Os dois efeitos de composição, somados, nunca passaram de `{python} N.mix_max` dela. O episódio de
+quando a parte passa de 100%, é porque a composição andou no sentido contrário. Os dois efeitos
+de composição, somados, nunca passaram de `{python} N.mix_max` dela. O episódio de
 `{python} N.flagged_episode` contém uma reclassificação de ocupações, que entra no mix de
 ocupações; nele, esse mix somou `{python} N.flagged_borrower_mix` Dois fatos de fora dos dados
 coincidem com esse episódio: o Desenrola Brasil, que renegociou `{python} N.desenrola_amount` em
@@ -229,7 +231,7 @@ dívidas de `{python} N.desenrola_people` de pessoas entre julho de 2023 e maio 
 juros do rotativo do cartão, em vigor desde janeiro de 2024.[^desenrola] Parte da queda dentro dos
 segmentos pode ser renegociação, e não pagamento melhor.
 
-## Desde 2025, o atraso inicial subiu mais entre autônomos
+## Desde 2025, o atraso inicial subiu mais entre autônomos {#sec-atraso-inicial}
 
 ![](figures/pt/chart6_current_read.png){fig-alt="Variação da inadimplência de 15 a 90 dias por ocupação entre 2024 e os 12 meses até julho de 2026, ao lado da variação real do saldo."}
 
@@ -245,7 +247,7 @@ Quatro mudanças de fora dos dados atravessam essa comparação:[^contexto]
 - **O consignado se abriu ao setor privado.** O consignado de empregados do setor privado já
   existia, mas dependia de convênio entre empresa e banco. Desde março de 2025, com o Crédito do
   Trabalhador, esses empregados podem contratá-lo pelo eSocial, sem convênio. O saldo de consignado
-  deles passou de `{python} N.private_payroll_before` em jan/2025 para
+  deles passou de `{python} N.private_payroll_before` em janeiro de 2025 para
   `{python} N.private_payroll_latest` em `{python} N.latest_month`, e a inadimplência de 15 a 90
   dias dele, em médias de três meses, de `{python} N.private_payroll_d15_before` para
   `{python} N.private_payroll_d15_latest`. É uma parte nova, e mais arriscada, do grupo
@@ -279,9 +281,10 @@ física:
    maior. Na régua de cobrança, isso sugere começar pelos autônomos entre clientes da mesma faixa
    de renda e medir o ganho contra a régua atual.
 3. **Acompanhar todo mês a inadimplência de 15 a 90 dias de `{python} N.fastest`, e a do
-   consignado do setor privado.** A primeira sobe mais rápido do que a das outras ocupações, com a
-   carteira ainda crescendo; a segunda cresce rápido desde a abertura de 2025 e já atrasa mais.
-   A inadimplência de 15 a 90 dias é a medida que não depende da regra contábil.
+   consignado do setor privado.** Entre `{python} N.fastest`, ela sobe mais rápido do que nas
+   outras ocupações, com a carteira ainda crescendo; o consignado do setor privado cresce rápido
+   desde a abertura de 2025, e o atraso inicial nele já aumentou. A inadimplência de 15 a 90 dias é
+   a medida que não depende da regra contábil.
 4. **Não comparar a inadimplência de 90 dias antes e depois de janeiro de 2025.** Relatórios que
    fazem isso misturam regra contábil com comportamento. Até que o efeito se estabilize, a medida
    de 15 a 90 dias é a comparação honesta.
@@ -290,7 +293,7 @@ física:
    de cadastro, e "Outros" fica com `{python} N.outros_low` a `{python} N.outros_high` do saldo. Um
    teste com dados internos, por conta, é o passo seguinte natural.
 
-# Limitações
+# Limitações {#sec-limitacoes}
 
 - **Os dados são agregados.** Cada taxa é de uma carteira, ponderada por saldo, e não a fração de
   pessoas que atrasaram. Uma mesma pessoa pode aparecer em faixas de renda diferentes em credores
@@ -306,9 +309,10 @@ física:
 - **A ocupação é a declarada no imposto de renda.** Só quem declara tem uma; os demais, ao que
   tudo indica, ficam em "Outros", que reúne cerca de um quarto do saldo e metade das operações. As
   conclusões por ocupação valem para quem declara, e a ocupação declarada nem sempre é o emprego
-  atual. As ocupações também foram reclassificadas em vários janeiros. Desde 2017, `{python} N.unexplained_jumps` meses tiveram saltos de mais de
-  `{python} N.weight_jump` na participação de uma ocupação ou faixa de renda sem causa conhecida; eles estão marcados
-  como reclassificações, e um teste falha se aparecer um novo.
+  atual. As ocupações também foram reclassificadas em vários janeiros. Desde 2017,
+  `{python} N.unexplained_jumps` meses tiveram saltos de mais de `{python} N.weight_jump` na
+  participação de uma ocupação ou faixa de renda sem causa conhecida; eles estão marcados como
+  reclassificações, e um teste falha se aparecer um novo.
 - **A renda é informada pelo credor, em faixas de salário mínimo.** As faixas mudam todo janeiro,
   e por isso a renda só é comparada dentro de um mesmo ano, nunca como "a mesma renda" entre anos.
 - **O agrupamento de produtos é um julgamento.** Uma parte das divisões entre ocupação e produto
@@ -320,11 +324,12 @@ física:
   os saldos com 60 a 90 dias de atraso.
 - **Parte do que move os números não está nos dados.** Programas de renegociação, tetos de juros,
   prorrogações do crédito rural e a abertura do consignado ao setor privado podem mudar as taxas
-  sem que o comportamento dos devedores mude. A seção 5 aponta onde eles coincidem com os resultados, mas o
-  SCR.data não permite separar o efeito de cada um.
-- **O Banco Central republica o histórico.** A análise usa as versões dos arquivos registradas com
-  data e hash no repositório. Uma versão posterior pode mover levemente os números; a de setembro
-  de 2026 moveu a inadimplência de 90 dias das famílias em no máximo 0,001 p.p.
+  sem que o comportamento dos devedores mude. A @sec-resultados aponta onde eles coincidem com os
+  resultados, mas o SCR.data não permite separar o efeito de cada um.
+- **O Banco Central republica o histórico.** A análise usa as versões dos arquivos listadas, com
+  data e hash, no dicionário de dados do repositório. Uma versão posterior pode mover levemente os
+  números; a de setembro de 2026 moveu a inadimplência de 90 dias das famílias em no máximo
+  `{python} N.republication_shift`
 
 # Como reproduzir
 

@@ -6,5 +6,6 @@
 select month, d90_rate, sgs_21084_rate, d90_gap_to_sgs
 from {{ ref('mart_pf_monthly') }}
 where
-    month between date '2017-01-01' and date '2024-12-01'
+    month between cast('{{ var("first_comparable_month") }}' as date)
+    and cast('{{ var("d90_last_comparable_month") }}' as date)
     and (sgs_21084_rate is null or abs(d90_gap_to_sgs) > 0.002)

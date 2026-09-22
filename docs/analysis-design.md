@@ -1,15 +1,16 @@
 # Analysis design
 
 *How the analysis is done, decided before any model or chart exists. Every constraint cited
-comes from `docs/data-dictionary.md` or `docs/data-landscape.md`.*
+comes from `docs/data-dictionary.md` or `docs/data-landscape.md`, and the evidence tags (**[D]**
+data profiled, **[M2]** methodology, **[SGS]**, **[RPM]** and the rest) are defined there.*
 
 ---
 
-## Recommendations in one screen
+## The decisions in brief
 
-| Problem | Recommendation |
+| Problem | Decision |
 |---|---|
-| **Mix vs rate** | Exact two-level midpoint (Kitagawa-style) decomposition. Aggregate change = **borrower mix** (occupation × income weights) + **product mix** within each cell + **pure rate** within cell × product. The same algebra, applied cross-sectionally, splits an occupation gap at a fixed income into "same-product gap" and "product-mix gap". **That split is the test v1 depends on.** |
+| **Mix vs rate** | Exact two-level midpoint (Kitagawa-style) decomposition. Aggregate change = **borrower mix** (occupation weights) + **product mix** within each occupation + **pure rate** within occupation × product (§1.3). The same algebra, applied cross-sectionally, splits an occupation gap at a fixed income into "same-product gap" and "product-mix gap". **That split is the test v1 depends on.** |
 | **Supply-side confound** | Can't be controlled: no origination flow by segment exists publicly. Present it instead. (1) Report every segment rate next to that segment's real portfolio growth. (2) Show a **lagged-denominator** rate as a mandatory sensitivity, so fast-growing segments can't look safe just by being new. (3) National PTC credit standards as context, after v1 (§2.2). (4) Write every claim as "the portfolio lenders built for group X performed Y", never "group X behaves Y". |
 | **Lags / early warning** | Not in v1. At cell level the consistent window (2017-01 → 2024-12) contains **one** clean tightening episode (2021–22). Nationally, SGS 21084 adds a second (2013–15). Prewhitened cross-correlation at national level is the ceiling. Anything more is unjustifiable. The only segment-level leading signal is 15–90 → 90+ progression, and it is *inferred*, so label it that way. |
 | **Denominators** | Rates within cells, weights as shares of PF portfolio, volumes in real R$ (IPCA). Seasonality handled year-over-year. Minimum cell size before a rate is shown. Income bands treated as *multiples of the minimum wage*, comparable within a month, never "the same income" across years. |
@@ -21,7 +22,7 @@ comes from `docs/data-dictionary.md` or `docs/data-landscape.md`.*
 
 - **Cell** `c` = (occupation `o`, income band `b`) for PF, national. SCR rows are summed over UF,
   `segmento`, `origem`, `indexador` and `submodalidade`. 8 × 9 = 72 cells.
-- **Product** `p` = PF product group built from `modalidade` + `submodalidade` (section 1.4). Around 7
+- **Product** `p` = PF product group built from `modalidade` + `submodalidade` (section 1.4). Seven
   groups.
 - For month `t`: `N_{cp,t}` = numerator (R$), `A_{cp,t}` = `carteira_ativa` (R$).
   - Rate: `r_{cp,t} = N/A`.
@@ -151,12 +152,13 @@ unstable where the alternative moves its product-mix part by more than 25% of th
   The ones from 2017 are recorded as classification events with the cause marked unknown (data
   dictionary §10.2), and a dbt test fails on any jump that isn't recorded, so a revision in a later
   release can't pass as borrower mix.
-- MEI is reported from 2018-01, the first month after which its weight grows gradually rather than
-  in January jumps (0.38% in 2016, 0.68% in 2017, 1.06% from 2018-01).
+- MEI's share grows in January jumps until 2018 (0.38% in 2016, 0.68% in 2017, 1.06% from
+  2018-01), so its share is read as a trend only from 2018-01, where the decomposition episodes
+  start. Within a calendar year its membership is stable, so it is in every cross-section.
 
 ### 1.6 Tests (dbt)
 
-- `pure_rate + product_mix + borrower_mix = ΔR` within 1e-9 for every window.
+- `pure_rate + product_mix + borrower_mix = ΔR` within 1e-12 for every comparison.
 - Every occupation gap splits exactly under both product mappings (§1.4), and each occupation's
   product shares sum to 1.
 - Every weight jump over 0.5 pp since 2017 is a recorded classification event (§1.5).
@@ -272,7 +274,7 @@ and two nationally.**
 | Growth dilution of rates | — | Lagged-denominator sensitivity (§2.2) |
 | Seasonality (January rises) | **[SGS]** | Year-over-year comparisons; 12-month averages for level charts |
 | Income bands move with the minimum wage | R$678 (2013) → R$1,621 (2026) **[SGS 1619]**. In 8 of 10 Januaries 2017–2026 the top band loses ≥0.5 pp of PF portfolio and the lowest gains ≥0.4 pp; recodings in 2018-11, 2019-03, 2021-09, 2025-07, 2026-05 **[D]** | **Compare bands within a calendar year only** (no January inside). The two mid-year minimum-wage resets, 2020-02 and 2023-05, move bands too, but fall outside the chosen windows. Lender reporting events cluster in real-estate and rural credit (data dictionary §10.5). Across years, say "2–3 minimum wages", never "the same income". No re-banding is possible. Post-2025 income cuts need the 2025-07 and 2026-05 recodings handled |
-| Thin cells | Cells range from R$0.02 bn to R$433 bn **[D]** | Suppress a cell-month rate below a minimum `carteira_ativa`, to be set from the distribution (e.g. R$1 bn); pool to 12-month sums for thin cells |
+| Thin cells | Cells range from R$0.02 bn to R$433 bn **[D]** | Pool over the window, and don't show a cell's rate below R$1 bn of average monthly `carteira_ativa` (dbt variable `min_cell_balance_bn`) |
 | Exposure weighting | Rates weight by R$ balance; one borrower can sit in several income bands across lenders **[3040]** | State that a cell rate is a balance-weighted portfolio rate, not the share of people who defaulted |
 
 ---

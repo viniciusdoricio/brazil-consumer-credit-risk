@@ -87,7 +87,7 @@ models:
               arguments:
                 min_value: 0
       - name: occupation_to_income_ratio
-        description: Above 1 means occupation separates risk more than income does that year.
+        description: Above 1 means occupation separates risk more than income does in that period.
       - name: reclassifications_inside
         description: >
           Occupation and income events in classification_events after the period's first month and

@@ -29,24 +29,24 @@ The pipeline now uses those, and they move the household portfolio by at most R$
 
 ## 0. The six things that change the design
 
-1. **Occupation × income is a genuine cross-tab, not two marginal slices.** V2 has a unique grain
-   of ten dimensions, no subtotal rows, and all 72 PF occupation × income cells populated in every
-   month from January 2016 to July 2026 (127 months; 68–70 of 72 before 2016) **[D]**. The cross-tab also crosses UF,
-   institution segment, modality and sub-modality. The v1 question is *structurally* supported.
-   Section 6.
-2. **"V1" and "V2" are not a date in the series.** They are two parallel publications with
-   different schemas, each covering almost the whole history. File headers never change within
-   either version across all 344 monthly files **[D]**. V2 (`scrdata_*`) is the maintained one and
-   the only one with separate 15–90 and >90-day overdue columns. Use V2 only. Section 4.
+1. **Occupation × income is a genuine cross-tab, not two marginal slices.** V2 has a unique grain of
+   ten dimensions, no subtotal rows, and all 72 PF occupation × income cells populated in every
+   month from January 2016 to July 2026 (127 months; 68–70 of 72 before 2016) **[D]**. The cross-tab
+   also crosses UF, institution segment, modality and sub-modality. The v1 question is
+   *structurally* supported. Section 6.
+2. **"V1" and "V2" are not a date in the series.** They are two parallel publications with different
+   schemas, each covering almost the whole history. File headers never change within either version
+   across all 344 monthly files **[D]**. V2 (`scrdata_*`) is the maintained one and the only one
+   with separate 15–90 and >90-day overdue columns. Use V2 only. Section 4.
 3. **The >90-day measures do not survive January 2025 unchanged.** Their *definition* (days past
    due) is unchanged, but the *stock* depends on when lenders write loans off, and Res. CMN 4.966
-   changed that. BCB's own estimate is that about 70% of the rise in 90-day delinquency to June
-   2025 was caused by the rule change, not by borrowers. Section 5 and `docs/data-landscape.md`.
+   changed that. BCB's own estimate is that about 70% of the rise in 90-day delinquency to June 2025
+   was caused by the rule change, not by borrowers. Section 5 and `docs/data-landscape.md`.
 4. **The income band has its own breaks.** In January 2025 the PF "Sem rendimento" band went from
-   0.13% to 2.86% of the PF portfolio for one month (0.27% in February) **[D]**. Over the longer run,
-   missing income seems to have moved between bands: "Sem rendimento" 2.10% and "Indisponível"
-   0.01% in June 2016, against 0.13% and 1.60% in December 2024 **[D]**. The bands are also
-   measured in minimum wages, which are re-set every January. Section 2, `porte`.
+   0.13% to 2.86% of the PF portfolio for one month (0.27% in February) **[D]**. Over the longer
+   run, missing income seems to have moved between bands: "Sem rendimento" 2.10% and "Indisponível"
+   0.01% in June 2016, against 0.13% and 1.60% in December 2024 **[D]**. The bands are also measured
+   in minimum wages, which are re-set every January. Section 2, `porte`.
 5. **Occupation is reclassified in January, and once badly enough to break the series.** "Outros"
    fell 7.8 pp of PF balances in January 2016 and **11.3 pp in January 2017**. In January 2017 every
    named occupation's 90-day rate jumped (Autônomo 2.89% → 5.13%) while the PF total moved only
@@ -104,7 +104,8 @@ archive's central directory before it was written.
 
 **Trap: transport.** The host resets long transfers. Whole-year downloads at roughly 0.3 MB/s
 failed or stalled repeatedly, and so did single 30 MB range requests. Fetching in 4 MB ranges with
-retries worked every time **[D]**. The fetch script needs to do the same.
+retries worked every time **[D]**. `fetch-data` does the same
+(`src/brazil_consumer_credit_risk/download.py`).
 
 ### 1.4 Decision: read ZIPs in place, or expand?
 
@@ -115,7 +116,8 @@ retries worked every time **[D]**. The fetch script needs to do the same.
   on every query.
 - Raw layer: the yearly V2 ZIPs (2 GB), SHA-256 recorded, immutable, gitignored.
 - Staging input: one typed Parquet file per month, written once by DuckDB with measures parsed
-  from pt-BR decimals and dimension text trimmed (`scripts/recon/to_parquet.py`). **Measured:
+  from pt-BR decimals and dimension text trimmed (`scripts/recon/to_parquet.py` during the
+  research, `fetch-data` now). **Measured:
   1.62 GB for all 169 months** (7.9–12.4 MB per month, zstd), against 13.8 GB of raw CSV. A full
   profile over all months runs in about 13 seconds.
 - dbt reads the Parquet. V1 is not ingested at all (section 3).
@@ -205,9 +207,11 @@ SGS 21084, "Percent of 90 days past due loans of credit operations outstanding �
 | 2025-01 | 3.97% | 3.89% |
 | 2026-07 | 5.82% | 5.81% |
 
-The PF numerator and denominator are the ones BCB uses, within about 0.1 pp in these months. Over all 169 months the median gap is +0.02 pp; every month from 2017 to 2024 is within 0.2 pp; the gap widens to 0.23–0.33 pp in March–June 2026 (§10). PJ reconciles less
-well (e.g. 3.02% vs SGS 21083 3.31% in 2026-07). The V1 methodology warns the file may differ from
-consolidated statistics **[M1]**, and PJ is out of scope for v1 anyway.
+The PF numerator and denominator are the ones BCB uses, within about 0.1 pp in these months. Over
+all 169 months the median gap is +0.02 pp; every month from 2017 to 2024 is within 0.2 pp; the gap
+widens to 0.23–0.33 pp in March–June 2026 (§10). PJ reconciles less well (e.g. 3.02% vs SGS 21083
+3.31% in 2026-07). The V1 methodology warns the file may differ from consolidated statistics
+**[M1]**, and PJ is out of scope for v1 anyway.
 
 ---
 
@@ -256,8 +260,7 @@ different modality taxonomy, and is no longer maintained.
 
 ## 4. When does V1 become V2?
 
-**It doesn't, in the sense the original plan assumed.** There is no data-base month at which the schema
-switches:
+**It doesn't.** There is no data-base month at which the schema switches:
 
 - All 175 V1 files share one header; all 169 V2 files share another **[D]**
   (`scripts/recon/header_scan.py` reads the header and first row of every monthly file).
@@ -339,12 +342,11 @@ What that does to each measure:
 | `ativo_problematico` | **No.** Definition changed | Section 2.3; `docs/data-landscape.md` |
 | `carteira_ativa` (denominator) | **Same identity, same scope rule, no visible level shift for PF.** But from 2025 it contains the non-written-off defaulted stock, so it is slightly inflated relative to 2024 | PF carteira Dec→Jan: +1.05% (2025) vs +0.99% (2024) **[D]**. Whether 4.966's amortised-cost measurement changed reported balances is **unknown**. It would need BCB confirmation or a same-institution comparison |
 
-**Conclusion for the design.** The original plan's premise that the overdue bands are "consistent across
-the whole series" holds for the *definitions* and fails for the >90 *stocks*. Only the 15–90 bucket
-is defensible as a measure that runs through January 2025 with no adjustment. It has its own
-earlier break, in March 2014 (section 10). Any >90 series across
-the break has to be labelled and either stop at December 2024 or carry BCB's counterfactual as a
-caveat.
+**Conclusion for the design.** The overdue bands are consistent across the whole series in their
+*definitions*, not in their >90 *stocks*. Only the 15–90 bucket is defensible as a measure that
+runs through January 2025 with no adjustment. It has its own earlier break, in March 2014
+(section 10). Any >90 series across the break has to be labelled and either stop at December 2024
+or carry BCB's counterfactual as a caveat.
 
 ---
 
@@ -576,12 +578,14 @@ tax-registry attribute is unknown (U10).
 ### 10.4 What the public documentation already explains
 
 Checked on 2026-09-15, before asking BCB anything. Sources:
-- BCB's doc 3040 layout workbook `SCR3040_Leiaute.xls`, sheet `HistoricoAtualizacoes` (last saved 6 May 2026). Dates below are converted from Excel serials; "from data-base" is quoted from the log.
+- BCB's doc 3040 layout workbook `SCR3040_Leiaute.xls`, sheet `HistoricoAtualizacoes` (last
+  saved 6 May 2026). Dates below are converted from Excel serials; "from data-base" is quoted from the log.
 - The current *Instruções de Preenchimento do Documento 3040* **[3040]**.
 - Carta Circular 3.869/2018.
 - SERPRO's bCadastros documentation of the CPF registry.
 - Receita Federal's *Natureza de Ocupação* table (IRPF statistics by occupation).
-- REF May 2026, annex *Conceitos e Metodologias*, and *Relatório de Cidadania Financeira 2021*, glossary.
+- REF May 2026, annex *Conceitos e Metodologias*, and *Relatório de Cidadania Financeira 2021*,
+  glossary.
 - BCB's methodology note for credit statistics (*Nota para a Imprensa*, `notaempr.pdf`).
 - BCB working paper TD 338; doc 3026 filling instructions; Voto 159/2024–BCB.
 - Busca LAI (CGU, `buscalai.cgu.gov.br`): 63 past access-to-information requests mentioning
@@ -590,11 +594,11 @@ Checked on 2026-09-15, before asking BCB anything. Sources:
 | Observation in the data | Documented cause | Status |
 |---|---|---|
 | 2014-02 split of `Cheque especial e conta garantida` and of the working-capital sub-modalities | Layout change of 13/11/2013 (Carta Circular 3.617/2013): modality 0201 replaced by 0213 "cheque especial" and 0214 "conta garantida"; 0205/0206 replaced by 0215/0216. The same change renamed the field "Faturamento anual PJ" to **"Faturamento anual PJ ou Renda mensal PF"** | Explained. It also means PF income only became a reported 3040 field around 2014, consistent with the unstable income bands of 2012–2014. The log doesn't state the effective data-base; the data shows 2014-02 |
-| 2016-09 `Outros direitos creditórios descontados` | Carta-Circular 3.773/2016, from data-base Sep/2016 | Explained |
-| 2017-04 → 2017-07 card and rural sub-modality changes | Carta-Circular 3.806/2017: special characteristic 18 (financing of revolving card balances, Res. 4.549) from Apr/2017; sub-modality 0217 from May/2017; modality 08 renamed from "Financiamentos rurais e agroindustriais" to "Financiamentos rurais", with 0440 and 0804 added, from Jul/2017. Carta-Circular 3.817/2017: 0218 "cartão de crédito - não migrado" from May/2017 | Explained, including the data label "(ex-financiamentos rurais e agroindustriais)" |
-| Problem-asset flag | Special characteristic 19 "Ativo problemático" exists in doc 3040 from data-base Dec/2017 (Carta-Circular 3.819/2017). SCR.data uses it only from Jan/2025 **[M2]** | Documented |
+| 2016-09 `Outros direitos creditórios descontados` | Carta Circular 3.773/2016, from data-base Sep/2016 | Explained |
+| 2017-04 → 2017-07 card and rural sub-modality changes | Carta Circular 3.806/2017: special characteristic 18 (financing of revolving card balances, Res. 4.549) from Apr/2017; sub-modality 0217 from May/2017; modality 08 renamed from "Financiamentos rurais e agroindustriais" to "Financiamentos rurais", with 0440 and 0804 added, from Jul/2017. Carta Circular 3.817/2017: 0218 "cartão de crédito - não migrado" from May/2017 | Explained, including the data label "(ex-financiamentos rurais e agroindustriais)" |
+| Problem-asset flag | Special characteristic 19 "Ativo problemático" exists in doc 3040 from data-base Dec/2017 (Carta Circular 3.819/2017). SCR.data uses it only from Jan/2025 **[M2]** | Documented |
 | Payment-institution segment appears for PF in 2018-01 | Carta Circular 3.869/2018 (consolidating Circular 3.870/2017) requires Instituições de Pagamento to report doc 3040 | Consistent; the exact start of the obligation isn't verified |
-| **2018-11 income recoding** ("Indisponível" 0.00 → 0.99%; PJ `Indisponível` first appears) | Carta-Circular 3.871/2018 added domain **"0 - Indisponível" to Anexo 24 (PJ size) and Anexo 25 (PF income band) from data-base Nov/2018**. Before that, lenders had no "unavailable" code | **Explained** |
+| **2018-11 income recoding** ("Indisponível" 0.00 → 0.99%; PJ `Indisponível` first appears) | Carta Circular 3.871/2018 added domain **"0 - Indisponível" to Anexo 24 (PJ size) and Anexo 25 (PF income band) from data-base Nov/2018**. Before that, lenders had no "unavailable" code | **Explained** |
 | 2019-05 | Carta Circular 3.869/2018 art. 4: from data-base May/2019, undisbursed contracted credit and non-cancellable commitments count towards a client's total for the reporting threshold | Documented. No visible effect (PF growth tracks SGS 20541 that month) |
 | **2025-01 overdue amounts** | IN BCB 414/2023 changed the maturity-value description from Jan/2025. Overdue codes 205–290 are now present value **plus accrued contractual interest**, excluding unreceived revenue on problem assets ("stop accrual em ativos problemáticos") **[3040 item f]**. Before: present value plus charges, observing Res. 2.682 art. 9, i.e. no accrual from 60 days (Carta Circular 3.869/2018 art. 6 §2) | **Explained.** Balances 60–90 days overdue can now include accrued interest. Note: the cash-flow section of the same instructions still says maturity buckets exclude revenue after 60 days, which is inconsistent with item f |
 | **Occupation source and January refreshes** | The CPF registry holds `codNatOcup` together with `anoExerc`, "Exercício a que se referem os códigos natureza da ocupação e código da ocupação principal" (SERPRO). The income-tax return has 24 natureza categories, including "Microempreendedor Individual - MEI" and "Natureza da ocupação não especificada anteriormente". There were **31.6 million filers** for calendar year 2020 (Receita Federal) | **Mechanism documented, BCB's process not.** Occupation is a tax-return attribute tied to a filing year, which is consistent with annual January updates. People who don't file have no declared occupation, which plausibly feeds "Outros" (not confirmed). Nothing explains the size of January 2017 |
@@ -619,7 +623,7 @@ to a common cause **[D]**.
 
 | Month | Shift (pp of PF portfolio) | Where it comes from | Reading |
 |---|---|---|---|
-| 2018-11 | "Indisponível" +0.99 | Banks +0.97; loans +0.47, financing +0.33, other credit +0.14; no UF above +0.22 | New "Indisponível" code (Carta-Circular 3.871/2018, §10.4) |
+| 2018-11 | "Indisponível" +0.99 | Banks +0.97; loans +0.47, financing +0.33, other credit +0.14; no UF above +0.22 | New "Indisponível" code (Carta Circular 3.871/2018, §10.4) |
 | 2019-03 | "Indisponível" +2.69; "Acima de 20 SM" −1.73 | Banks +2.50 (finance companies +0.13, cooperatives +0.05). Loans +1.26 (R$10.8 → 34.4 bn) and **real-estate financing +1.09 (R$0.4 → 20.7 bn)**. The top-band fall is wider: banks −1.43, cooperatives −0.25; rural −0.77 | Reporting change concentrated in banks. The source of the top-band fall is not isolated |
 | 2020-08 | "Indisponível" −0.52 | Banks −0.51; "Financiamentos" R$9.5 → 4.7 bn | Bank reporting change |
 | 2021-09 | "Indisponível" −1.68 | Banks −1.54; loans −0.78 (R$38.8 → 19.3 bn), **real-estate −0.53 (R$16.0 → 2.7 bn)** | Largely reverses 2019-03 (share back to 1.09% against 1.23% before) |
@@ -663,7 +667,8 @@ isolates.
 
 ### 10.6 The July-2025 step
 
-**Data tests.** From `scripts/recon/income_step_2025_07.py`, comparing 2025-06 with 2025-07 unless stated:
+**Data tests.** From `scripts/recon/income_step_2025_07.py`, comparing 2025-06 with 2025-07
+unless stated:
 
 | Test | Result | Reading |
 |---|---|---|
@@ -679,23 +684,40 @@ isolates.
 | Cells | PF rows 194,161 → 180,953 ("Até 1 SM" 22,808 → 19,269); rows with `-1` operations 39,315 → 35,219. PJ rows 128,691 → 127,256 | PF cell structure changed in the same month |
 
 **Documents checked (2026-09-15).**
-- **IN BCB 627/2025** is the only doc 3040 change effective from data-base July 2025 (Art. 1). It adds special characteristics 40–42 (acquired precatórios, acquired rights in execution, syndicated operations), the EcoInvest regulatory-use code, and an auction number in additional information. It does not touch Anexos 24/25 or income. The layout log has no Anexo 24/25 change after 2018.
-- **Methodology:** the V1 PDF (created 2025-06-03) and V2 PDF (created 2026-03-06) both say the published sizes "representam os portes definidos nos Anexos 24 e 25", and describe no change.
+- **IN BCB 627/2025** is the only doc 3040 change effective from data-base July 2025 (Art. 1). It
+  adds special characteristics 40–42 (acquired precatórios, acquired rights in execution, syndicated
+  operations), the EcoInvest regulatory-use code, and an auction number in additional information.
+  It does not touch Anexos 24/25 or income. The layout log has no Anexo 24/25 change after 2018.
+- **Methodology:** the V1 PDF (created 2025-06-03) and V2 PDF (created 2026-03-06) both say the
+  published sizes "representam os portes definidos nos Anexos 24 e 25", and describe no change.
 - **REF annex:** the "Renda mensal" definition is word-for-word the same in April 2025 and May 2026.
-- **Dados Abertos metadata:** the V2 ZIP resource and the V1 notice ("disponíveis até a data-base junho/2025 e não serão mais atualizados") were both created on 2025-11-27. The V2 methodology resource was created on 2025-11-28.
-- **BCB's SCR.data page:** the current source holds a commented-out note, "Para informações a partir de julho/2025, os dados foram disponibilizados apenas no formato CSV". The note is absent from the Wayback copies of the page content of 2025-04-28 and 2025-12-10, so it was added later.
-- **Busca LAI:** none of the 63 requests mentioning "SCR.data" (most recent answered 2026-09-14) concerns income bands or July 2025.
+- **Dados Abertos metadata:** the V2 ZIP resource and the V1 notice ("disponíveis até a data-base
+  junho/2025 e não serão mais atualizados") were both created on 2025-11-27. The V2 methodology
+  resource was created on 2025-11-28.
+- **BCB's SCR.data page:** the current source holds a commented-out note, "Para informações a partir
+  de julho/2025, os dados foram disponibilizados apenas no formato CSV". The note is absent from the
+  Wayback copies of the page content of 2025-04-28 and 2025-12-10, so it was added later.
+- **Busca LAI:** none of the 63 requests mentioning "SCR.data" (most recent answered 2026-09-14)
+  concerns income bands or July 2025.
 - **Web searches:** no other rule or announcement found.
 
-**Reading.** Several things change together at data-base July 2025, while occupation, sourced from Receita, does not:
-- the lender-reported size field steps, for PF across every lender type and product, and for PJ at banks;
+**Reading.** Several things change together at data-base July 2025, while occupation, sourced from
+Receita, does not:
+- the lender-reported size field steps, for PF across every lender type and product, and for PJ at
+  banks;
 - PF cell counts fall in V2, and V1's structure changes;
 - BCB's own notes place the end of V1 and the switch to CSV-only publication at this month.
 
-The most likely explanation is **a change in how SCR.data is produced from data-base July 2025**. This is an inference, not documented. What changed in band assignment is also not documented. Two changes fit the aggregates and can't be told apart without borrower-level data:
+The most likely explanation is **a change in how SCR.data is produced from data-base July 2025**.
+This is an inference, not documented. What changed in band assignment is also not documented. Two
+changes fit the aggregates and can't be told apart without borrower-level data:
 - deriving the band from the reported amount ("Renda mensal PF") instead of the reported size code;
-- assigning one band per borrower across lenders, as the REF annex does (BCB said in 2023 that SCR.data had no client consolidation).
+- assigning one band per borrower across lenders, as the REF annex does (BCB said in 2023 that
+  SCR.data had no client consolidation).
 
-A lender-side cause is unlikely. No rule required re-reporting, and banks and cooperatives moved together for PF but not for PJ. It stays an open question for BCB (U12).
+A lender-side cause is unlikely. No rule required re-reporting, and banks and cooperatives moved
+together for PF but not for PJ. It stays an open question for BCB (U12).
 
-**For v1.** v1's income cross-sections end in 2024 and are unaffected. Any income-band series or band-level rate that crosses July 2025 needs a break flag, and a level adjustment can't be estimated from the data alone.
+**For v1.** v1's income cross-sections end in 2024 and are unaffected. Any income-band series or
+band-level rate that crosses July 2025 needs a break flag, and a level adjustment can't be estimated
+from the data alone.

@@ -40,11 +40,16 @@ EXTERNAL = {
     "desenrola_people_m": 15.06,
     # MP 1.314/2025: Treasury funds to refinance climate-hit rural debt, from September 2025
     "rural_refinancing_bn": 12.0,
-    # Novo Desenrola, May 2026: federal guarantees, up to
+    # Novo Desenrola, May 2026: the ceiling on federal guarantees
     "novo_desenrola_bn": 15.0,
     # Lei 15.270/2025: monthly income exempt from income tax from January 2026
     "tax_exemption_reais": 5000,
 }
+
+# From the research record rather than the models: the most BCB's September 2026 republication of
+# the 2024 and 2026 archives moved the household 90-day rate (scripts/recon/vintage_diff.py;
+# docs/data-dictionary.md, section 1.1).
+REPUBLICATION_SHIFT = 0.00001
 
 RETIREES = "Aposentado/pensionista"
 SELF_EMPLOYED = "Autônomo"
@@ -227,7 +232,8 @@ def _facts(con: duckdb.DuckDBPyConnection) -> dict:
         f[f"{who}_growth"] = float(cur.loc[f[who], "real_balance_growth"])
     f["all_rising"] = bool((cur["d15_change"] > 0).all())
 
-    # Who has a declared occupation: only income-tax filers do (docs/data-dictionary.md, 10.4)
+    # Who has a declared occupation: only income-tax filers have one (docs/data-dictionary.md,
+    # section 10.4)
     f["outros_balance_share"], f["outros_loan_share"], f["outros_lowest_band_share"] = one(
         """select
             sum(carteira_ativa) filter (where occupation = 'Outros') / sum(carteira_ativa),
@@ -236,18 +242,18 @@ def _facts(con: duckdb.DuckDBPyConnection) -> dict:
             sum(carteira_ativa) filter (
                 where occupation = 'Outros' and income_band = 'Até 1 salário mínimo')
                 / sum(carteira_ativa) filter (where income_band = 'Até 1 salário mínimo')
-        from int_pf_cells where year(month) = 2024"""
+        from mart_pf_cells where year(month) = 2024"""
     )
     (f["retiree_above_one_wage_share"],) = one(
         """select sum(carteira_ativa) filter (where income_band in ?) / sum(carteira_ativa)
-        from int_pf_cells where year(month) = 2024 and occupation = ?""",
+        from mart_pf_cells where year(month) = 2024 and occupation = ?""",
         [b for b in INCOME_BANDS if b != "Até 1 salário mínimo"],
         RETIREES,
     )
 
-    # Payroll loans to private-sector employees: before the Crédito do Trabalhador opened them to
-    # private payrolls in March 2025 (January 2025, and November 2024 to January 2025 for the
-    # rate), and in the latest month (and the latest three months for the rate).
+    # Payroll loans to private-sector employees, before and after the Crédito do Trabalhador opened
+    # them to every private payroll in March 2025. Balances: January 2025 against the latest month.
+    # 15-90-day rate: November 2024 to January 2025 against the latest three months.
     (
         f["private_payroll_before_bn"],
         f["private_payroll_latest_bn"],
@@ -257,7 +263,7 @@ def _facts(con: duckdb.DuckDBPyConnection) -> dict:
         """with cells as (
             select month, sum(carteira_ativa) as balance,
                 sum(vencido_de_15_ate_90_dias) as overdue
-            from int_pf_cells
+            from mart_pf_cells
             where occupation = 'Empregado de empresa privada' and product_group = 'Consignado'
             group by 1)
         select
@@ -270,6 +276,7 @@ def _facts(con: duckdb.DuckDBPyConnection) -> dict:
         from cells""",
         {"latest": f["latest_month"]},
     ).fetchone()
+    f["republication_shift"] = REPUBLICATION_SHIFT
     f.update(EXTERNAL)
     return f
 
@@ -319,6 +326,9 @@ def check(f: dict) -> None:
             len(f["episodes_with_reclassification"]) == 1
         ),
         "15-90-day delinquency rose for every occupation": f["all_rising"],
+        "the self-employed are the fastest riser, as a section heading says": (
+            f["fastest"] == SELF_EMPLOYED
+        ),
         "the fastest riser is the same with the lagged denominator": (
             f["fastest"] == f["fastest_with_lagged_denominator"]
         ),
@@ -338,96 +348,103 @@ def check(f: dict) -> None:
 
 def values(f: dict, lang: Language = PT) -> dict[str, str]:
     """Every figure the text quotes, formatted in one language."""
-    L = lang
-    occupation = lambda key: L.label("occupation_in_text", key)  # noqa: E731
+
+    def occupation(key: str) -> str:
+        return lang.label("occupation_in_text", key)
+
+    def billions(value: float) -> str:
+        key = "report.billion_one" if round(value) == 1 else "report.billion"
+        return lang.t(key, value=lang.number(value, 0))
+
+    def millions(value: float, decimals: int = 0) -> str:
+        return lang.t("report.million", value=lang.number(value, decimals))
+
     largest = f["largest_spread"]
     card = f["product_rates"]["Cartão"]
     payroll = f["product_rates"]["Consignado"]
     return {
         "months": str(f["months"]),
-        "first_month": L.month(f["first_month"]),
-        "latest_month": L.month(f["latest_month"]),
-        "portfolio": L.t("report.trillion", value=L.number(f["portfolio_bn"] / 1000, 1)),
-        "sgs_gap_low": L.pp(f["sgs_gap_low"], sign=True),
-        "sgs_gap_high": L.pp(f["sgs_gap_high"], sign=True),
-        "rural_self_employed": L.pct(f["rural_self_employed"], 0),
-        "outros_low": L.pct(f["outros_low"], 0),
-        "outros_high": L.pct(f["outros_high"], 0),
-        "unexplained_jumps": L.count(f["unexplained_jumps"]),
-        "occupations": L.count(f["occupations"], feminine=True),
-        "income_bands": L.count(f["income_bands"], feminine=True),
-        "product_groups": L.count(f["product_groups"]),
-        "min_cell": L.t("report.billion", value=L.number(f["min_cell_balance_bn"], 0)),
-        "material": L.pp(f["material"], 1),
-        "crosswalk_shift": L.pct(f["max_crosswalk_shift"], 0),
-        "weight_jump": L.pp(f["weight_jump_threshold"], 1),
-        "bcb_regulatory": f"{L.number(f['bcb_regulatory_pp'])} {L.pp_unit}",
-        "bcb_total": f"{L.number(f['bcb_total_pp'])} {L.pp_unit}",
-        "d90_step": L.pp(f["d90_step_january_2025"], sign=True),
-        "d90_step_before": L.pp(f["d90_step_january_2024"], sign=True),
-        "d15_step": L.pp(f["d15_step_january_2025"], sign=True),
-        "d15_step_before": L.pp(f["d15_step_january_2024"], sign=True),
-        "grid_spread": L.pp(largest["spread"], 1),
+        "first_month": lang.month(f["first_month"], long=True),
+        "latest_month": lang.month(f["latest_month"], long=True),
+        "portfolio": lang.t("report.trillion", value=lang.number(f["portfolio_bn"] / 1000, 1)),
+        "sgs_gap_low": lang.pp(f["sgs_gap_low"], sign=True),
+        "sgs_gap_high": lang.pp(f["sgs_gap_high"], sign=True),
+        "rural_self_employed": lang.pct(f["rural_self_employed"], 0),
+        "outros_low": lang.pct(f["outros_low"], 0),
+        "outros_high": lang.pct(f["outros_high"], 0),
+        "unexplained_jumps": lang.count(f["unexplained_jumps"]),
+        "occupations": lang.count(f["occupations"], feminine=True),
+        "income_bands": lang.count(f["income_bands"], feminine=True),
+        "product_groups": lang.count(f["product_groups"]),
+        "min_cell": billions(f["min_cell_balance_bn"]),
+        "material": lang.pp(f["material"], 1),
+        "crosswalk_shift": lang.pct(f["max_crosswalk_shift"], 0),
+        "weight_jump": lang.pp(f["weight_jump_threshold"], 1),
+        "bcb_regulatory": f"{lang.number(f['bcb_regulatory_pp'])} {lang.pp_unit}",
+        "bcb_total": f"{lang.number(f['bcb_total_pp'])} {lang.pp_unit}",
+        "d90_step": lang.pp(f["d90_step_january_2025"], sign=True),
+        "d90_step_before": lang.pp(f["d90_step_january_2024"], sign=True),
+        "d15_step": lang.pp(f["d15_step_january_2025"], sign=True),
+        "d15_step_before": lang.pp(f["d15_step_january_2024"], sign=True),
+        "grid_spread": lang.pp(largest["spread"]),
         "grid_high": occupation(largest["highest"]),
         "grid_low": occupation(largest["lowest"]),
-        "grid_band": L.label("band_in_text", largest["income_band"]),
-        "grid_smallest": L.pp(f["smallest_spread"]),
-        "small_cells": L.count(f["small_cells"], feminine=True),
-        "bands_shown": L.count(f["bands_shown"], feminine=True),
-        "top_two_riskiest": L.count(f["top_two_riskiest"], feminine=True),
-        "safest": L.count(f["safest"]),
-        "ratio_low": L.number(min(f["ratios"])),
-        "ratio_high": L.number(max(f["ratios"])),
-        "correlation": L.number(f["unemployment_correlation"]),
-        "years": L.count(f["years"]),
-        "d15_years": L.join(f["d15_years_above_one"]),
-        "split_bands": L.count(len(f["stable_bands"]), feminine=True),
-        "split_band_names": L.t(
-            "report.bands", bands=L.join(L.label("band", b).lower() for b in f["stable_bands"])
+        "grid_band": lang.label("band_in_text", largest["income_band"]),
+        "grid_smallest": lang.pp(f["smallest_spread"]),
+        "small_cells": lang.count(f["small_cells"], feminine=True),
+        "bands_shown": lang.count(f["bands_shown"], feminine=True),
+        "top_two_riskiest": lang.count(f["top_two_riskiest"], feminine=True),
+        "safest": lang.count(f["safest"]),
+        "ratio_low": lang.number(min(f["ratios"])),
+        "ratio_high": lang.number(max(f["ratios"])),
+        "correlation": lang.number(f["unemployment_correlation"]),
+        "years": lang.count(f["years"]),
+        "d15_years": lang.join(f["d15_years_above_one"]),
+        "split_bands": lang.count(len(f["stable_bands"]), feminine=True),
+        "split_band_names": lang.t(
+            "report.bands",
+            bands=lang.join(lang.label("band", b).lower() for b in f["stable_bands"]),
         ),
-        "mix_share": L.pct(f["product_mix_share"], 0),
-        "mix_share_no_rural": L.pct(f["product_mix_share_excluding_rural"], 0),
+        "mix_share": lang.pct(f["product_mix_share"], 0),
+        "mix_share_no_rural": lang.pct(f["product_mix_share_excluding_rural"], 0),
         "material_splits": str(f["material_splits"]),
-        "stable_splits": L.count(sum(f["stable_by_pair"].values())),
-        "public_share": L.pct(f["pair_shares"]["public_vs_private_employee"], 0),
-        "mei_share": L.pct(f["pair_shares"]["mei_vs_business_owner"], 0),
-        "top_product": L.label("product_in_text", f["top_product"]),
-        "top_product_share": L.pct(f["top_product_share"], 0),
-        "card_self_employed": L.pct(card[0]),
-        "card_retirees": L.pct(card[1]),
-        "payroll_self_employed": L.pct(payroll[0]),
-        "payroll_retirees": L.pct(payroll[1]),
-        "episodes": L.count(f["episodes"]),
-        "pure_low": L.pct(f["pure_low"], 0),
-        "pure_high": L.pct(f["pure_high"], 0),
-        "mix_max": L.pct(f["mix_max"], 0),
+        "stable_splits": lang.count(sum(f["stable_by_pair"].values())),
+        "public_share": lang.pct(f["pair_shares"]["public_vs_private_employee"], 0),
+        "mei_share": lang.pct(f["pair_shares"]["mei_vs_business_owner"], 0),
+        "top_product": lang.label("product_in_text", f["top_product"]),
+        "top_product_share": lang.pct(f["top_product_share"], 0),
+        "card_self_employed": lang.pct(card[0]),
+        "card_retirees": lang.pct(card[1]),
+        "payroll_self_employed": lang.pct(payroll[0]),
+        "payroll_retirees": lang.pct(payroll[1]),
+        "episodes": lang.count(f["episodes"]),
+        "pure_low": lang.pct(f["pure_low"], 0),
+        "pure_high": lang.pct(f["pure_high"], 0),
+        "mix_max": lang.pct(f["mix_max"], 0),
         "flagged_episode": f["episodes_with_reclassification"][0],
-        "flagged_borrower_mix": L.pp(f["flagged_borrower_mix"], sign=True),
+        "flagged_borrower_mix": lang.pp(f["flagged_borrower_mix"], sign=True),
         "fastest": occupation(f["fastest"]),
-        "fastest_change": L.pp(f["fastest_change"], sign=True),
-        "fastest_growth": L.pct(f["fastest_growth"], sign=True),
+        "fastest_change": lang.pp(f["fastest_change"], sign=True),
+        "fastest_growth": lang.pct(f["fastest_growth"], sign=True),
         "slowest": occupation(f["slowest"]),
-        "slowest_change": L.pp(f["slowest_change"], sign=True),
-        "slowest_growth": L.pct(f["slowest_growth"], sign=True),
-        "outros_balance_2024": L.pct(f["outros_balance_share"], 0),
-        "outros_loans_2024": L.pct(f["outros_loan_share"], 0),
-        "outros_lowest_band": L.pct(f["outros_lowest_band_share"], 0),
-        "retiree_above_one_wage": L.pct(f["retiree_above_one_wage_share"], 0),
-        "private_payroll_before": L.t(
-            "report.billion", value=L.number(f["private_payroll_before_bn"], 0)
-        ),
-        "private_payroll_latest": L.t(
-            "report.billion", value=L.number(f["private_payroll_latest_bn"], 0)
-        ),
-        "private_payroll_d15_before": L.pct(f["private_payroll_d15_before"], 2),
-        "private_payroll_d15_latest": L.pct(f["private_payroll_d15_latest"], 2),
-        "borrowers_2019": L.t("report.million", value=L.number(f["borrowers_2019_m"], 0)),
-        "tax_returns_2026": L.t("report.million", value=L.number(f["tax_returns_2026_m"], 1)),
-        "self_employed_2025": L.t("report.million", value=L.number(f["self_employed_2025_m"], 1)),
-        "self_employed_with_cnpj": L.pct(f["self_employed_with_cnpj"], 0),
-        "desenrola_amount": L.t("report.billion", value=L.number(f["desenrola_bn"], 0)),
-        "desenrola_people": L.t("report.million", value=L.number(f["desenrola_people_m"], 0)),
-        "rural_refinancing": L.t("report.billion", value=L.number(f["rural_refinancing_bn"], 0)),
-        "novo_desenrola": L.t("report.billion", value=L.number(f["novo_desenrola_bn"], 0)),
-        "tax_exemption": L.t("report.reais", value=L.number(f["tax_exemption_reais"], 0)),
+        "slowest_change": lang.pp(f["slowest_change"], sign=True),
+        "slowest_growth": lang.pct(f["slowest_growth"], sign=True),
+        "outros_balance_2024": lang.pct(f["outros_balance_share"], 0),
+        "outros_loans_2024": lang.pct(f["outros_loan_share"], 0),
+        "outros_lowest_band": lang.pct(f["outros_lowest_band_share"], 0),
+        "retiree_above_one_wage": lang.pct(f["retiree_above_one_wage_share"], 0),
+        "private_payroll_before": billions(f["private_payroll_before_bn"]),
+        "private_payroll_latest": billions(f["private_payroll_latest_bn"]),
+        "private_payroll_d15_before": lang.pct(f["private_payroll_d15_before"], 2),
+        "private_payroll_d15_latest": lang.pct(f["private_payroll_d15_latest"], 2),
+        "borrowers_2019": millions(f["borrowers_2019_m"]),
+        "tax_returns_2026": millions(f["tax_returns_2026_m"], 1),
+        "self_employed_2025": millions(f["self_employed_2025_m"], 1),
+        "self_employed_with_cnpj": lang.pct(f["self_employed_with_cnpj"], 0),
+        "desenrola_amount": billions(f["desenrola_bn"]),
+        "desenrola_people": millions(f["desenrola_people_m"]),
+        "rural_refinancing": billions(f["rural_refinancing_bn"]),
+        "novo_desenrola": billions(f["novo_desenrola_bn"]),
+        "tax_exemption": lang.t("report.reais", value=lang.number(f["tax_exemption_reais"], 0)),
+        "republication_shift": lang.pp(f["republication_shift"], 3),
     }
