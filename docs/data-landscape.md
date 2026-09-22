@@ -143,7 +143,7 @@ counterfactual to size the 2025 break rather than attempt to construct one.
 | **CNC PEIC** | Household survey: indebted / overdue / can't pay | Capitals, families | Monthly | 2010-01 → | Reports | not stated | **month only**; different unit |
 | **Serasa / Boa Vista** | People with negative bureau records | Counts | Monthly | ~2016 → | Press releases; detail paid | proprietary | **none** |
 
-The one-line answer: **nothing joins to SCR.data below the national-month or UF-month level, and
+In short: **nothing joins to SCR.data below the national-month or UF-month level, and
 nothing joins on occupation or income at all.** Every external source is context, validation, or a
 macro regressor, never a denominator for a segment rate.
 
@@ -187,7 +187,7 @@ SCR.data from doc 3040 (operation-level), with scope differences such as receiva
 for firms **[RPM fn 6]**. SGS "modality" series do not map 1:1 onto SCR.data `modalidade` or
 `submodalidade`.
 
-## B.3 BCB Relatório de Estabilidade Financeira: the deliverable being imitated
+## B.3 BCB Relatório de Estabilidade Financeira: how the professional version is built
 
 **How section 1.2.2 *Crédito* is built (REF May 2026)** **[REF26]**. The same order is used in the
 Nov-2025 edition:
@@ -324,10 +324,13 @@ is survey-reported work income.
 | **Res. CMN 4.966 art. 72-A** | Restructurings between 1 May and 31 Dec 2024 caused by the Rio Grande do Sul floods are *not* problem-asset indicators **[R]** | RS × 2024-05…12: a known regional distortion in problem assets |
 | **Doc 3040 layout and filling instructions** | The field-level truth behind SCR.data (income band rules, *característica especial 19*) **[3040]** | defines the columns |
 
-Policy events that need verified dates before being overlaid on any chart: the Desenrola Brasil
-renegotiation programme (2023–24), caps on revolving card interest, and changes to FGTS
-*saque-aniversário* lending. REF26 notes the last one moved unsecured personal credit. **Not
-verified here**; don't annotate a chart from memory.
+**Policy events.** The report cites, with a source for each date and amount, the Desenrola
+Brasil renegotiation programme (July 2023 to May 2024), the cap on revolving card interest (from
+January 2024), the Rio Grande do Sul postponements (2024), the opening of payroll loans to
+private-sector workers (March 2025), the rural refinancing of MP 1.314/2025 and the Novo Desenrola
+(May 2026) (`analysis/index.qmd`, footnotes). None is a dataset that joins to SCR.data; they are
+context for reading the rates. REF26 notes that changes to FGTS *saque-aniversário* lending moved
+unsecured personal credit; that is **not verified here** and not used.
 
 ## B.10 Where taxonomies do not reconcile: check before any join
 

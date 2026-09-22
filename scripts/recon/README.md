@@ -1,8 +1,9 @@
 # Research scripts
 
 Each script answers one question from the research and prints its result. The document that uses
-the answer cites the script, so every figure in `docs/` can be traced back and rerun. The dbt models
-in `models/` will take over whatever the analysis depends on.
+the answer cites the script, so every figure in `docs/` can be traced back and rerun. The analysis
+itself doesn't run these scripts: the pipeline in `src/` and the dbt models in `models/` compute
+everything the report quotes.
 
 Run them from the repository root after `uv sync`. Downloads and derived data go to `data/`, which is
 gitignored. Scripts that read `data/recon.duckdb` take a different path from the `RECON_DB`

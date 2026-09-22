@@ -1,6 +1,7 @@
 # data/
 
-Everything under `data/` is gitignored and can be rebuilt with one command:
+Apart from this file, everything under `data/` is gitignored and can be rebuilt with one
+command:
 
 ```bash
 make fetch        # the same as: uv run fetch-data
@@ -23,8 +24,8 @@ on disk are still staged, and the run ends with an error so the missed check isn
 | Source | What | Licence |
 |---|---|---|
 | BCB SCR.data | Monthly aggregated credit operations, from July 2012 | ODbL |
-| BCB SGS, credit and rate series | Delinquency, balances, new lending, rates, spreads, household debt, Selic | ODbL |
-| BCB SGS, republished series | Unemployment and IPCA (IBGE), the minimum wage | Terms of the original publisher |
+| BCB SGS, BCB's own series | Household 90-day delinquency, total and credit cards (21084, 21129) | ODbL |
+| BCB SGS, series BCB republishes | Unemployment and IPCA (IBGE; 24369, 433), the minimum wage (1619) | Terms of the original publisher |
 
 BCB's open-data portal publishes SCR.data and its own SGS series under the Open Database License
 (ODbL). Charts and reports built from them need attribution. A derived dataset published from this

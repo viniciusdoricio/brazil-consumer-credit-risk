@@ -11,31 +11,32 @@ landscape) and `docs/analysis-design.md` (method).*
 
 ---
 
-## First, the direct answer about the proposed v1
+## What the data supports, and what it doesn't
 
-**Occupation × income is supported by the data. The proposed measure and period are not.**
+The project started from a first specification: 90-day delinquency as a share of the portfolio,
+June 2012 to the present, as raw rates by occupation × income. **The data supports the question
+behind it, but not its measure, its period or its method.**
 
 - **Supported:** SCR.data V2 publishes occupation and income as a genuine joint distribution. The
-  grain is unique, there are no subtotal rows, and all 72 PF cells are populated in every month profiled
-  from January 2016 to July 2026 (127 months; 68–70 of 72 before 2016).
-- **Not supported as written:** "*atraso acima de 90 dias* as a share of the portfolio, June 2012 –
-  present". It fails in two places:
+  grain is unique, there are no subtotal rows, and all 72 PF cells are populated in every month
+  profiled from January 2016 to July 2026 (127 months; 68–70 of 72 before 2016).
+- **Not supported: the measure and the period.** They fail in three places:
   1. **After January 2025 the 90-day stock is inflated by an accounting change.** BCB estimates
      about 70% of the first-half-2025 rise in 90-day delinquency was regulatory (write-offs
-     delayed under Res. CMN 4.966), not borrower behaviour. The original plan's premise that the overdue
-     bands are consistent across the break holds for the definitions, not for the numbers.
+     delayed under Res. CMN 4.966), not borrower behaviour. The overdue bands keep their
+     definitions across the break, but not their numbers.
   2. **Before June 2016 the population is different.** The SCR reporting threshold fell from R$1,000
      to R$200. PF operations rose a third in one month and the "Até 1 SM" portfolio a fifth.
   3. **Before January 2017 the occupations are different.** "Outros" lost 11.3 pp of the portfolio
      in one month. Every named occupation's 90-day rate jumped by 0.4–2.2 pp while the total didn't
      move.
-- **Also not defensible as written:** comparing raw rates across occupations. A risk manager's first
-  question would be "isn't that just payroll-deducted loans?" Retirees and public servants get
-  *consignado*; the self-employed mostly don't. Without splitting product mix out, the comparison
-  can't be defended in an interview.
+- **Not supported: the method.** Raw rates across occupations can't be compared as they stand. A
+  risk manager's first question would be "isn't that just payroll-deducted loans?" Retirees and
+  public servants get *consignado*; the self-employed mostly don't. Without splitting product mix
+  out, the comparison can't be defended.
 
-So v1 keeps the question and changes the measure, the period and the method. Nothing below is a
-weaker question under the old name. The additions make the original question answerable.
+So v1 keeps the question and changes the measure, the period and the method, which is what makes
+the question answerable.
 
 ---
 
@@ -51,9 +52,9 @@ o que muda é o tipo de crédito a que cada ocupação tem acesso?**
 
 | Alternative | Why it lost |
 |---|---|
-| **A. The original v1 as specified** (90-day overdue, 2012–present, raw rates by occupation × income) | Measure breaks in 2025; low-income cells change population in 2016; raw occupation gaps are confounded with product access. The question survives, the specification doesn't |
-| **B. The January-2025 break as v1** | BCB already published the quantification (the ~70% counterfactual). Re-deriving it nationally adds little. The segment-level version is unidentifiable, because no public counterfactual exists below the aggregate. It remains the best *LinkedIn post 1* and is carried in chart 1 |
-| **C. Occupation only** (the original plan's fallback if the data were marginals) | Not needed: the cross-tab exists. Income is clean *within* a year, and "at the same income" is exactly the control that makes the occupation comparison fair. The January-2025 income anomaly falls outside the 90-day window |
+| **A. The first specification** (90-day overdue, 2012–present, raw rates by occupation × income) | Measure breaks in 2025; low-income cells change population in 2016; raw occupation gaps are confounded with product access. The question survives, the specification doesn't |
+| **B. The January-2025 break as v1** | BCB already published the quantification (the ~70% counterfactual). Re-deriving it nationally adds little. The segment-level version is unidentifiable, because no public counterfactual exists below the aggregate. It is carried in chart 1, and a standalone version is on the extensions list (§5) |
+| **C. Occupation only** (the fallback if occupation and income were published only as separate marginals) | Not needed: the cross-tab exists. Income is clean *within* a year, and "at the same income" is exactly the control that makes the occupation comparison fair. The January-2025 income anomaly falls outside the 90-day window |
 | **D. Product spread (payroll vs card)** | Close to what BCB's Financial Stability Report already publishes by modality, so it differentiates less. It enters v1 anyway, as the decomposition term |
 | **E. Regional (UF)** | Cells get thin fast (27 × 72), and the 2024 Rio Grande do Sul flood restructurings are treated specially in the regulation (art. 72-A). Extension |
 | **F. Early warning / Selic lag model** | One clean tightening episode inside the consistent cell-level window. No lag estimate from this data would be honest. Extension, descriptive only |
@@ -84,7 +85,8 @@ also names the headline that replaces it if the data says the opposite. No headl
 by hand. Every number comes from a model.
 
 *As built* (`src/brazil_consumer_credit_risk/charts/`, `make charts`): each headline is chosen from
-the models by a rule fixed in code, with the numbers behind it in `analysis/figures/headlines.json`.
+the models by a rule fixed in code, with the numbers behind it in
+`analysis/figures/{pt,en}/headlines.json`.
 Three departures from the table below:
 - **Chart 3:** the headline names the 90-day measure, because the 15–90-day measure can disagree.
 - **Chart 4:** it shows all seven named bands, marking the ones whose split isn't stable, instead
@@ -121,8 +123,8 @@ Three departures from the table below:
 5. **PJ** by CNAE section × firm size.
 6. **Tableau Public** version of charts 2, 4 and 6.
 
-This reorders the original list. Early warning moves first because it costs least on top of v1 and
-is the metric that still works today. Regional drops because of cell thinness.
+Early warning comes first because it costs least on top of v1 and is the metric that still works
+today. Regional comes late because of cell thinness.
 
 ## 6. Risks to this design, and what would falsify the finding
 
@@ -140,22 +142,3 @@ is the metric that still works today. Regional drops because of cell thinness.
 | Balance weighting (mortgages dominate high-income cells) | High-income D90 reflects housing and rural credit | Decomposition carries it; chart 4 shows product mix explicitly |
 | Data revision (V2 history re-published in 2026) | A later download may move numbers | SHA-256 pinned; the data vintage stated in the write-up |
 | **Central claim falsified if…** | — | "Occupation matters more than income" is falsified if the spread across income bands within occupations exceeds the spread across occupations within bands in all three windows (2019, 2022, 2024). "It's the job, not the product" is falsified if the product-mix term is more than half of the raw gap for the headline pairs. Either outcome is publishable, and the write-up states which occurred |
-
-## 7. Hours to a publishable v1
-
-| Work | Hours |
-|---|---|
-| Replace the first-draft fetch script with a fetch step in the build, reusing `scripts/recon/fetch_years.py` (chunked ranges, CRC checks, manifest); the full download already works in ~15 minutes | 3–5 |
-| Fix the toolchain: pin `dbt-core` (current resolve pulls a pre-release that fails to build), commit a working `uv.lock`, CI green | 2–3 |
-| dbt staging (on the Parquet from `scripts/recon/to_parquet.py`)/intermediate/marts; product crosswalk seed; classification-event seed; tests (grain, shares 0–1, reconciliation to SGS 21084 within 0.2 pp, **break assertion on D90 vs D15**, decomposition sums) | 12–16 |
-| SGS ingestion (21084, 24369, 1619, 433) | 2–3 |
-| Decomposition and dispersion models, sensitivities, classification-event handling, rural split | 9–12 |
-| Six charts in Quarto | 6–8 |
-| Write-up in Portuguese: limitations first, then question, data, trap, findings, recommendation | 12–16 |
-| README for a hiring manager; clean-machine reproduction; review | 5–7 |
-| Contingency (~15%) | 8–10 |
-| **Total** | **≈ 59–80 hours** |
-
-The original two-week target is realistic only at close to full-time. At 15–20 hours a week it
-is four to five weeks. **A finished v1 beats an expanded one**, so the extensions list stays closed
-until chart 6 is published.

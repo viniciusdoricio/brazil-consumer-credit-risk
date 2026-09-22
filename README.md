@@ -61,7 +61,7 @@ The results depend on each of these. The ones marked *could be wrong* are tested
 6. **A segment's rate describes the portfolio lenders built for it, not the people in it.** Rates are weighted by balance, one borrower can appear in several cells, and lenders decide who gets credit. Public data can't separate that choice from borrower behaviour, so no claim here is about how a group behaves.
 7. **A cell needs R$1 bn of balance before its rate is ranked.** The threshold is a judgement. In 2024 it removes 16 of the 72 occupation-by-income cells, none of them in the headline comparisons.
 8. **A share that moves more than 0.5 pp of household credit in one month is a reclassification, not lending.** Every documented reclassification since 2017 moves that much, except three minimum-wage resets. *Could be wrong* the other way: in nine months since 2017 a share moved that much with no documented cause, which may be real lending. Those months are flagged rather than read either way.
-9. **The release used is final enough.** BCB republishes history. The analysis uses the release pinned in `data/raw/zips/MANIFEST.tsv`, and the September 2026 republication moved the household 90-day rate by at most 0.001 pp.
+9. **The release used is final enough.** BCB republishes history. `make fetch` records each archive's publication date and SHA-256 in a manifest, and the data dictionary (section 8) lists the release this analysis used. The September 2026 republication moved the household 90-day rate by at most 0.001 pp.
 
 ## Reproducing it
 

@@ -7,19 +7,19 @@ month,dimension,description,reference
 2016-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2016-01-01,occupation,"""Outros"" falls 7.8 pp; MEI appears",data dictionary §10.2
 2016-06-01,scope,"Reporting threshold falls from R$1,000 to R$200",data dictionary §5.1
-2016-09-01,product,"""Outros direitos creditórios descontados"" added",Carta-Circular 3.773/2016 (data dictionary §10.4)
+2016-09-01,product,"""Outros direitos creditórios descontados"" added",Carta Circular 3.773/2016 (data dictionary §10.4)
 2017-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2017-01-01,occupation,"""Outros"" falls 11.3 pp; named occupations' 90-day rates rise 0.4 to 2.2 pp",data dictionary §10.2
 2017-02-01,income,"""Até 1 SM"" rises 0.54 pp; cause not established",data dictionary §10.2
 2017-03-01,income,"""Até 1 SM"" falls 2.51 pp, roughly reversing its January and February rises; cause not established",data dictionary §10.2
-2017-05-01,product,"Card sub-modalities split (""não migrado"" added)",Carta-Circulares 3.806/2017 and 3.817/2017 (data dictionary §10.4)
+2017-05-01,product,"Card sub-modalities split (""não migrado"" added)",Cartas Circulares 3.806/2017 and 3.817/2017 (data dictionary §10.4)
 2017-06-01,income,"""Acima de 20 SM"" falls 0.83 pp; cause not established",data dictionary §10.2
 2017-07-01,income,"""Até 1 SM"" falls 0.52 pp; cause not established",data dictionary §10.2
-2017-07-01,product,Rural modality renamed; agro-industrial financing split out,Carta-Circular 3.806/2017 (data dictionary §10.4)
+2017-07-01,product,Rural modality renamed; agro-industrial financing split out,Carta Circular 3.806/2017 (data dictionary §10.4)
 2017-10-01,income,"""1-2 SM"" falls 0.80 pp; cause not established",data dictionary §10.2
 2018-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2018-01-01,occupation,"""Outros"" falls 2.3 pp",data dictionary §10.2
-2018-11-01,income,"""Indisponível"" income band created",Carta-Circular 3.871/2018 (data dictionary §10.4)
+2018-11-01,income,"""Indisponível"" income band created",Carta Circular 3.871/2018 (data dictionary §10.4)
 2019-01-01,income,Minimum wage rises; income bands shift,data dictionary §10.5
 2019-03-01,income,"Banks move balances into ""Indisponível"", mostly loans and mortgages",data dictionary §10.5
 2019-05-01,income,"""Acima de 20 SM"" falls 0.69 pp; cause not established",data dictionary §10.2
