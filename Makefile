@@ -1,4 +1,4 @@
-.PHONY: setup fetch build charts test lint report all
+.PHONY: setup fetch build charts test lint report audit all
 
 setup:          ## install deps and git hooks
 	uv sync
@@ -23,4 +23,7 @@ lint:
 report: charts  ## render the write-up to analysis/_output (needs Quarto: brew install --cask quarto)
 	uv run quarto render analysis/
 
-all: setup fetch build charts test report
+audit:          ## recompute the report's headline numbers from the raw files and compare
+	uv run python scripts/audit.py
+
+all: setup fetch build charts test report audit
