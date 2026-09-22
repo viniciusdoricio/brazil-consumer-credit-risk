@@ -155,7 +155,7 @@ report or chart is a "produced work" and needs attribution only. **Implication:*
 publishes its marts (CSV/Parquet) or a Tableau data source, they must carry ODbL and attribution.
 The README and `data/README.md` say so.
 
-## B.2 BCB SGS: the ten series that matter
+## B.2 BCB SGS: the series that matter
 
 Names are the official metadata strings from the SGS web service, not recalled codes **[SGS]**
 (`scripts/recon/sgs.py`).
@@ -172,6 +172,7 @@ Names are the official metadata strings from the SGS web service, not recalled c
 | 8 | **29034** | Household debt service ratio – Seasonally adjusted data (Households gross disposable national income) | % | 2005-03 → 2026-06 | Transmission channel Selic → debt service. **One month shorter** than SCR.data |
 | 9 | **29037** | Household debt to income (Households gross disposable national income) | % | 2005-01 → 2026-06 | Leverage |
 | 10 | **24369** | Unemployment rate – PNADC | % | 2012-03 → 2026-07 | Labour-market shock (IBGE, carried in SGS) |
+| 11 | **21129** | Percent of 90 days past due loans of nonearmarked credit operations outstanding – Households – Credit card total | % | 2011-03 → 2026-07 | **Product-level validation.** The SCR.data card group stays within 0.75 pp of it every month 2017–2024 (observed −0.03 to +0.69 pp; dbt test `assert_pf_card_rate_matches_sgs_21129`). Diverges after 2024, up to +1.35 pp in 2026, as the 90-day stock builds under Res. 4.966 |
 
 Two technical series needed for normalisation, not analysis: **1619** *Minimum wage* (R$678 in
 Jan-2013, R$1,412 Jan-2024, R$1,518 Jan-2025, R$1,621 Jan-2026). It fixes the R$ value of every

@@ -163,6 +163,9 @@ unstable where the alternative moves its product-mix part by more than 25% of th
 - Weights sum to 1 per month (and per cell for `v`).
 - Cell-level numerator and denominator reconcile to the national PF totals, which reconcile to SGS
   21084 within 0.2 pp for every month 2017–2024 (observed on the full history; data dictionary §10).
+- The card group's 90-day rate stays within 0.75 pp of the official household card series, SGS
+  21129, every month 2017–2024 (observed −0.03 to +0.69 pp): the product grouping checked against
+  an official series.
 
 ---
 
