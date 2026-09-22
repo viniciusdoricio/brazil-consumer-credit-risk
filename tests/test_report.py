@@ -95,6 +95,15 @@ def sample() -> dict:
         "slowest_change": 0.0015,
         "slowest_growth": -0.037,
         "all_rising": True,
+        "outros_balance_share": 0.255,
+        "outros_loan_share": 0.508,
+        "outros_lowest_band_share": 0.558,
+        "retiree_above_one_wage_share": 0.92,
+        "private_payroll_before_bn": 53.0,
+        "private_payroll_latest_bn": 94.0,
+        "private_payroll_d15_before": 0.0051,
+        "private_payroll_d15_latest": 0.0079,
+        **report.EXTERNAL,
     }
 
 
@@ -128,6 +137,8 @@ def test_check_passes_when_the_results_match_the_text():
         ({"fastest_with_lagged_denominator": "MEI"}, "the fastest riser is the same"),
         ({"d15_years_above_one": []}, "disagrees in exactly one year"),
         ({"dominant_components": ["product_mix"]}, "within occupation and product"),
+        ({"outros_loan_share": 0.2}, "Outros holds a larger share of loans"),
+        ({"private_payroll_d15_latest": 0.004}, "private-sector payroll loans grew"),
     ],
 )
 def test_check_names_the_claim_that_no_longer_holds(change, claim):
