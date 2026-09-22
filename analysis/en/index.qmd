@@ -18,7 +18,7 @@ crossref:
 jupyter: python3
 ---
 
-*Translated from the [Portuguese original](../index.html), which is the reference version.*
+*Translated from the [Portuguese original](../index.html), which is the reference version. [Code on GitHub](https://github.com/viniciusdoricio/brazil-consumer-credit-risk)*
 
 ```{python}
 #| include: false
@@ -109,9 +109,9 @@ For a credit risk team, the answer changes three decisions:
 
 The Banco Central's **SCR.data** publishes, every month, the credit balances of the financial
 system and the amounts in arrears, aggregated by occupation, income band, credit type, type of
-lender and state. It covers `{python} N.months` months, from `{python} N.first_month` to
-`{python} N.latest_month`; in `{python} N.latest_month`, household credit totalled
-`{python} N.portfolio`.
+lender and state, under the open ODbL licence. It covers `{python} N.months` months, from
+`{python} N.first_month` to `{python} N.latest_month`; in `{python} N.latest_month`, household
+credit totalled `{python} N.portfolio`.
 
 The analysis uses two measures, both as a share of the portfolio balance:
 
@@ -350,30 +350,16 @@ credit risk team:
   without any change in how borrowers behave. @Sec-findings points out where they overlap with the
   results, but SCR.data can't separate their effects.
 - **The Banco Central republishes its history.** The analysis uses the file versions listed, with
-  dates and hashes, in the repository's data dictionary. A later version can move the numbers
-  slightly; the September 2026 one moved household 90-day delinquency by at most
+  dates and hashes, in the repository's [data dictionary][dictionary]. A later version can move
+  the numbers slightly; the September 2026 one moved household 90-day delinquency by at most
   `{python} N.republication_shift`.
 
-# How to reproduce
-
-All the code is in the
-[viniciusdoricio/brazil-consumer-credit-risk](https://github.com/viniciusdoricio/brazil-consumer-credit-risk)
-repository. On a Mac or Linux machine with [uv](https://docs.astral.sh/uv/) and
-[Quarto](https://quarto.org):
-
-```bash
-uv sync
-make fetch     # downloads and verifies the Banco Central files (about 25 minutes)
-make build     # dbt models and data tests
-make report    # draws the charts and renders this report, in both languages
-```
-
-The data is published by the Banco Central do Brasil under the Open Database License (ODbL).
-
-[^occupation]: Banco Central, [Estudo Especial 80/2020](https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE080_Indicadores_de_endividamento_de_risco_e_perfil_do_tomador_de_credito.pdf) (SCR borrowers, December 2019); Receita Federal, via [Poder360](https://www.poder360.com.br/poder-economia/receita-federal-recebe-445-milhoes-de-declaracoes-do-ir/) (returns filed in 2026). Where occupation comes from is documented in the repository's data dictionary, section 10.4.
+[^occupation]: Banco Central, [Estudo Especial 80/2020](https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE080_Indicadores_de_endividamento_de_risco_e_perfil_do_tomador_de_credito.pdf) (SCR borrowers, December 2019); Receita Federal, via [Poder360](https://www.poder360.com.br/poder-economia/receita-federal-recebe-445-milhoes-de-declaracoes-do-ir/) (returns filed in 2026). Where occupation comes from is documented in the repository's [data dictionary][dictionary], section 10.4.
 
 [^pnad]: IBGE, [PNAD Contínua 2025](https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/45759-pnad-continua-em-2025-taxa-anual-de-desocupacao-foi-de-5-6-enquanto-taxa-de-subutilizacao-foi-14-5); [Agência Brasil](https://agenciabrasil.ebc.com.br/economia/noticia/2025-11/apenas-um-em-cada-quatro-trabalhadores-por-conta-propria-tem-cnpj) on business registration.
 
 [^desenrola]: Ministério da Fazenda, via [Agência Gov](https://agenciagov.ebc.com.br/noticias/202405/desenrola-brasil-encerra-com-beneficio-a-mais-de-15-milhoes-de-pessoas-e-reducao-da-inadimplencia-entre-a-populacao-mais-vulneravel-do-pais); Lei 14.690/2023, art. 28, and Resolution CMN 5.112/2023, via [Rádio Senado](https://www12.senado.leg.br/radio/1/noticia/2024/01/03/novo-limite-para-juros-do-cartao-de-credito-foi-fruto-de-lei-aprovada-no-congresso).
 
 [^context]: Crédito do Trabalhador: [Exame](https://exame.com/brasil/consignado-privado-cresce-mas-valor-medio-dos-emprestimos-cai-73/). Pensioners' payroll-loan cap: [Ministério da Previdência](https://www.gov.br/previdencia/pt-br/noticias/2025/janeiro/taxa-maxima-de-juros-do-consignado-sobe-para-1-80-ao-mes) and [Mix Vale](https://www.mixvale.com.br/2025/02/02/credito-consignado-do-inss-cresce-30-em-2024-e-atinge-r-103-bilhoes-com-novas-taxas/). Rio Grande do Sul: Resolutions CMN 5.132/2024 and 5.164/2024, via [Ministério da Fazenda](https://www.gov.br/fazenda/pt-br/canais_atendimento/imprensa/notas-a-imprensa/2024/maio/cmn-autoriza-prorrogacao-de-credito-rural-em-municipios-do-rio-grande-do-sul). MP 1.314/2025: [CNN Brasil](https://www.cnnbrasil.com.br/economia/governo-publica-mp-que-libera-r-12-bi-para-renegociacao-de-dividas-rurais/). Income-tax exemption, Lei 15.270/2025: [Senado Notícias](https://www12.senado.leg.br/noticias/materias/2025/11/27/sancionada-isencao-do-imposto-de-renda-para-quem-ganha-ate-r-5-mil-por-mes). Novo Desenrola: [Forbes Brasil](https://forbes.com.br/forbes-money/2026/05/governo-lanca-novo-desenrola-com-ate-r-15-bi-em-garantias-da-uniao-para-renegociacao-de-dividas/).
+
+[dictionary]: https://github.com/viniciusdoricio/brazil-consumer-credit-risk/blob/main/docs/data-dictionary.md
