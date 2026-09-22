@@ -16,7 +16,7 @@ levels as (
 base as (
     select levels.price_level as base_level
     from levels
-    where levels.month = (select max(month) from {{ ref('mart_pf_monthly') }})
+    where levels.month = (select max(month) from {{ ref('int_pf_cells') }})
 )
 
 select levels.month, levels.price_level / base.base_level as price_index
