@@ -24,6 +24,7 @@ SERIES = {
     24369: "Unemployment rate, PNAD Contínua (%)",
     1619: "Minimum wage (R$)",
     433: "IPCA, monthly change (%)",
+    21129: "90-day delinquency, households, credit cards, non-earmarked (%)",
 }
 
 Row = tuple[int, date, float]
